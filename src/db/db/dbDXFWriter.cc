@@ -117,6 +117,72 @@ DXFWriter::write (const db::Layout &layout, const db::Cell &cref, const std::set
   }
 }
 
+/**
+ *  @brief Check if there is a duplicated cell name with different capitalizations
+ *
+ *  Ref. https://github.com/KLayout/klayout/issues/320
+ *
+ *  Last modified by: Kazzz-S on August 10, 2019 (newly added)
+ */
+void 
+DXFWriter::check_cell_names (const db::Layout &layout, const std::set <db::cell_index_type> &cell_set)
+{
+  std::multimap< std::string, std::string > dicCellNames;
+
+  // populate the cell name dictionary
+  for (std::set <db::cell_index_type>::const_iterator cell = cell_set.begin (); cell != cell_set.end (); ++cell) {
+    std::string   val = std::string(layout.cell_name (*cell));
+    std::string   key(val);
+
+    std::transform(key.begin (), key.end(), key.begin (), ::toupper);
+    dicCellNames.insert (make_pair (key, val));
+  }
+
+  // check the cell name dictionary for duplication
+  std::map<std::string, size_t>  duplication;
+
+  for (std::multimap< std::string, std::string >::const_iterator mit = dicCellNames.begin (); mit != dicCellNames.end (); ++mit) {
+    std::string   cellname  = mit->first;
+    size_t        nameCount = dicCellNames.count (cellname);
+
+    if (1 < nameCount) {
+      duplication.insert(make_pair (cellname, nameCount));
+    }
+  }
+
+  // make the final judgment
+  if (duplication.size () == 0) {
+    return;
+  }
+  else {
+    std::stringstream   sstr;
+
+    for (std::map<std::string, size_t>::const_iterator mit1 = duplication.begin ();  mit1 != duplication.end (); ++mit1) {
+      std::string   cellname = mit1->first;
+      size_t        dupCount = mit1->second;
+      size_t        packed   = 0;
+      std::pair< std::multimap< std::string, std::string >::const_iterator,
+                 std::multimap< std::string, std::string >::const_iterator > eqr = dicCellNames.equal_range (cellname);
+
+      sstr << "cell(" << cellname << ") has " << "<" << dupCount << "> names as [";
+      for (std::multimap< std::string, std::string >::const_iterator mit2 = eqr.first; mit2 != eqr.second; ++mit2) {
+        sstr << mit2->second;
+        packed += 1;
+        if (packed < dupCount) {
+          sstr << ", ";
+        }
+        else {
+          sstr << "]" << std::endl;
+        }
+      }
+    }
+    QString   message = QObject::tr ("Found duplicated cell names with different capitalizations as below:\n");
+
+    message += sstr.str ().c_str ();
+    throw tl::Exception (tl::to_string (message)); 
+  }
+}
+
 void 
 DXFWriter::write (db::Layout &layout, tl::OutputStream &stream, const db::SaveLayoutOptions &options)
 {
@@ -131,6 +197,9 @@ DXFWriter::write (db::Layout &layout, tl::OutputStream &stream, const db::SaveLa
 
   std::set <db::cell_index_type> cell_set;
   options.get_cells (layout, cell_set, layers);
+
+  //  check the cell names
+  check_cell_names (layout, cell_set);
 
   //  header
   *this << 0 << endl << "SECTION" << endl;

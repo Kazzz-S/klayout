@@ -122,6 +122,7 @@ private:
     return (*this << tl::to_string(x));
   }
 
+  void check_cell_names (const db::Layout &layout, const std::set <db::cell_index_type> &cell_set);
   void write_texts (const db::Layout &layout, const db::Cell &cell, unsigned int layer, double tl_scale);
   void write_polygons (const db::Layout &layout, const db::Cell &cell, unsigned int layer, double tl_scale);
   void write_polygon (const db::Polygon &polygon, double tl_scale);
