@@ -2064,9 +2064,9 @@ Service::display_status (bool transient)
 }
 
 lay::PropertiesPage *
-Service::properties_page (QWidget *parent)
+Service::properties_page (db::Manager *manager, QWidget *parent)
 {
-  return new PropertiesPage (this, parent);
+  return new PropertiesPage (this, manager, parent);
 }
 
 void 
