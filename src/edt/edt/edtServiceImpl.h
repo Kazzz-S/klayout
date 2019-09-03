@@ -81,7 +81,7 @@ class PolygonService
 public:
   PolygonService (db::Manager *manager, lay::LayoutView *view);
   
-  virtual lay::PropertiesPage *properties_page (QWidget *parent);
+  virtual lay::PropertiesPage *properties_page (db::Manager *manager, QWidget *parent);
   virtual void do_begin_edit (const db::DPoint &p);
   virtual void do_mouse_move (const db::DPoint &p);
   virtual bool do_mouse_click (const db::DPoint &p);
@@ -110,7 +110,7 @@ class BoxService
 public:
   BoxService (db::Manager *manager, lay::LayoutView *view);
   
-  virtual lay::PropertiesPage *properties_page (QWidget *parent);
+  virtual lay::PropertiesPage *properties_page (db::Manager *manager, QWidget *parent);
   virtual void do_begin_edit (const db::DPoint &p);
   virtual void do_mouse_move (const db::DPoint &p);
   virtual bool do_mouse_click (const db::DPoint &p);
@@ -135,7 +135,7 @@ public:
   TextService (db::Manager *manager, lay::LayoutView *view);
   ~TextService ();
   
-  virtual lay::PropertiesPage *properties_page (QWidget *parent);
+  virtual lay::PropertiesPage *properties_page (db::Manager *manager, QWidget *parent);
   virtual void do_begin_edit (const db::DPoint &p);
   virtual void do_mouse_transform (const db::DPoint &p, db::DFTrans trans);
   virtual void do_mouse_move (const db::DPoint &p);
@@ -166,7 +166,7 @@ public:
   PathService (db::Manager *manager, lay::LayoutView *view);
   ~PathService ();
   
-  virtual lay::PropertiesPage *properties_page (QWidget *parent);
+  virtual lay::PropertiesPage *properties_page (db::Manager *manager, QWidget *parent);
   virtual void do_begin_edit (const db::DPoint &p);
   virtual void do_mouse_move (const db::DPoint &p);
   virtual bool do_mouse_click (const db::DPoint &p);
@@ -200,7 +200,7 @@ class InstService
 public:
   InstService (db::Manager *manager, lay::LayoutView *view);
   
-  virtual lay::PropertiesPage *properties_page (QWidget *parent);
+  virtual lay::PropertiesPage *properties_page (db::Manager *manager, QWidget *parent);
   virtual void do_begin_edit (const db::DPoint &p);
   virtual void do_mouse_move (const db::DPoint &p);
   virtual bool do_mouse_click (const db::DPoint &p);
