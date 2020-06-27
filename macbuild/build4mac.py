@@ -569,7 +569,32 @@ def RunMainBuildBash():
       # [5] Prepare "*.macQAT/" directory for the QATest.
       #     Binaries under "*.macQAT/" such as *.dylib will be touched later.
       #------------------------------------------------------------------------
-      shutil.copytree( MacBuildDir, MacBuildDirQAT )
+      print( "### Preparing <%s>" % MacBuildDirQAT )
+      os.chdir( MacBuildDir )
+      tarFile = "../macQATest.tgz"
+      tarCmdC = "tar czf %s ." % tarFile
+      if subprocess.call( tarCmdC, shell=True ) != 0:
+        print( "", file=sys.stderr )
+        print( "-------------------------------------------------------------", file=sys.stderr )
+        print( "!!! <%s>: failed to create <%s>" % (myscript, tarFile), file=sys.stderr )
+        print( "-------------------------------------------------------------", file=sys.stderr )
+        print( "", file=sys.stderr )
+        return 1
+
+      os.chdir( "../" )
+      os.mkdir( MacBuildDirQAT )
+      os.chdir( MacBuildDirQAT )
+      tarCmdX = "tar xzf %s" % tarFile
+      if subprocess.call( tarCmdX, shell=True ) != 0:
+        print( "", file=sys.stderr )
+        print( "-------------------------------------------------------------", file=sys.stderr )
+        print( "!!! <%s>: failed to unpack <%s>" % (myscript, tarFile), file=sys.stderr )
+        print( "-------------------------------------------------------------", file=sys.stderr )
+        print( "", file=sys.stderr )
+        return 1
+
+      os.remove( tarFile )
+      os.chdir( "../" )
       shutil.copy2( "macbuild/macQAT.sh", MacBuildDirQAT )
       print( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", file=sys.stderr )
       print( "### <%s>: prepared the initial *.macQAT/" % myscript, file=sys.stderr )
