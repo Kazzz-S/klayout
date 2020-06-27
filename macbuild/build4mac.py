@@ -537,13 +537,7 @@ def RunMainBuildBash():
     sys.exit(0)
 
   #-----------------------------------------------------
-  # [3] Delete "*.macQAT/" directory if any
-  #-----------------------------------------------------
-  if os.path.isdir(MacBuildDirQAT):
-    shutil.rmtree(MacBuildDirQAT)
-
-  #-----------------------------------------------------
-  # [4] Invoke the main Bash script; takes time:-)
+  # [3] Invoke the main Bash script; takes time:-)
   #-----------------------------------------------------
   if DeploymentF:
     return 0
@@ -566,10 +560,13 @@ def RunMainBuildBash():
       print( "", file=sys.stderr )
 
       #------------------------------------------------------------------------
-      # [5] Prepare "*.macQAT/" directory for the QATest.
+      # [4] Prepare "*.macQAT/" directory for the QATest.
       #     Binaries under "*.macQAT/" such as *.dylib will be touched later.
       #------------------------------------------------------------------------
       print( "### Preparing <%s>" % MacBuildDirQAT )
+      if os.path.isdir( MacBuildDirQAT ):
+        shutil.rmtree( MacBuildDirQAT )
+
       os.chdir( MacBuildDir )
       tarFile = "../macQATest.tgz"
       tarCmdC = "tar czf %s ." % tarFile
