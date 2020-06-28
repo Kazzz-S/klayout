@@ -568,8 +568,8 @@ def RunMainBuildBash():
         shutil.rmtree( MacBuildDirQAT )
 
       os.chdir( MacBuildDir )
-      tarFile = "../macQATest.tgz"
-      tarCmdC = "tar czf %s ." % tarFile
+      tarFile = "../macQATest.tar"
+      tarCmdC = "tar cf %s ." % tarFile
       if subprocess.call( tarCmdC, shell=True ) != 0:
         print( "", file=sys.stderr )
         print( "-------------------------------------------------------------", file=sys.stderr )
@@ -581,7 +581,7 @@ def RunMainBuildBash():
       os.chdir( "../" )
       os.mkdir( MacBuildDirQAT )
       os.chdir( MacBuildDirQAT )
-      tarCmdX = "tar xzf %s" % tarFile
+      tarCmdX = "tar xf %s" % tarFile
       if subprocess.call( tarCmdX, shell=True ) != 0:
         print( "", file=sys.stderr )
         print( "-------------------------------------------------------------", file=sys.stderr )
