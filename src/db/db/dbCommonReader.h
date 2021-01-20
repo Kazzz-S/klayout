@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2020 Matthias Koefferlein
+  Copyright (C) 2006-2021 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -251,6 +251,7 @@ protected:
 private:
   std::map<size_t, std::pair<std::string, db::cell_index_type> > m_id_map;
   std::map<std::string, std::pair<size_t, db::cell_index_type> > m_name_map;
+  std::set<db::cell_index_type> m_temp_cells;
   std::map<size_t, std::string> m_name_for_id;
   CellConflictResolution m_cc_resolution;
   bool m_create_layers;

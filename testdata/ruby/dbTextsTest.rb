@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 # KLayout Layout Viewer
-# Copyright (C) 2006-2020 Matthias Koefferlein
+# Copyright (C) 2006-2021 Matthias Koefferlein
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,13 @@ end
 
 load("test_prologue.rb")
 
+# normalizes a specification string for region, edges etc.
+# such that the order of the objects becomes irrelevant
+def csort(s)
+  # splits at ");(" without consuming the brackets
+  s.split(/(?<=\));(?=\()/).sort.join(";")
+end
+
 class DBTexts_TestClass < TestBase
 
   # Basics
@@ -31,7 +38,8 @@ class DBTexts_TestClass < TestBase
     r = RBA::Texts::new
     assert_equal(r.to_s, "")
     assert_equal(r.is_empty?, true)
-    assert_equal(r.size, 0)
+    assert_equal(r.count, 0)
+    assert_equal(r.hier_count, 0)
     assert_equal(r.bbox.to_s, "()")
     data_id = r.data_id
 
@@ -47,7 +55,8 @@ class DBTexts_TestClass < TestBase
     assert_equal(r.extents(5, 10).to_s, "(105,200;105,220;115,220;115,200)")
     assert_equal(r.edges.to_s, "(110,210;110,210)")
     assert_equal(r.is_empty?, false)
-    assert_equal(r.size, 1)
+    assert_equal(r.count, 1)
+    assert_equal(r.hier_count, 1)
     assert_equal(r[0].to_s, "('uvw',r0 110,210)")
     assert_equal(r[1].to_s, "")
     assert_equal(r.bbox.to_s, "(110,210;110,210)")
@@ -81,7 +90,8 @@ class DBTexts_TestClass < TestBase
 
     assert_equal(r.to_s, "")
     assert_equal(r.is_empty?, true)
-    assert_equal(r.size, 0)
+    assert_equal(r.count, 0)
+    assert_equal(r.hier_count, 0)
     assert_equal(r.bbox.to_s, "()")
 
     texts = RBA::Texts::new
@@ -103,9 +113,9 @@ class DBTexts_TestClass < TestBase
     r1.insert(RBA::Text::new("abc", RBA::Trans::new(RBA::Vector::new(101, -201))))
     r1.insert(RBA::Text::new("uvm", RBA::Trans::new(RBA::Vector::new(111, 211))))
 
-    assert_equal((r1 + r2).to_s, "('abc',r0 100,-200);('uvm',r0 110,210);('abc',r0 101,-201);('uvm',r0 111,211)")
+    assert_equal(csort((r1 + r2).to_s), csort("('abc',r0 100,-200);('uvm',r0 110,210);('abc',r0 101,-201);('uvm',r0 111,211)"))
     r1 += r2
-    assert_equal(r1.to_s, "('abc',r0 100,-200);('uvm',r0 110,210);('abc',r0 101,-201);('uvm',r0 111,211)")
+    assert_equal(csort(r1.to_s), csort("('abc',r0 100,-200);('uvm',r0 110,210);('abc',r0 101,-201);('uvm',r0 111,211)"))
 
   end
 
@@ -116,7 +126,7 @@ class DBTexts_TestClass < TestBase
     text3 = RBA::Text::new("xyz", RBA::Trans::new(RBA::Vector::new(-101, 201)))
 
     r1 = RBA::Texts::new([ text1, text2 ])
-    assert_equal(r1.to_s, "('abc',r0 100,-200);('uvm',r0 110,210)")
+    assert_equal(csort(r1.to_s), csort("('abc',r0 100,-200);('uvm',r0 110,210)"))
     assert_equal(r1.with_text("abc", false).to_s, "('abc',r0 100,-200)")
     assert_equal(r1.with_text("abc", true).to_s, "('uvm',r0 110,210)")
     assert_equal(r1.with_match("*b*", false).to_s, "('abc',r0 100,-200)")
@@ -129,7 +139,7 @@ class DBTexts_TestClass < TestBase
     s.insert(text1)
     s.insert(text2)
     r1 = RBA::Texts::new(s)
-    assert_equal(r1.to_s, "('abc',r0 100,-200);('uvm',r0 110,210)")
+    assert_equal(csort(r1.to_s), csort("('abc',r0 100,-200);('uvm',r0 110,210)"))
 
     ly = RBA::Layout::new
     l1 = ly.layer("l1")
@@ -148,7 +158,8 @@ class DBTexts_TestClass < TestBase
     assert_equal(r.to_s(30), "('abc',r0 100,-200);('abc',r0 100,-100);('abc',r0 300,-100)")
     assert_equal(r.to_s(2), "('abc',r0 100,-200);('abc',r0 100,-100)...")
     assert_equal(r.is_empty?, false)
-    assert_equal(r.size, 3)
+    assert_equal(r.count, 3)
+    assert_equal(r.hier_count, 3)
 
     assert_equal(r.has_valid_texts?, false)
     assert_equal(r.bbox.to_s, "(100,-200;300,-100)")
@@ -166,7 +177,8 @@ class DBTexts_TestClass < TestBase
     assert_equal(r.to_s(30), "('abc',r0 100,-200);('abc',r0 100,-100);('abc',r0 300,-100)")
     assert_equal(r.to_s(2), "('abc',r0 100,-200);('abc',r0 100,-100)...")
     assert_equal(r.is_empty?, false)
-    assert_equal(r.size, 3)
+    assert_equal(r.count, 3)
+    assert_equal(r.hier_count, 1)
 
     assert_equal(r.has_valid_texts?, false)
     assert_equal(r.bbox.to_s, "(100,-200;300,-100)")

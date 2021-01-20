@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2020 Matthias Koefferlein
+  Copyright (C) 2006-2021 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -513,6 +513,8 @@ template<class C> DB_PUBLIC bool _test_extractor_impl (tl::Extractor &ex, db::po
   std::vector <point_type> points;
 
   if (ex.test ("(")) {
+
+    p.clear ();
 
     point_type pt;
     while (ex.try_read (pt)) {

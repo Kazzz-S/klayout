@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2020 Matthias Koefferlein
+  Copyright (C) 2006-2021 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -262,6 +262,11 @@ TEST(2_5)
 TEST(2_6)
 {
   run_test (_this, "2.6");
+}
+
+TEST(2_7)
+{
+  run_test (_this, "2.7");
 }
 
 TEST(3_1)

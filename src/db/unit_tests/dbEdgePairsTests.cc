@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2020 Matthias Koefferlein
+  Copyright (C) 2006-2021 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include "dbEdgePairs.h"
 #include "dbEdges.h"
 #include "dbRegion.h"
+#include "dbTestSupport.h"
 
 TEST(1) 
 {
@@ -37,13 +38,15 @@ TEST(1)
   EXPECT_EQ (ep != db::EdgePairs (), false);
   ep.insert (db::Edge (db::Point (10, 20), db::Point (110, 120)), db::Edge (db::Point (-10, -20), db::Point (90, 80)));
   EXPECT_EQ (ep.empty (), false);
-  EXPECT_EQ (ep.size (), size_t (1));
+  EXPECT_EQ (ep.count (), size_t (1));
+  EXPECT_EQ (ep.hier_count (), size_t (1));
   EXPECT_EQ (ep.bbox ().to_string (), "(-10,-20;110,120)");
   EXPECT_EQ (ep.to_string (), "(10,20;110,120)/(-10,-20;90,80)");
 
   ep.clear ();
   EXPECT_EQ (ep.empty (), true);
-  EXPECT_EQ (ep.size (), size_t (0));
+  EXPECT_EQ (ep.count (), size_t (0));
+  EXPECT_EQ (ep.hier_count (), size_t (0));
   EXPECT_EQ (ep.bbox ().to_string (), "()");
   ep.insert (db::EdgePair (db::Edge (db::Point (10, 20), db::Point (110, 120)), db::Edge (db::Point (-10, -20), db::Point (90, 80))));
   EXPECT_EQ (ep == db::EdgePairs (), false);
@@ -65,14 +68,17 @@ TEST(1)
 
   db::EdgePairs ep2;
   EXPECT_EQ (ep2.empty (), true);
-  EXPECT_EQ (ep2.size (), size_t (0));
+  EXPECT_EQ (ep2.count (), size_t (0));
+  EXPECT_EQ (ep2.hier_count (), size_t (0));
   EXPECT_EQ (ep2.bbox ().to_string (), "()");
   ep2.swap (ep);
   EXPECT_EQ (ep.empty (), true);
-  EXPECT_EQ (ep.size (), size_t (0));
+  EXPECT_EQ (ep.count (), size_t (0));
+  EXPECT_EQ (ep.hier_count (), size_t (0));
   EXPECT_EQ (ep.bbox ().to_string (), "()");
   EXPECT_EQ (ep2.empty (), false);
-  EXPECT_EQ (ep2.size (), size_t (1));
+  EXPECT_EQ (ep2.count (), size_t (1));
+  EXPECT_EQ (ep2.hier_count (), size_t (1));
   EXPECT_EQ (ep2.bbox ().to_string (), "(-20,-110;120,10)");
 }
 
@@ -82,27 +88,27 @@ TEST(2)
   ep.insert (db::EdgePair (db::Edge (db::Point (10, 20), db::Point (110, 120)), db::Edge (db::Point (-10, -20), db::Point (90, 80))));
   ep.insert (db::EdgePair (db::Edge (db::Point (10, 20), db::Point (110, 120)), db::Edge (db::Point (90, 80), db::Point (-10, -20))));
 
-  EXPECT_EQ (ep.to_string (), "(10,20;110,120)/(-10,-20;90,80);(10,20;110,120)/(90,80;-10,-20)");
+  EXPECT_EQ (db::compare (ep, "(10,20;110,120)/(-10,-20;90,80);(10,20;110,120)/(90,80;-10,-20)"), true);
 
   db::EdgePairs ee;
   std::string s = ep.to_string ();
   tl::Extractor ex (s.c_str ());
   EXPECT_EQ (ex.try_read (ee), true);
-  EXPECT_EQ (ee.to_string (), "(10,20;110,120)/(-10,-20;90,80);(10,20;110,120)/(90,80;-10,-20)");
+  EXPECT_EQ (db::compare (ee, "(10,20;110,120)/(-10,-20;90,80);(10,20;110,120)/(90,80;-10,-20)"), true);
 
   db::Edges e;
   ep.edges (e);
-  EXPECT_EQ (e.to_string (), "(10,20;110,120);(-10,-20;90,80);(10,20;110,120);(90,80;-10,-20)");
+  EXPECT_EQ (db::compare (e, "(10,20;110,120);(-10,-20;90,80);(10,20;110,120);(90,80;-10,-20)"), true);
   e.clear ();
   ep.first_edges (e);
-  EXPECT_EQ (e.to_string (), "(10,20;110,120);(10,20;110,120)");
+  EXPECT_EQ (db::compare (e, "(10,20;110,120);(10,20;110,120)"), true);
   e.clear ();
   ep.second_edges (e);
-  EXPECT_EQ (e.to_string (), "(-10,-20;90,80);(90,80;-10,-20)");
+  EXPECT_EQ (db::compare (e, "(-10,-20;90,80);(90,80;-10,-20)"), true);
 
   db::Region r;
   ep.polygons (r);
-  EXPECT_EQ (r.to_string (), "(-10,-20;10,20;110,120;90,80);(-10,-20;10,20;110,120;90,80)");
+  EXPECT_EQ (db::compare (r, "(-10,-20;10,20;110,120;90,80);(-10,-20;10,20;110,120;90,80)"), true);
 }
 
 struct EPTestFilter
@@ -116,6 +122,11 @@ struct EPTestFilter
   const db::TransformationReducer *vars () const
   {
     return &m_vars;
+  }
+
+  bool wants_variants () const
+  {
+    return false;
   }
 
 private:
@@ -147,5 +158,5 @@ TEST(4)
   ep.insert_into_as_polygons (&ly, top_cell, l1, 1);
 
   db::Region r (db::RecursiveShapeIterator (ly, ly.cell (top_cell), l1));
-  EXPECT_EQ (r.to_string (), "(-10,-21;9,20;50,51;91,80);(-10,-21;9,20;110,121;91,80)");
+  EXPECT_EQ (db::compare (r, "(-10,-21;9,20;50,51;91,80);(-10,-21;9,20;110,121;91,80)"), true);
 }

@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2020 Matthias Koefferlein
+  Copyright (C) 2006-2021 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -756,6 +756,7 @@ D25ViewWidget::do_initialize_gl ()
       "uniform vec4 ambient;\n"
       "uniform vec3 illum;\n"
       "out lowp vec4 vertexColor;\n"
+      //"in vec3 gl_in;\n"
       "uniform mat4 matrix;\n"
       "layout (triangles) in;\n"
       "layout (triangle_strip, max_vertices = 3) out;\n"
