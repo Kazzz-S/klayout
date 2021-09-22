@@ -39,22 +39,25 @@ def Get_Default_Config():
     Usage += "$ [python] ./build4mac.py \n"
     Usage += "   option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)| default value\n"
     Usage += "   --------------------------------------------------------------------------------------+---------------\n"
-    Usage += "   [-q|--qt <type>]     : case-insensitive type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3']    | qt5macports \n"
+    Usage += "   [-q|--qt <type>]     : case-insensitive type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3',    | qt5macports \n"
+    Usage += "                        :                        'Qt6Brew']                              | \n"
     Usage += "                        :   Qt5MacPorts: use Qt5 from MacPorts                           | \n"
     Usage += "                        :       Qt5Brew: use Qt5 from Homebrew                           | \n"
     Usage += "                        :       Qt5Ana3: use Qt5 from Anaconda3                          | \n"
+    Usage += "                        :       Qt6Brew: use Qt6 from Homebrew (experimental)            | \n"
     Usage += "   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP27', 'HB27', 'Ana3']   | sys \n"
     Usage += "                        :    nil: don't bind Ruby                                        | \n"
     Usage += "                        :    Sys: use OS-bundled Ruby [2.0 - 2.7] depending on OS        | \n"
     Usage += "                        :   MP27: use Ruby 2.7 from MacPorts                             | \n"
     Usage += "                        :   HB27: use Ruby 2.7 from Homebrew                             | \n"
     Usage += "                        :   Ana3: use Ruby 2.5 from Anaconda3                            | \n"
-    Usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'Sys', 'MP38', 'HB38', 'Ana3',   | sys \n"
-    Usage += "                        :                        'HBAuto']                               | \n"
+    Usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'Sys', 'MP38', 'HB38', 'HB39',   | sys \n"
+    Usage += "                        :                        'Ana3','HBAuto']                        | \n"
     Usage += "                        :    nil: don't bind Python                                      | \n"
     Usage += "                        :    Sys: use OS-bundled Python 2.7 [ElCapitan -- BigSur]        | \n"
     Usage += "                        :   MP38: use Python 3.8 from MacPorts                           | \n"
     Usage += "                        :   HB38: use Python 3.8 from Homebrew                           | \n"
+    Usage += "                        :   HB39: use Python 3.9 from Homebrew                           | \n"
     Usage += "                        :   Ana3: use Python 3.8 from Anaconda3                          | \n"
     Usage += "                        : HBAuto: use the latest Python 3.x auto-detected from Homebrew  | \n"
     Usage += "   [-n|--noqtbinding]   : don't create Qt bindings for ruby scripts                      | disabled \n"
@@ -219,7 +222,7 @@ def Parse_CLI_Args(config):
     p = optparse.OptionParser(usage=Usage)
     p.add_option( '-q', '--qt',
                     dest='type_qt',
-                    help="Qt type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3']" )
+                    help="Qt type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3', 'Qt6Brew']" )
 
     p.add_option( '-r', '--ruby',
                     dest='type_ruby',
@@ -227,7 +230,7 @@ def Parse_CLI_Args(config):
 
     p.add_option( '-p', '--python',
                     dest='type_python',
-                    help="Python type=['nil', 'Sys', 'MP38', 'HB38', 'Ana3', 'HBAuto']" )
+                    help="Python type=['nil', 'Sys', 'MP38', 'HB38', 'HB39', 'Ana3', 'HBAuto']" )
 
     p.add_option( '-n', '--noqtbinding',
                     action='store_true',
@@ -302,6 +305,7 @@ def Parse_CLI_Args(config):
     candidates['QT5MACPORTS'] = 'Qt5MacPorts'
     candidates['QT5BREW']     = 'Qt5Brew'
     candidates['QT5ANA3']     = 'Qt5Ana3'
+    candidates['QT6BREW']     = 'Qt6Brew'
     try:
         ModuleQt = candidates[ opt.type_qt.upper() ]
     except KeyError:
@@ -314,11 +318,13 @@ def Parse_CLI_Args(config):
         print(Usage)
         sys.exit(1)
     elif ModuleQt == "Qt5MacPorts":
-        choiceQt5 = 'qt5MP'
+        choiceQt56 = 'qt5MP'
     elif ModuleQt == "Qt5Brew":
-        choiceQt5 = 'qt5Brew'
+        choiceQt56 = 'qt5Brew'
     elif ModuleQt == "Qt5Ana3":
-        choiceQt5 = 'qt5Ana3'
+        choiceQt56 = 'qt5Ana3'
+    elif ModuleQt == "Qt6Brew":
+        choiceQt56 = 'qt6Brew'
 
     # By default, OS-standard (-bundled) script languages (Ruby and Python) are used
     NonOSStdLang = False
@@ -375,6 +381,7 @@ def Parse_CLI_Args(config):
     candidates['SYS']    = 'Sys'
     candidates['MP38']   = 'MP38'
     candidates['HB38']   = 'HB38'
+    candidates['HB39']   = 'HB39'
     candidates['ANA3']   = 'Ana3'
     candidates['HBAUTO'] = 'HBAuto'
     try:
@@ -405,6 +412,9 @@ def Parse_CLI_Args(config):
         elif choicePython == "HB38":
             ModulePython = 'Python38Brew'
             NonOSStdLang = True
+        elif choicePython == "HB39":
+            ModulePython = 'Python39Brew'
+            NonOSStdLang = True
         elif choicePython == "Ana3":
             ModulePython = 'PythonAnaconda3'
             NonOSStdLang = True
@@ -419,7 +429,7 @@ def Parse_CLI_Args(config):
         sys.exit(1)
 
     # (D) Set of modules chosen
-    ModuleSet = ( choiceQt5, choiceRuby, choicePython )
+    ModuleSet = ( choiceQt56, choiceRuby, choicePython )
 
     NoQtBindings = opt.no_qt_binding
     NoQtUiTools  = opt.no_qt_uitools
@@ -457,9 +467,9 @@ def Parse_CLI_Args(config):
             if (ModuleRuby in RubySys) and (ModulePython in PythonSys):
                 PackagePrefix = "ST-"
                 message      += "a standard (ST-) package including Qt5 and using OS-bundled Ruby and Python..."
-            elif ModulePython == 'Python38Brew' or ModulePython == 'PythonAutoBrew':
+            elif ModulePython in ['Python38Brew', 'Python39Brew', 'PythonAutoBrew']:
                 PackagePrefix = "HW-"
-                message      += "a heavyweight (HW-) package including Qt5 and Python3.8~ from Homebrew..."
+                message      += "a heavyweight (HW-) package including Qt[5|6] and Python3.8~ from Homebrew..."
             else:
                 PackagePrefix = "EX-"
                 message      += "a package with exceptional (EX-) combinations of different modules..."
@@ -543,7 +553,7 @@ def Get_Build_Parameters(config):
     MacBuildDirQAT        = MacBuildDir + ".macQAT"
     parameters['logfile'] = MacBuildLog
 
-    # (D) Qt5
+    # (D) Qt5|6
     if ModuleQt == 'Qt5MacPorts':
         parameters['qmake']       = Qt5MacPorts['qmake']
         parameters['deploy_tool'] = Qt5MacPorts['deploy']
@@ -553,6 +563,9 @@ def Get_Build_Parameters(config):
     elif ModuleQt == 'Qt5Ana3':
         parameters['qmake']       = Qt5Ana3['qmake']
         parameters['deploy_tool'] = Qt5Ana3['deploy']
+    elif ModuleQt == 'Qt6Brew':
+        parameters['qmake']       = Qt6Brew['qmake']
+        parameters['deploy_tool'] = Qt6Brew['deploy']
 
     parameters['bin']   = MacBinDir
     parameters['build'] = MacBuildDir
@@ -616,8 +629,8 @@ def Run_Build_Command(parameters):
     # (C) Target directories and files
     MacBuildDirQAT = parameters['build'] + ".macQAT"
 
-    # (D) Qt5
-    cmd_args += " \\\n  -qt5"
+    # (D) Qt[5|6]
+    cmd_args += " \\\n  -qt5"   # -qt6 is not yet supported as of 2021-09-22
     cmd_args += " \\\n  -qmake %s" % parameters['qmake']
     cmd_args += " \\\n  -bin   %s" % parameters['bin']
     cmd_args += " \\\n  -build %s" % parameters['build']
