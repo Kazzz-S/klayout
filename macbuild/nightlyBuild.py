@@ -17,14 +17,16 @@ import subprocess
 #
 # @return matching platform name on success; "" on failure
 #------------------------------------------------------------------------------
-def Test_My_Platform( platforms=['Catalina', 'BigSur'] ):
+def Test_My_Platform( platforms=['Catalina', 'BigSur', 'Monterey' ] ):
     (System, Node, Release, MacVersion, Machine, Processor) = platform.uname()
 
     if not System == "Darwin":
         return ""
 
     release = int( Release.split(".")[0] ) # take the first of ['19', '0', '0']
-    if   release == 20:
+    if   release == 21:
+        Platform = "Monterey"
+    elif release == 20:
         Platform = "BigSur"
     elif release == 19:
         Platform = "Catalina"
@@ -174,9 +176,9 @@ def Parse_CommandLine_Arguments():
     global Dropbox   # Dropbox directory
 
     Usage  = "\n"
-    Usage += "--------------------------------------------------------------------------------------------\n"
+    Usage += "--------------------------------------------------------------------------------------------------\n"
     Usage += " nightlyBuild.py [EXPERIMENTAL] \n"
-    Usage += "   << To execute the jobs for making KLayout's DMGs for macOS Catalina or Big Sur >> \n"
+    Usage += "   << To execute the jobs for making KLayout's DMGs for macOS Catalina, Big Sur, or Monterey >>\n"
     Usage += "\n"
     Usage += "$ [python] nightlyBuild.py \n"
     Usage += "   option & argument : comment on option if any                            | default value\n"
@@ -199,9 +201,9 @@ def Parse_CommandLine_Arguments():
     Usage += "          (3) $ ./nightlyBuild.py  --test                                  | \n"
     Usage += "          (4) $ ./nightlyBuild.py  --check (confirm the QA Test results)   | \n"
     Usage += "          (5) $ ./nightlyBuild.py  --makedmg  1                            | \n"
-    Usage += "          (6) $ ./nightlyBuild.py  --upload  '0.26.12'                     | \n"
+    Usage += "          (6) $ ./nightlyBuild.py  --upload  '0.27.4'                      | \n"
     Usage += "          (7) $ ./nightlyBuild.py  --cleandmg 1                            | \n"
-    Usage += "---------------------------------------------------------------------------+----------------\n"
+    Usage += "---------------------------------------------------------------------------+----------------------\n"
 
     p = optparse.OptionParser( usage=Usage )
     p.add_option( '--target',
@@ -258,9 +260,9 @@ def Parse_CommandLine_Arguments():
         print(Usage)
         quit()
 
-    myPlatform = Test_My_Platform( ['Catalina', 'BigSur'] )
+    myPlatform = Test_My_Platform( ['Catalina', 'BigSur', 'Monterey' ] )
     if myPlatform == "":
-        print( "! Current platform is not ['Catalina', 'BigSur']" )
+        print( "! Current platform is not ['Catalina', 'BigSur', 'Monterey' ]" )
         print(Usage)
         quit()
 

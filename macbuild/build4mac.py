@@ -34,7 +34,7 @@ def Get_Default_Config():
     Usage  = "\n"
     Usage += "---------------------------------------------------------------------------------------------------------\n"
     Usage += "<< Usage of 'build4mac.py' >>\n"
-    Usage += "       for building KLayout 0.26.12 or later on different Apple Mac OSX / macOS platforms.\n"
+    Usage += "       for building KLayout 0.26.12 or later on different Apple macOS / Mac OSX platforms.\n"
     Usage += "\n"
     Usage += "$ [python] ./build4mac.py \n"
     Usage += "   option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)| default value\n"
@@ -45,14 +45,14 @@ def Get_Default_Config():
     Usage += "                        :       Qt5Ana3: use Qt5 from Anaconda3                          | \n"
     Usage += "   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP27', 'HB27', 'Ana3']   | sys \n"
     Usage += "                        :    nil: don't bind Ruby                                        | \n"
-    Usage += "                        :    Sys: use OS-bundled Ruby [2.0 - 2.7] depending on OS        | \n"
+    Usage += "                        :    Sys: use OS-bundled Ruby [2.0 - 2.6] depending on OS        | \n"
     Usage += "                        :   MP27: use Ruby 2.7 from MacPorts                             | \n"
     Usage += "                        :   HB27: use Ruby 2.7 from Homebrew                             | \n"
     Usage += "                        :   Ana3: use Ruby 2.5 from Anaconda3                            | \n"
     Usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'Sys', 'MP38', 'HB38', 'Ana3',   | sys \n"
     Usage += "                        :                        'HBAuto']                               | \n"
     Usage += "                        :    nil: don't bind Python                                      | \n"
-    Usage += "                        :    Sys: use OS-bundled Python 2.7 [ElCapitan -- BigSur]        | \n"
+    Usage += "                        :    Sys: use OS-bundled Python 2.7 [ElCapitan -- Monterey]      | \n"
     Usage += "                        :   MP38: use Python 3.8 from MacPorts                           | \n"
     Usage += "                        :   HB38: use Python 3.8 from Homebrew                           | \n"
     Usage += "                        :   Ana3: use Python 3.8 from Anaconda3                          | \n"
@@ -87,7 +87,9 @@ def Get_Default_Config():
         sys.exit(1)
 
     release = int( Release.split(".")[0] ) # take the first of ['19', '0', '0']
-    if   release == 20:
+    if   release == 21:
+        Platform = "Monterey"
+    elif release == 20:
         Platform = "BigSur"
     elif release == 19:
         Platform = "Catalina"
@@ -107,7 +109,7 @@ def Get_Default_Config():
         sys.exit(1)
 
     if not Machine == "x86_64":
-        if Machine == "arm64" and Platform == "BigSur": # with an Apple Silicon Chip
+        if Machine == "arm64" and (Platform == "Monterey" or Platform == "BigSur"): # with an Apple Silicon Chip
             print("")
             print( "### Your Mac equips an Apple Silicon Chip ###" )
             print("")
@@ -119,7 +121,10 @@ def Get_Default_Config():
 
     # Set the default modules
     ModuleQt = "Qt5MacPorts"
-    if   Platform == "BigSur":
+    if   Platform == "Monterey":
+        ModuleRuby   = "RubyMonterey"
+        ModulePython = "PythonMonterey"
+    elif Platform == "BigSur":
         ModuleRuby   = "RubyBigSur"
         ModulePython = "PythonBigSur"
     elif Platform == "Catalina":
@@ -341,7 +346,9 @@ def Parse_CLI_Args(config):
             ModuleRuby = 'nil'
         elif choiceRuby == "Sys":
             choiceRuby = "Sys"
-            if Platform == "BigSur":
+            if Platform == "Monterey":
+                ModuleRuby = 'RubyMonterey'
+            elif Platform == "BigSur":
                 ModuleRuby = 'RubyBigSur'
             elif Platform == "Catalina":
                 ModuleRuby = 'RubyCatalina'
@@ -387,7 +394,9 @@ def Parse_CLI_Args(config):
         if choicePython ==  "nil":
             ModulePython = 'nil'
         elif choicePython == "Sys":
-            if Platform == "BigSur":
+            if Platform == "Monterey":
+                ModulePython = 'PythonMonterey'
+            elif Platform == "BigSur":
                 ModulePython = 'PythonBigSur'
             elif Platform == "Catalina":
                 ModulePython = 'PythonCatalina'
@@ -1098,7 +1107,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
             cmd06 = "rm -rf %s" % binTarget
 
             cmd07 = "mkdir %s" % sitepackagesTarget
-            cmd08 = "cp -RL %s/{pip*,pkg_resources,setuptools*,wheel*} %s" % (sitepackagesSource, sitepackagesTarget)
+            cmd08 = "cp -RL %s/{*distutils*,pip*,pkg_resources,setuptools*,wheel*} %s" % (sitepackagesSource, sitepackagesTarget)
 
             shell_commands = list()
             shell_commands.append(cmd01)
