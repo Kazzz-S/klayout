@@ -897,27 +897,55 @@ def Build_pymod(parameters):
                                'Python39MacPorts', 'Python39Brew', 'PythonAutoBrew' ]:
         return 0
 
-    #--------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # [2] Get the new directory names (dictionary) for "dist" and
-    #     set the CPATH environment variable for including <png.h>
-    #     required to build the pymod of 0.28 or later
-    #--------------------------------------------------------------------
+    #     set the "PATH" environment variable to use "libpng-config" command.
+    #
+    #     Earlier, "CPATH" and "LDFLAGS" environment variables to link "libpng"
+    #     were explicitly set in this script.
+    #     With this <https://github.com/KLayout/klayout/pull/1288> change,
+    #     the "setup.py" script internally determines them with the help of
+    #     "libpng-config" command. Hence, the command must be found in ${PATH}.
+    #
+    #     <MacPorts>
+    #         MacBookPro2{kazzz-s} klayout (1)% which python3
+    #         /opt/local/bin/python3
+    #         MacBookPro2{kazzz-s} klayout (2)% which libpng-config
+    #         /opt/local/bin/libpng-config
+    #
+    #     <Homebrew:x86_64>
+    #         MacBookPro2{kazzz-s} klayout (1)% which python3
+    #         /usr/local/opt/python@3.9/bin/python3
+    #         MacBookPro2{kazzz-s} klayout (2)% which libpng-config
+    #         /usr/local/bin/libpng-config
+    #
+    #     <Anaconda3>
+    #         (base) MacBookPro2{kazzz-s} klayout (1)% which python3
+    #         /Applications/anaconda3/bin/python3
+    #         (base) MacBookPro2{kazzz-s} klayout (2)% which libpng-config
+    #         /Applications/anaconda3/bin/libpng-config
+    #---------------------------------------------------------------------------
     PymodDistDir = parameters['pymod_dist']
     # Using MacPorts
     if PymodDistDir[ModulePython] == 'dist-MP3':
         addIncPath = "/opt/local/include"
         addLibPath = "/opt/local/lib"
+        addPath    = "/opt/local/bin"
     # Using Homebrew
     elif PymodDistDir[ModulePython] == 'dist-HB3':
         addIncPath = "%s/include" % DefaultHomebrewRoot  # defined in "build4mac_env.py"
         addLibPath = "%s/lib"     % DefaultHomebrewRoot  # defined in "build4mac_env.py"
+        addPath    = "%s/bin"     % DefaultHomebrewRoot  # defined in "build4mac_env.py"
     elif  PymodDistDir[ModulePython] == 'dist-ana3':
         addIncPath = "/Applications/anaconda3/include"
         addLibPath = "/Applications/anaconda3/lib"
+        addPath    = "/Applications/anaconda3/bin"
     else:
         addIncPath = ""
         addLibPath = ""
+        addPath    = ""
 
+    """ OBSOLETE
     if not addIncPath == "":
         try:
             cpath = os.environ['CPATH']
@@ -933,6 +961,15 @@ def Build_pymod(parameters):
             os.environ['LDFLAGS'] = '-L%s' % addLibPath
         else:
             os.environ['LDFLAGS'] = '-L%s %s' % (addLibPath, ldpath)
+    """
+
+    if not addPath == "":
+        try:
+            path = os.environ['PATH']
+        except KeyError:
+            os.environ['PATH'] = addPath
+        else:
+            os.environ['PATH'] = "%s:%s" % (addPath, path)
 
     #--------------------------------------------------------------------
     # [3] Set different command line parameters for building <pymod>
