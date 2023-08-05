@@ -432,7 +432,7 @@ ShapeFinder::find_internal (lay::LayoutViewBase *view, unsigned int cv_index, co
 
   try {
 
-    if ((m_flags & db::ShapeIterator::Texts) != 0 && mp_text_info) {
+    if ((m_flags & db::ShapeIterator::Texts) != 0 && mp_text_info && ! mp_text_info->point_mode ()) {
 
       m_flags = db::ShapeIterator::Texts;
 
@@ -606,7 +606,7 @@ ShapeFinder::visit_cell (const db::Cell &cell, const db::Box &hit_box, const db:
               match = true;
             }
 
-          } else if (shape->is_box () || shape->is_text ()) {
+          } else if (shape->is_box () || shape->is_point () || shape->is_text ()) {
 
             db::Box box = shape->bbox ();
             if (text_info () && shape->is_text ()) {

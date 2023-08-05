@@ -345,6 +345,7 @@ LayoutViewBase::init (db::Manager *mgr)
   m_show_properties = false;
   m_apply_text_trans = true;
   m_default_text_size = 0.1;
+  m_text_point_mode = false;
   m_text_font = 0;
   m_show_markers = true;
   m_no_stipples = false;
@@ -982,6 +983,13 @@ LayoutViewBase::configure (const std::string &name, const std::string &value)
     double sz;
     tl::from_string (value, sz);
     default_text_size (sz);
+    return true;
+
+  } else if (name == cfg_text_point_mode) {
+
+    bool flag;
+    tl::from_string (value, flag);
+    text_point_mode (flag);
     return true;
 
   } else if (name == cfg_text_font) {
@@ -5174,7 +5182,16 @@ LayoutViewBase::default_text_size (double fs)
   }
 }
 
-void 
+void
+LayoutViewBase::text_point_mode (bool pm)
+{
+  if (m_text_point_mode != pm) {
+    m_text_point_mode = pm;
+    redraw ();
+  }
+}
+
+void
 LayoutViewBase::clear_ruler_new_cell (bool f)
 {
   m_clear_ruler_new_cell = f;
@@ -5297,11 +5314,7 @@ LayoutViewBase::paste_interactive ()
 
   std::unique_ptr<db::Transaction> trans (new db::Transaction (manager (), tl::to_string (tr ("Paste and move"))));
 
-  {
-    //  let the receivers sort out who is pasting what ..
-    do_paste ();
-    lay::Editables::paste ();
-  }
+  lay::Editables::paste ();
 
   //  temporarily close the transaction and pass to the move service for appending it's own
   //  operations.
@@ -5314,6 +5327,12 @@ LayoutViewBase::paste_interactive ()
 
 void
 LayoutViewBase::copy ()
+{
+  copy_view_objects ();
+}
+
+void
+LayoutViewBase::copy_view_objects ()
 {
   cancel_edits ();
   if (! lay::Editables::has_selection ()) {
