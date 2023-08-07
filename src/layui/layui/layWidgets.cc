@@ -1090,7 +1090,7 @@ MarginWidget::MarginWidget (QWidget *parent, const char *name)
   setFrameStyle (QFrame::NoFrame);
 
   QHBoxLayout *layout = new QHBoxLayout (this);
-  layout->setMargin (0);
+  layout->setContentsMargins (0, 0, 0, 0);
 
   QLineEdit *le = new QLineEdit (this);
   mp_abs_edit = le;
@@ -1299,6 +1299,8 @@ void DecoratedLineEdit::mouseReleaseEvent (QMouseEvent *event)
     }
 
   }
+
+  QLineEdit::mouseReleaseEvent (event);
 }
 
 void DecoratedLineEdit::mousePressEvent (QMouseEvent *event)
@@ -1317,9 +1319,11 @@ void DecoratedLineEdit::mousePressEvent (QMouseEvent *event)
     }
 
   }
+
+  QLineEdit::mousePressEvent (event);
 }
 
-void DecoratedLineEdit::resizeEvent (QResizeEvent * /*event*/)
+void DecoratedLineEdit::resizeEvent (QResizeEvent *event)
 {
   int fw = hasFrame () ? le_frame_width : 0;
 
@@ -1334,6 +1338,8 @@ void DecoratedLineEdit::resizeEvent (QResizeEvent * /*event*/)
     QRect r = geometry ();
     mp_options_label->setGeometry (fw, 0, label_size.width (), r.height ());
   }
+
+  QLineEdit::resizeEvent (event);
 }
 
 // -------------------------------------------------------------
