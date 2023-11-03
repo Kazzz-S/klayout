@@ -202,6 +202,10 @@ void custom_message_handler(QtMsgType type, const char *msg)
 
 static int klayout_main_cont (int &argc, char **argv);
 
+#if defined(__APPLE__)
+  int getsetMacLANG(void);
+#endif
+
 /**
  *  @brief The basic entry point
  *  Note that by definition, klayout_main receives arguments in UTF-8
@@ -209,6 +213,14 @@ static int klayout_main_cont (int &argc, char **argv);
 int
 klayout_main (int &argc, char **argv)
 {
+#if defined(__APPLE__)
+  // detect and set the LANG environment variable on the Mac
+  int retA = getsetMacLANG();
+  if (! retA == 0) {
+      return retA;
+  }
+#endif
+
   //  install the version strings
   lay::Version::set_exe_name (prg_exe_name);
   lay::Version::set_name (prg_name);

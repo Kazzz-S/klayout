@@ -15,6 +15,13 @@ FORMS = \
 SOURCES = \
   klayout.cc \
 
+# Detect and set the user's language preference on the Mac
+mac {
+  SOURCES += macUserPreferredLanguage.mm \
+             macLangSettings.cc
+  QMAKE_CXXFLAGS_LANG = -x objective-c++
+}
+
 RESOURCES = \
 
 win32 {
@@ -73,4 +80,9 @@ equals(HAVE_QTBINDINGS, "1") {
 
   }
 
+}
+
+# Detect and set the user's language preference on the Mac
+mac {
+  LIBS += -framework Foundation
 }
