@@ -35,6 +35,7 @@ AutoReqProv: 	no
 %if "%{target_system}" == "centos8"
 Requires:	ruby >= 2.5.5
 Requires:	python3 >= 3.6.0
+Requires: libgit2 >= 0.26.8
 Requires: qt5-qtbase >= 5.11.1
 Requires: qt5-qtmultimedia >= 5.11.1
 Requires: qt5-qtxmlpatterns >= 5.11.1
@@ -86,7 +87,7 @@ Requires: libqt4-x11 >= 4.8.6
 # OpenSuSE Leap 15 requirements
 Requires:	ruby >= 2.5
 Requires:	python3 >= 3.6
-Requires:	libgit2 >= 1.3.0
+Requires:	libgit2-1_3 >= 1.3.0
 Requires: libqt5-qtbase >= 5.15.2
 Requires: libQt5PrintSupport5 >= 5.15.2
 Requires: libQt5Designer5 >= 5.15.2
