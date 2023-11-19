@@ -123,14 +123,22 @@ public:
 
   void register_gsi (const char *name)
   {
+    m_name = name;
+
+    //  do not register an interpreter again (this is important as registration code
+    //  may be executed again and we do not want to have two interpreters for the same thing)
+    for (tl::Registrar<lym::MacroInterpreter>::iterator cls = tl::Registrar<lym::MacroInterpreter>::begin (); cls != tl::Registrar<lym::MacroInterpreter>::end (); ++cls) {
+      if (cls.current_name () == m_name) {
+        return;
+      }
+    }
+
     //  makes the object owned by the C++ side
     keep ();
 
     //  cancel any previous registration and register (again)
     delete mp_registration;
     mp_registration = new tl::RegisteredClass<lym::MacroInterpreter> (this, 0 /*position*/, name, false /*does not own object*/);
-
-    m_name = name;
   }
 
   virtual tl::Executable *executable (const lym::Macro *macro) const
@@ -204,7 +212,7 @@ public:
 
   lym::Macro *create_template (const std::string &url)
   {
-    if (! mp_registration) {
+    if (m_name.empty ()) {
       throw std::runtime_error (tl::to_string (tr ("MacroInterpreter::create_template must be called after register")));
     }
 
@@ -220,6 +228,16 @@ public:
     m->set_interpreter (lym::Macro::DSLInterpreter);
     m->set_format (storage_scheme ());
 
+    //  avoid registering the same template twice
+    for (auto t = m_templates.begin (); t != m_templates.end (); ++t) {
+      if ((*t)->path () == m->path ()) {
+        delete *t;
+        *t = m;
+        return m;
+      }
+    }
+
+    //  not present yet - install at end
     m_templates.push_back (m);
     return m;
   }
