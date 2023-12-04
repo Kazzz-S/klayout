@@ -314,6 +314,22 @@ GitObject::read (const std::string &org_url, const std::string &org_filter, cons
   fetch_opts.callbacks.credentials = &credentials_cb;
   fetch_opts.callbacks.payload = (void *) &progress;
 
+  // An easy way to pass through a proxy
+  const char *proxy_url = getenv("http_proxy"); // lower case
+  const char *proxy_URL = getenv("HTTP_PROXY"); // upper case
+  // e.g. "http://111.222.333.444:5678"
+  if (proxy_url != NULL) {
+      git_proxy_options proxy_opts = GIT_PROXY_OPTIONS_INIT;
+      proxy_opts.type = GIT_PROXY_AUTO;
+      proxy_opts.url = proxy_url;
+      fetch_opts.proxy_opts = proxy_opts;
+  } else if (proxy_URL != NULL) {
+      git_proxy_options proxy_opts = GIT_PROXY_OPTIONS_INIT;
+      proxy_opts.type = GIT_PROXY_AUTO;
+      proxy_opts.url = proxy_URL;
+      fetch_opts.proxy_opts = proxy_opts;
+  }
+
   //  build refspecs in case they are needed
 
   char *refs[] = { (char *) branch.c_str () };
