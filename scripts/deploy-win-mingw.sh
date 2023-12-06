@@ -14,7 +14,8 @@ ruby="ruby"
 
 # Specify the path to the NSIS compiler
 
-makensis=/c/Program\ Files\ \(x86\)/NSIS/makensis.exe
+#makensis=/c/Program\ Files\ \(x86\)/NSIS/makensis.exe
+makensis=/c/NSIS/makensis.exe
 
 # ---------------------------------------------------
 # General initialization
@@ -158,11 +159,11 @@ echo '# Use KLayout EXPRESSIONS syntax to specify a list of file paths.' >>$targ
 echo '[' >>$target/.ruby-paths.txt
 
 first=1
-for p in $rubys; do 
+for p in $rubys; do
   p=$(cygpath $p)
   if [[ $p == "$mingw_inst"* ]] && [ -e "$p" ]; then
     rp=${p/"$mingw_inst/"}
-    # Apparently adding the paths to the interpreter isn't required - 
+    # Apparently adding the paths to the interpreter isn't required -
     # Ruby can figure out it's own paths
     # if [ $first == "0" ]; then
     #   echo "," >>$target/.ruby-paths.txt
@@ -207,7 +208,7 @@ echo '# Use KLayout EXPRESSIONS syntax to specify a list of file paths.' >>$targ
 echo '[' >>$target/.python-paths.txt
 
 first=1
-for p in $pythons; do 
+for p in $pythons; do
   p=$(cygpath $p)
   rp=""
   if [[ $p == "$mingw_inst"* ]] && [ -e "$p" ]; then
@@ -252,7 +253,7 @@ while [ "$new_libs" != "" ]; do
       echo "Copying binary installation partial $mingw_inst/bin/$l -> $l .."
       cp $mingw_inst/bin/$l $l
       new_libs="$new_libs $l"
-    fi  
+    fi
   done
 
 done
