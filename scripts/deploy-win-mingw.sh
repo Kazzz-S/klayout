@@ -102,8 +102,8 @@ else
   echo "ERROR: not in mingw32 or mingw64 system."
 fi
 
-target=$pwd/bin-release-$arch
-build=$pwd/build-release-$arch
+target=$pwd/bin-release-$arch$KLAYOUT_BUILD_SUFFIX
+build=$pwd/build-release-$arch$KLAYOUT_BUILD_SUFFIX
 src=$pwd/src
 scripts=$pwd/scripts
 # Update in NSIS script too:
@@ -166,11 +166,11 @@ echo '# Use KLayout EXPRESSIONS syntax to specify a list of file paths.' >>$targ
 echo '[' >>$target/.ruby-paths.txt
 
 first=1
-for p in $rubys; do
+for p in $rubys; do 
   p=$(cygpath $p)
   if [[ $p == "$mingw_inst"* ]] && [ -e "$p" ]; then
     rp=${p/"$mingw_inst/"}
-    # Apparently adding the paths to the interpreter isn't required -
+    # Apparently adding the paths to the interpreter isn't required - 
     # Ruby can figure out it's own paths
     # if [ $first == "0" ]; then
     #   echo "," >>$target/.ruby-paths.txt
@@ -215,7 +215,7 @@ echo '# Use KLayout EXPRESSIONS syntax to specify a list of file paths.' >>$targ
 echo '[' >>$target/.python-paths.txt
 
 first=1
-for p in $pythons; do
+for p in $pythons; do 
   p=$(cygpath $p)
   rp=""
   if [[ $p == "$mingw_inst"* ]] && [ -e "$p" ]; then
@@ -260,7 +260,7 @@ while [ "$new_libs" != "" ]; do
       echo "Copying binary installation partial $mingw_inst/bin/$l -> $l .."
       cp $mingw_inst/bin/$l $l
       new_libs="$new_libs $l"
-    fi
+    fi  
   done
 
 done
@@ -285,7 +285,7 @@ echo "Making .zip file $zipname.zip .."
 
 rm -rf $zipname $zipname.zip
 mkdir $zipname
-cp -Rv *.dll cert.pem .*-paths.txt db_plugins lay_plugins $plugins lib $zipname | sed -u 's/.*/echo -n ./' | sh
+cp -Rv strm*.exe *.dll cert.pem .*-paths.txt db_plugins lay_plugins $plugins lib $zipname | sed -u 's/.*/echo -n ./' | sh
 cp klayout.exe $zipname/klayout_app.exe
 cp klayout.exe $zipname/klayout_vo_app.exe
 echo ""

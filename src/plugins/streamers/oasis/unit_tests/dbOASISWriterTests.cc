@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2023 Matthias Koefferlein
+  Copyright (C) 2006-2024 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -1335,8 +1335,13 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+#if defined(HAVE_64BIT_COORD)
+      "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
+      "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
+#else
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {4}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
+#endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
       "  {17 {17value}}\n"
@@ -1439,8 +1444,13 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+#if defined(HAVE_64BIT_COORD)
+      "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
+      "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
+#else
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {4}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
+#endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
       "  {{S_BOUNDING_BOXES_AVAILABLE} {2}}\n"
@@ -1499,8 +1509,13 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+#if defined(HAVE_64BIT_COORD)
+      "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
+      "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
+#else
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {4}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
+#endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
       "  {{S_BOUNDING_BOXES_AVAILABLE} {2}}\n"
@@ -1561,8 +1576,13 @@ TEST(116)
 
     const char *expected =
       "set props {\n"
+#if defined(HAVE_64BIT_COORD)
+      "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
+      "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
+#else
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {4}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
+#endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
       "  {{name} {117}}\n"
@@ -1617,8 +1637,13 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+#if defined(HAVE_64BIT_COORD)
+      "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
+      "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
+#else
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {4}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
+#endif
       "  {{S_TOP_CELL} {$1}}\n"
       "  {17 {17value}}\n"
       "  {{name} {117}}\n"
@@ -1668,8 +1693,13 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+#if defined(HAVE_64BIT_COORD)
+      "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
+      "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
+#else
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {4}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
+#endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {17 {17value}}\n"
       "  {{name} {117}}\n"

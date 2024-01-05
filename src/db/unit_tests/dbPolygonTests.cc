@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2023 Matthias Koefferlein
+  Copyright (C) 2006-2024 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -1263,7 +1263,11 @@ TEST(21)
 #if !defined(_MSC_VER)
     ms.clear ();
     poly.mem_stat (&ms, db::MemStatistics::None, 0);
+#if defined(HAVE_64BIT_COORD)
+    EXPECT_EQ (ms.reqd, (sizeof(void *)-4)*5+116);
+#else
     EXPECT_EQ (ms.reqd, (sizeof(void *)-4)*5+68);
+#endif
 #endif
   }
 
@@ -1277,7 +1281,11 @@ TEST(21)
 #if !defined(_MSC_VER)
     ms.clear ();
     poly.mem_stat (&ms, db::MemStatistics::None, 0);
+#if defined(HAVE_64BIT_COORD)
+    EXPECT_EQ (ms.reqd, (sizeof(void *)-4)*5+84);
+#else
     EXPECT_EQ (ms.reqd, (sizeof(void *)-4)*5+52);
+#endif
 #endif
   }
   {
