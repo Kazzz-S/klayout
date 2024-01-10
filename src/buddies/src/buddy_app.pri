@@ -12,6 +12,9 @@ include($$PWD/../../app.pri)
 mac {
   CONFIG -= app_bundle
 }
+win32 {
+  CONFIG += console
+}
 
 # Since the main function is entirely unspecific, we can put it into a common
 # place - it's not part of the bd sources.
