@@ -78,11 +78,11 @@ def Get_Build_Options( targetDic, platform ):
             buildOp["std"] = [ '-q', '%sMacPorts' % qtType, '-r', 'sys',  '-p', 'sys' ]
             logfile["std"] = "%sMP.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "RsysPsys")
         elif target == "ports":
-            buildOp["ports"] = [ '-q', '%sMacPorts' % qtType, '-r', 'MP32', '-p', 'MP311' ]
-            logfile["ports"] = "%sMP.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "Rmp32Pmp311")
+            buildOp["ports"] = [ '-q', '%sMacPorts' % qtType, '-r', 'MP33', '-p', 'MP311' ]
+            logfile["ports"] = "%sMP.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "Rmp33Pmp311")
         elif target == "brew":
-            buildOp["brew"] = [ '-q', '%sBrew' % qtType,     '-r', 'HB32', '-p', 'HB311' ]
-            logfile["brew"] = "%sBrew.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "Rhb32Phb311")
+            buildOp["brew"] = [ '-q', '%sBrew' % qtType,     '-r', 'HB33', '-p', 'HB311' ]
+            logfile["brew"] = "%sBrew.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "Rhb33Phb311")
         elif target == "brewHW":
             buildOp["brewHW"] = [ '-q', '%sBrew' % qtType,     '-r', 'sys',  '-p', 'HB311' ]
             logfile["brewHW"] = "%sBrew.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "RsysPhb311")
@@ -90,8 +90,8 @@ def Get_Build_Options( targetDic, platform ):
             buildOp["ana3"] = [ '-q', '%sAna3' % qtType,     '-r', 'Ana3', '-p', 'Ana3' ]
             logfile["ana3"] = "%sAna3.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "Rana3Pana3")
         elif target == "brewA":
-            buildOp["brewA"] = [ '-q', '%sBrew' % qtType,     '-r', 'HB32', '-p', 'HBAuto' ]
-            logfile["brewA"] = "%sBrew.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "Rhb32Phbauto")
+            buildOp["brewA"] = [ '-q', '%sBrew' % qtType,     '-r', 'HB33', '-p', 'HBAuto' ]
+            logfile["brewA"] = "%sBrew.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "Rhb33Phbauto")
         elif target == "brewAHW":
             buildOp["brewAHW"] = [ '-q', '%sBrew' % qtType,     '-r', 'sys',  '-p', 'HBAuto' ]
             logfile["brewAHW"] = "%sBrew.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "RsysPhbauto")
@@ -121,15 +121,15 @@ def Get_QAT_Directory( targetDic, platform ):
     for key in targetDic.keys():
         target = targetDic[key]
         if target == "ports":
-            dirQAT["ports"]     = '%sMP.build.macos-%s-release-Rmp32Pmp311.macQAT' % (qtType, platform)
+            dirQAT["ports"]     = '%sMP.build.macos-%s-release-Rmp33Pmp311.macQAT' % (qtType, platform)
         elif target == "brew":
-            dirQAT["brew"]      = '%sBrew.build.macos-%s-release-Rhb32Phb311.macQAT' % (qtType, platform)
+            dirQAT["brew"]      = '%sBrew.build.macos-%s-release-Rhb33Phb311.macQAT' % (qtType, platform)
         elif target == "brewHW":
             dirQAT["brewHW"]    = '%sBrew.build.macos-%s-release-RsysPhb311.macQAT' % (qtType, platform)
         elif target == "ana3":
             dirQAT["ana3"]      = '%sAna3.build.macos-%s-release-Rana3Pana3.macQAT' % (qtType, platform)
         elif target == "brewA":
-            dirQAT["brewA"]     = '%sBrew.build.macos-%s-release-Rhb32Phbauto.macQAT' % (qtType, platform)
+            dirQAT["brewA"]     = '%sBrew.build.macos-%s-release-Rhb33Phbauto.macQAT' % (qtType, platform)
         elif target == "brewAHW":
             dirQAT["brewAHW"]   = '%sBrew.build.macos-%s-release-RsysPhbauto.macQAT' % (qtType, platform)
     return dirQAT
@@ -159,10 +159,10 @@ def Get_Package_Options( targetDic, platform, srlDMG, makeflag ):
     for key in targetDic.keys():
         target = targetDic[key]
         if target == "ports":
-            packOp["ports"]     = [ '-p', 'LW-%sMP.pkg.macos-%s-release-Rmp32Pmp311' % (qtType, platform),
+            packOp["ports"]     = [ '-p', 'LW-%sMP.pkg.macos-%s-release-Rmp33Pmp311' % (qtType, platform),
                                     '-s', '%d' % srlDMG, '%s' % flag ]
         elif target == "brew":
-            packOp["brew"]      = [ '-p', 'LW-%sBrew.pkg.macos-%s-release-Rhb32Phb311' % (qtType, platform),
+            packOp["brew"]      = [ '-p', 'LW-%sBrew.pkg.macos-%s-release-Rhb33Phb311' % (qtType, platform),
                                     '-s', '%d' % srlDMG, '%s' % flag ]
         elif target == "brewHW":
             packOp["brewHW"]    = [ '-p', 'HW-%sBrew.pkg.macos-%s-release-RsysPhb311' % (qtType, platform),
@@ -171,7 +171,7 @@ def Get_Package_Options( targetDic, platform, srlDMG, makeflag ):
             packOp["ana3"]      = [ '-p', 'LW-%sAna3.pkg.macos-%s-release-Rana3Pana3' % (qtType, platform),
                                     '-s', '%d' % srlDMG, '%s' % flag ]
         elif target == "brewA":
-            packOp["brewA"]     = [ '-p', 'LW-%sBrew.pkg.macos-%s-release-Rhb32Phbauto' % (qtType, platform),
+            packOp["brewA"]     = [ '-p', 'LW-%sBrew.pkg.macos-%s-release-Rhb33Phbauto' % (qtType, platform),
                                     '-s', '%d' % srlDMG, '%s' % flag ]
         elif target == "brewAHW":
             packOp["brewAHW"]   = [ '-p', 'HW-%sBrew.pkg.macos-%s-release-RsysPhbauto' % (qtType, platform),
@@ -233,7 +233,7 @@ def Parse_CommandLine_Arguments():
     Usage += "          (3) $ ./nightlyBuild.py  --test                                  |\n"
     Usage += "          (4) $ ./nightlyBuild.py  --check (confirm the QA Test results)   |\n"
     Usage += "          (5) $ ./nightlyBuild.py  --makedmg  1                            |\n"
-    Usage += "          (6) $ ./nightlyBuild.py  --upload  '0.28.12'                     |\n"
+    Usage += "          (6) $ ./nightlyBuild.py  --upload  '0.28.15'                     |\n"
     Usage += "          (7) $ ./nightlyBuild.py  --cleandmg 1                            |\n"
     Usage += "---------------------------------------------------------------------------+------------------------------\n"
 

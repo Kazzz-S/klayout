@@ -5,7 +5,7 @@
 # File: "macbuild/build4mac.py"
 #
 #  The top Python script for building KLayout (http://www.klayout.de/index.php)
-#  version 0.28.13 or later on different Apple Mac OSX platforms.
+#  version 0.28.15 or later on different Apple Mac OSX platforms.
 #===============================================================================
 import sys
 import os
@@ -36,16 +36,16 @@ from build4mac_util import *
 def GenerateUsage(platform):
     if platform.upper() in [ "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
         myQt56    = "qt5brew"
-        myRuby    = "hb32"
+        myRuby    = "hb33"
         myPython  = "hb311"
-        moduleset = ('qt5Brew', 'HB32', 'HB311')
+        moduleset = ('qt5Brew', 'HB33', 'HB311')
     else: # too obsolete
         raise Exception( "! Too obsolete platform <%s>" % platform )
 
     usage  = "\n"
     usage += "---------------------------------------------------------------------------------------------------------\n"
     usage += "<< Usage of 'build4mac.py' >>\n"
-    usage += "       for building KLayout 0.28.13 or later on different Apple macOS platforms.\n"
+    usage += "       for building KLayout 0.28.15 or later on different Apple macOS platforms.\n"
     usage += "\n"
     usage += "$ [python] ./build4mac.py\n"
     usage += "   option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)| default value\n"
@@ -58,11 +58,11 @@ def GenerateUsage(platform):
     usage += "                        :   Qt6MacPorts: use Qt6 from MacPorts (*)                       |\n"
     usage += "                        :       Qt6Brew: use Qt6 from Homebrew (*)                       |\n"
     usage += "                        :                        (*) migration to Qt6 is ongoing         |\n"
-    usage += "   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP32', 'HB32', 'Ana3']   | %s\n" % myRuby
+    usage += "   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP33', 'HB33', 'Ana3']   | %s\n" % myRuby
     usage += "                        :    nil: don't bind Ruby                                        |\n"
     usage += "                        :    Sys: use [Sonoma|Ventura|Monterey]-bundled Ruby 2.6         |\n"
-    usage += "                        :   MP32: use Ruby 3.2 from MacPorts                             |\n"
-    usage += "                        :   HB32: use Ruby 3.2 from Homebrew                             |\n"
+    usage += "                        :   MP33: use Ruby 3.3 from MacPorts                             |\n"
+    usage += "                        :   HB33: use Ruby 3.3 from Homebrew                             |\n"
     usage += "                        :   Ana3: use Ruby 3.2 from Anaconda3                            |\n"
     usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'MP311', 'HB311', 'Ana3',        | %s\n" % myPython
     usage += "                        :                        'MP39', 'HB39', 'HBAuto']               |\n"
@@ -150,15 +150,15 @@ def Get_Default_Config():
     # Set the default modules
     if   Platform == "Sonoma":
         ModuleQt     = "Qt5Brew"
-        ModuleRuby   = "Ruby32Brew"
+        ModuleRuby   = "Ruby33Brew"
         ModulePython = "Python311Brew"
     elif Platform == "Ventura":
         ModuleQt     = "Qt5Brew"
-        ModuleRuby   = "Ruby32Brew"
+        ModuleRuby   = "Ruby33Brew"
         ModulePython = "Python311Brew"
     elif Platform == "Monterey":
         ModuleQt     = "Qt5Brew"
-        ModuleRuby   = "Ruby32Brew"
+        ModuleRuby   = "Ruby33Brew"
         ModulePython = "Python311Brew"
     else:
         ModuleQt     = "Qt5Brew"
@@ -257,7 +257,7 @@ def Parse_CLI_Args(config):
 
     p.add_option( '-r', '--ruby',
                     dest='type_ruby',
-                    help="Ruby type=['nil', 'Sys', 'MP32', 'HB32', 'Ana3']" )
+                    help="Ruby type=['nil', 'Sys', 'MP33', 'HB33', 'Ana3']" )
 
     p.add_option( '-p', '--python',
                     dest='type_python',
@@ -332,7 +332,7 @@ def Parse_CLI_Args(config):
 
     if Platform.upper() in [ "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
         p.set_defaults( type_qt        = "qt5brew",
-                        type_ruby      = "hb32",
+                        type_ruby      = "hb33",
                         type_python    = "hb311",
                         build_pymod    = False,
                         no_qt_binding  = False,
@@ -390,8 +390,8 @@ def Parse_CLI_Args(config):
     candidates         = dict()
     candidates['NIL']  = 'nil'
     candidates['SYS']  = 'Sys'
-    candidates['MP32'] = 'MP32'
-    candidates['HB32'] = 'HB32'
+    candidates['MP33'] = 'MP33'
+    candidates['HB33'] = 'HB33'
     candidates['ANA3'] = 'Ana3'
     try:
         choiceRuby = candidates[ opt.type_ruby.upper() ]
@@ -410,11 +410,11 @@ def Parse_CLI_Args(config):
                 ModuleRuby = 'RubyVentura'
             elif Platform == "Monterey":
                 ModuleRuby = 'RubyMonterey'
-        elif choiceRuby == "MP32":
-            ModuleRuby   = 'Ruby32MacPorts'
+        elif choiceRuby == "MP33":
+            ModuleRuby   = 'Ruby33MacPorts'
             NonOSStdLang = True
-        elif choiceRuby == "HB32":
-            ModuleRuby   = 'Ruby32Brew'
+        elif choiceRuby == "HB33":
+            ModuleRuby   = 'Ruby33Brew'
             NonOSStdLang = True
         elif choiceRuby == "Ana3":
             ModuleRuby   = 'RubyAnaconda3'
@@ -698,7 +698,7 @@ def Get_Build_Parameters(config):
     #     <pymod> will be built if:
     #       BuildPymod   = True
     #       Platform     = [ 'Sonoma', 'Ventura', 'Monterey']
-    #       ModuleRuby   = [ 'Ruby32MacPorts', 'Ruby32Brew', 'RubyAnaconda3' ]
+    #       ModuleRuby   = [ 'Ruby33MacPorts', 'Ruby33Brew', 'RubyAnaconda3' ]
     #       ModulePython = [ 'Python311MacPorts', 'Python39MacPorts',
     #                        'Python311Brew', Python39Brew', 'PythonAutoBrew',
     #                        'PythonAnaconda3' ]
@@ -709,7 +709,7 @@ def Get_Build_Parameters(config):
 
     PymodDistDir = dict()
     if Platform in [ 'Sonoma', 'Ventura', 'Monterey' ]:
-        if ModuleRuby in [ 'Ruby32MacPorts', 'Ruby32Brew', 'RubyAnaconda3' ]:
+        if ModuleRuby in [ 'Ruby33MacPorts', 'Ruby33Brew', 'RubyAnaconda3' ]:
             if ModulePython in [ 'Python311MacPorts', 'Python39MacPorts' ]:
                 PymodDistDir[ModulePython] = 'dist-MP3'
             elif ModulePython in [ 'Python311Brew', 'Python39Brew', 'PythonAutoBrew' ]:
@@ -732,7 +732,7 @@ def Build_pymod(parameters):
     # [1] <pymod> will be built if:
     #       BuildPymod   = True
     #       Platform     = [ 'Sonoma', 'Ventura', 'Monterey']
-    #       ModuleRuby   = [ 'Ruby32MacPorts', 'Ruby32Brew', 'RubyAnaconda3' ]
+    #       ModuleRuby   = [ 'Ruby33MacPorts', 'Ruby33Brew', 'RubyAnaconda3' ]
     #       ModulePython = [ 'Python311MacPorts', 'Python39MacPorts',
     #                        'Python311Brew', Python39Brew', 'PythonAutoBrew',
     #                        'PythonAnaconda3' ]
@@ -745,7 +745,7 @@ def Build_pymod(parameters):
         return 0
     if not Platform in [ 'Sonoma', 'Ventura', 'Monterey' ]:
         return 0
-    elif not ModuleRuby in [ 'Ruby32MacPorts', 'Ruby32Brew', 'RubyAnaconda3' ]:
+    elif not ModuleRuby in [ 'Ruby33MacPorts', 'Ruby33Brew', 'RubyAnaconda3' ]:
         return 0
     elif not ModulePython in [ 'Python311MacPorts', 'Python39MacPorts', 'PythonAnaconda3', \
                                'Python311Brew',     'Python39Brew',     'PythonAutoBrew' ]:
@@ -1798,15 +1798,15 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                 return 1
 
         #-------------------------------------------------------------
-        # [10] Special deployment of Ruby3.2 from Homebrew?
+        # [10] Special deployment of Ruby3.3 from Homebrew?
         #-------------------------------------------------------------
-        deploymentRuby32HB = (ModuleRuby == 'Ruby32Brew')
+        deploymentRuby32HB = (ModuleRuby == 'Ruby33Brew')
         if deploymentRuby32HB and NonOSStdLang:
 
             print( "" )
-            print( " [10] You have reached optional deployment of Ruby from %s ..." % HBRuby32Path )
+            print( " [10] You have reached optional deployment of Ruby from %s ..." % HBRuby33Path )
             print( "   [!!!] Sorry, the deployed package will not work properly since deployment of" )
-            print( "         Ruby3.2 from Homebrew is not yet supported." )
+            print( "         Ruby3.3 from Homebrew is not yet supported." )
             print( "         Since you have Homebrew development environment, there two options:" )
             print( "           (1) Retry to make a package with '-Y|--DEPLOY' option." )
             print( "               This will not deploy any of Qt[5|6], Python, and Ruby from Homebrew." )

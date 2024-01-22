@@ -83,7 +83,7 @@ def SetGlobals():
     Usage += "   option & argument    : descriptions                                               | default value\n"
     Usage += "   ----------------------------------------------------------------------------------+-----------------\n"
     Usage += "   <-p|--pkg <dir>>     : package directory created by `build4mac.py` with [-y|-Y]   | ``\n"
-    Usage += "                        : like 'LW-qt5MP.pkg.macos-Monterey-release-Rmp32Pmp311'     | \n"
+    Usage += "                        : like 'LW-qt5MP.pkg.macos-Monterey-release-Rmp33Pmp311'     | \n"
     Usage += "   <-c|--clean>         : clean the work directory                                   | disabled\n"
     Usage += "   <-m|--make>          : make a compressed DMG file                                 | disabled\n"
     Usage += "                        :   <-c|--clean> and <-m|--make> are mutually exclusive      | \n"
@@ -192,17 +192,17 @@ def SetGlobals():
 #
 # The package directory name should look like:
 #     * LW-qt5Ana3.pkg.macos-Monterey-release-Rana3Pana3
-#     * LW-qt5Brew.pkg.macos-Monterey-release-Rhb32Phb311  --- (1)
-#     * LW-qt5MP.pkg.macos-Monterey-release-Rmp32Pmp311
+#     * LW-qt5Brew.pkg.macos-Monterey-release-Rhb33Phb311  --- (1)
+#     * LW-qt5MP.pkg.macos-Monterey-release-Rmp33Pmp311
 #     * HW-qt5Brew.pkg.macos-Monterey-release-RsysPhb311
 #
 #     * LW-qt6Ana3.pkg.macos-Monterey-release-Rana3Pana3
-#     * LW-qt6Brew.pkg.macos-Monterey-release-Rhb32Phb311
-#     * LW-qt6MP.pkg.macos-Monterey-release-Rmp32Pmp311
+#     * LW-qt6Brew.pkg.macos-Monterey-release-Rhb33Phb311
+#     * LW-qt6MP.pkg.macos-Monterey-release-Rmp33Pmp311
 #     * HW-qt6Brew.pkg.macos-Monterey-release-RsysPhb311
 #
 # Generated DMG will be, for example,
-#     (1) ---> LW-klayout-0.28.13-macOS-Monterey-1-qt5Brew-Rhb32Phb311.dmg
+#     (1) ---> LW-klayout-0.28.13-macOS-Monterey-1-qt5Brew-Rhb33Phb311.dmg
 #
 # @return on success, positive integer in [MB] that tells approx. occupied disc space;
 #         on failure, -1
@@ -242,14 +242,14 @@ def CheckPkgDirectory():
     #-----------------------------------------------------------------------------------------------
     # [2] Identify (Qt, Ruby, Python) from PkgDir
     #     * LW-qt5Ana3.pkg.macos-Monterey-release-Rana3Pana3
-    #     * LW-qt5Brew.pkg.macos-Monterey-release-Rhb32Phb311
-    #     * LW-qt5MP.pkg.macos-Monterey-release-Rmp32Pmp311
+    #     * LW-qt5Brew.pkg.macos-Monterey-release-Rhb33Phb311
+    #     * LW-qt5MP.pkg.macos-Monterey-release-Rmp33Pmp311
     #     * HW-qt5Brew.pkg.macos-Monterey-release-RsysPhb311
-    #     * EX-qt5MP.pkg.macos-Monterey-release-Rhb32Pmp311
+    #     * EX-qt5MP.pkg.macos-Monterey-release-Rhb33Pmp311
     #
     #     * LW-qt6Ana3.pkg.macos-Monterey-release-Rana3Pana3
-    #     * LW-qt6Brew.pkg.macos-Monterey-release-Rhb32Phb311
-    #     * LW-qt6MP.pkg.macos-Monterey-release-Rmp32Pmp311
+    #     * LW-qt6Brew.pkg.macos-Monterey-release-Rhb33Phb311
+    #     * LW-qt6MP.pkg.macos-Monterey-release-Rmp33Pmp311
     #     * HW-qt6Brew.pkg.macos-Monterey-release-RsysPhb311
     #-----------------------------------------------------------------------------------------------
     patQRP = u'(LW|HW|EX)([-])([qt5|qt6][0-9A-Za-z]+)([.]pkg[.])([A-Za-z]+[-][A-Za-z]+[-]release[-])([0-9A-Za-z]+)'
@@ -280,12 +280,12 @@ def CheckPkgDirectory():
         LatestOSMacPorts   = Platform == LatestOS
         LatestOSMacPorts  &= PackagePrefix == "LW"
         LatestOSMacPorts  &= QtIdentification in [ "qt5MP", "qt6MP" ]
-        LatestOSMacPorts  &= RubyPythonID in [ "Rmp32Pmp311", "Rmp32Pmp39" ]
+        LatestOSMacPorts  &= RubyPythonID in [ "Rmp33Pmp311", "Rmp33Pmp39" ]
 
         LatestOSHomebrew   = Platform == LatestOS
         LatestOSHomebrew  &= PackagePrefix == "LW"
         LatestOSHomebrew  &= QtIdentification in [ "qt5Brew", "qt6Brew" ]
-        LatestOSHomebrew  &= RubyPythonID in [ "Rhb32Phb311", "Rhb32Phb39", "Rhb32Phbauto" ]
+        LatestOSHomebrew  &= RubyPythonID in [ "Rhb33Phb311", "Rhb33Phb39", "Rhb33Phbauto" ]
 
         LatestOSAnaconda3  = Platform == LatestOS
         LatestOSAnaconda3 &= PackagePrefix == "LW"
