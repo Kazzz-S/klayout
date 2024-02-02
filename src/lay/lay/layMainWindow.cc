@@ -57,6 +57,7 @@
 #include "tlExpression.h"
 #include "tlFileUtils.h"
 #include "tlUri.h"
+#include "tlEnv.h"
 #include "dbMemStatistics.h"
 #include "dbManager.h"
 #include "dbStream.h"
@@ -1409,6 +1410,13 @@ MainWindow::dirty_files (std::string &dirty_files)
 bool
 MainWindow::can_close ()
 {
+  std::string force_true("MAGIC_FORCE_TRUE");
+  if (tl::get_env (force_true) == "CAN_CLOSE_MAINWINDOW") {
+    printf( "In MainWindow::can_close:: 0) Forcibly return 'true'\n" );
+    fflush(stdout);
+    return true;
+  }
+
   if (m_busy) {
 
     bool can_close = false;
@@ -1422,6 +1430,8 @@ MainWindow::can_close ()
     return can_close;
 
   }
+  printf( "In MainWindow::can_close:: 1) Application seems not to be busy\n" );
+  fflush(stdout);
 
   for (tl::Registrar<lay::PluginDeclaration>::iterator cls = tl::Registrar<lay::PluginDeclaration>::begin (); cls != tl::Registrar<lay::PluginDeclaration>::end (); ++cls) {
     lay::PluginDeclaration *pd = const_cast<lay::PluginDeclaration *> (&*cls);
@@ -1429,13 +1439,19 @@ MainWindow::can_close ()
       return false;
     }
   }
+  printf( "In MainWindow::can_close:: 2) Plugins seem to be ready to exit\n" );
+  fflush(stdout);
 
   std::string df_list;
   int dirty_layouts = dirty_files (df_list);
 
   if ( m_always_exit_without_saving || (dirty_layouts == 0) ) {
+    printf( "In MainWindow::can_close:: 3) No need to save a layout\n" );
+    fflush(stdout);
     return true;
   } else {
+    printf( "In MainWindow::can_close:: 4) Some layouts seem to be dirty\n" );
+    fflush(stdout);
 
     QMessageBox mbox (this);
     mbox.setText (tl::to_qstring (tl::to_string (QObject::tr ("The following layouts need saving:\n\n")) + df_list + "\n\nPress 'Exit Without Saving' to exit anyhow and discard changes."));
