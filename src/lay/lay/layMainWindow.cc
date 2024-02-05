@@ -1366,10 +1366,26 @@ MainWindow::exit ()
   //  Only after other operation has finished we ask whether to save and close eventually
   if (can_close ()) {
 
-    do_close ();
-    QMainWindow::close ();
+    printf( "In MainWindow::exit:: can_close () is true. Going to start 'gh1602-test5'...\n" );
+    printf( "In MainWindow::exit:: (1) reached\n" );
+    fflush(stdout);
+    BEGIN_PROTECTED
+      do_close ();
+    END_PROTECTED
+    printf( "In MainWindow::exit:: (2) reached\n" );
+    fflush(stdout);
 
-    emit closed ();
+    BEGIN_PROTECTED
+      QMainWindow::close ();
+    END_PROTECTED
+
+    printf( "In MainWindow::exit:: (3) reached\n" );
+    fflush(stdout);
+    BEGIN_PROTECTED
+      emit closed ();
+    END_PROTECTED    
+    printf( "In MainWindow::exit:: (4) reached\n" );
+    fflush(stdout);
 
   } else {
     m_exited = false;
