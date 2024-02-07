@@ -1568,11 +1568,33 @@ GuiApplication::do_notify (QObject *receiver, QEvent *e)
   //  Because END_PROTECTED may raise other events (message box) and this may cause other
   //  exceptions, we use silent mode inside notify to avoid recursion.
 
+  // gh1602 test6
+  std::string magic2("MAGIC_REPORT_NOTIFY");
+  static size_t cntA = 0;
+  static size_t cntB = 0;
+  bool doreport      = false;
+
+  if (tl::get_env (magic2) == "ACTIVE") {
+    doreport = true;
+  } else {
+    doreport = false;
+  }
+
   if (in_notify) {
+    if (doreport) {
+      printf( "In GuiApplication::do_notify() A <%ld>\n", cntA );
+      fflush(stdout);
+      ++cntA;
+    }
     BEGIN_PROTECTED_SILENT
       ret = QApplication::notify (receiver, e);
     END_PROTECTED_SILENT
   } else {
+    if (doreport) {
+      printf( "In GuiApplication::do_notify() B <%ld>\n", cntB );
+      fflush(stdout);
+      ++cntB;
+    }
     BEGIN_PROTECTED
       ret = QApplication::notify (receiver, e);
     END_PROTECTED

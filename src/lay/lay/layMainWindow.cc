@@ -1387,6 +1387,14 @@ MainWindow::exit ()
     printf( "In MainWindow::exit:: (4) reached\n" );
     fflush(stdout);
 
+    // gh1602 test6
+    std::string magic1("MAGIC_MAINWINDOW_EXITED");
+    std::string magic2("MAGIC_REPORT_NOTIFY"); // in GuiApplication::do_notify() of layApplication.cc
+    if (tl::get_env (magic1) == "ACTIVE") {
+      tl::set_env (magic2, "ACTIVE");
+      printf( "\nGoing to start 'gh1602-test6' in GuiApplication::do_notify()...\n" );
+      fflush(stdout);
+    }
   } else {
     m_exited = false;
   }
