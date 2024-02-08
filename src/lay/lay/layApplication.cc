@@ -1601,6 +1601,17 @@ GuiApplication::do_notify (QObject *receiver, QEvent *e)
   }
 
   --m_in_notify;
+
+  if (doreport) {
+    std::string retstr;
+    if (ret) {
+      retstr = "true";
+    } else {
+      retstr = "false";
+    }
+    printf( "In GuiApplication::do_notify()  going to return with ret=%s\n", retstr.c_str() );
+    fflush(stdout);
+  }
   return ret;
 }
 
