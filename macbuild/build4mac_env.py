@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #===============================================================================
@@ -6,7 +6,7 @@
 #
 # Here are dictionaries of ...
 #  different modules for building KLayout (http://www.klayout.de/index.php)
-#  version 0.28.13 or later on different Apple Mac OSX platforms.
+#  version 0.28.15 or later on different Apple Mac OSX platforms.
 #
 # This file is imported by 'build4mac.py' script.
 #===============================================================================
@@ -117,7 +117,7 @@ Qt6Brew = { 'qmake' : '%s/opt/qt@6/bin/qmake' % DefaultHomebrewRoot,
 #-----------------------------------------------------
 RubyNil  = [ 'nil' ]
 RubySys  = [ 'RubyMonterey', 'RubyVentura', 'RubySonoma' ]
-RubyExt  = [ 'Ruby32MacPorts', 'Ruby32Brew', 'RubyAnaconda3' ]
+RubyExt  = [ 'Ruby33MacPorts', 'Ruby33Brew', 'RubyAnaconda3' ]
 Rubies   = RubyNil + RubySys + RubyExt
 
 #-----------------------------------------------------
@@ -150,21 +150,21 @@ RubySonoma      = { 'exe':  '/System/Library/Frameworks/Ruby.framework/Versions/
                     'lib':  '%s/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/lib/libruby.tbd' % SonomaSDK
                   }
 
-# Ruby 3.2 from MacPorts (https://www.macports.org/)
-#  install with 'sudo port install ruby32'
-# [Key Type Name] = 'MP32'
-Ruby32MacPorts  = { 'exe': '/opt/local/bin/ruby3.2',
-                    'inc': '/opt/local/include/ruby-3.2.2',
-                    'lib': '/opt/local/lib/libruby.3.2.dylib'
+# Ruby 3.3 from MacPorts (https://www.macports.org/)
+#  install with 'sudo port install ruby33'
+# [Key Type Name] = 'MP33'
+Ruby33MacPorts  = { 'exe': '/opt/local/bin/ruby3.3',
+                    'inc': '/opt/local/include/ruby-3.3.0',
+                    'lib': '/opt/local/lib/libruby.3.3.dylib'
                   }
 
-# Ruby 3.2 from Homebrew
-#   install with 'brew install ruby@3.2'
-# [Key Type Name] = 'HB32'
-HBRuby32Path    = '%s/opt/ruby@3.2' % DefaultHomebrewRoot
-Ruby32Brew      = { 'exe': '%s/bin/ruby' % HBRuby32Path,
-                    'inc': '%s/include/ruby-3.2.0' % HBRuby32Path,
-                    'lib': '%s/lib/libruby.3.2.dylib' % HBRuby32Path
+# Ruby 3.3 from Homebrew
+#   install with 'brew install ruby@3.3'
+# [Key Type Name] = 'HB33'
+HBRuby33Path    = '%s/opt/ruby@3.3' % DefaultHomebrewRoot
+Ruby33Brew      = { 'exe': '%s/bin/ruby' % HBRuby33Path,
+                    'inc': '%s/include/ruby-3.3.0' % HBRuby33Path,
+                    'lib': '%s/lib/libruby.3.3.dylib' % HBRuby33Path
                   }
 
 # Ruby 3.2 bundled with anaconda3 installed under /Applications/anaconda3/
@@ -181,8 +181,8 @@ RubyDictionary  = { 'nil'           : None,
                     'RubyMonterey'  : RubyMonterey,
                     'RubyVentura'   : RubyVentura,
                     'RubySonoma'    : RubySonoma,
-                    'Ruby32MacPorts': Ruby32MacPorts,
-                    'Ruby32Brew'    : Ruby32Brew,
+                    'Ruby33MacPorts': Ruby33MacPorts,
+                    'Ruby33Brew'    : Ruby33Brew,
                     'RubyAnaconda3' : RubyAnaconda3
                   }
 
@@ -312,7 +312,7 @@ if _have_Homebrew_Python:
 # [4] KLayout executables including buddy tools
 #-----------------------------------------------------
 KLayoutExecs  = [ 'klayout' ]
-KLayoutExecs += [ 'strm2cif', 'strm2dxf', 'strm2gds', 'strm2gdstxt', 'strm2oas' ]
+KLayoutExecs += [ 'strm2cif', 'strm2dxf', 'strm2gds', 'strm2gdstxt', 'strm2mag', 'strm2oas' ]
 KLayoutExecs += [ 'strm2txt', 'strmclip', 'strmcmp',  'strmrun',     'strmxor'  ]
 
 #----------------
