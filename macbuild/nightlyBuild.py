@@ -9,9 +9,10 @@ import platform
 import optparse
 import subprocess
 #
-# The first line should NOT be #!/usr/bin/env python3.
-# If so, when this script is invoked in the 'KLayoutNightlyBuild.app' script bundle,
-# the python3 is the macOS-specific python3, where pandas is not included.
+# Avoid setting the first line to '#!/usr/bin/env python3'.
+# If so, when this script is invoked in the 'KLayoutNightlyBuild.app' script
+# bundle created by Automator, the python3 will be the macOS-bundled python3,
+# where pandas is not included by default.
 # Therefore, use one of:
 #   1) #!/Applications/anaconda3/bin/python3 (Anaconda3)
 #   2) #!/usr/local/bin/python3 (Homebrew)

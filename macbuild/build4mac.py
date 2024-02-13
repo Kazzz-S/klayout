@@ -711,11 +711,11 @@ def Get_Build_Parameters(config):
     if Platform in [ 'Sonoma', 'Ventura', 'Monterey' ]:
         if ModuleRuby in [ 'Ruby33MacPorts', 'Ruby33Brew', 'RubyAnaconda3' ]:
             if ModulePython in [ 'Python311MacPorts', 'Python39MacPorts' ]:
-                PymodDistDir[ModulePython] = 'dist-MP3'
+                PymodDistDir[ModulePython] = 'dist-MP3-%s' % ModuleQt
             elif ModulePython in [ 'Python311Brew', 'Python39Brew', 'PythonAutoBrew' ]:
-                PymodDistDir[ModulePython] = 'dist-HB3'
+                PymodDistDir[ModulePython] = 'dist-HB3-%s' % ModuleQt
             elif ModulePython in [ 'PythonAnaconda3' ]:
-                PymodDistDir[ModulePython] = 'dist-ana3'
+                PymodDistDir[ModulePython] = 'dist-ana3-%s' % ModuleQt
     parameters['pymod_dist'] = PymodDistDir
     return parameters
 
@@ -758,17 +758,17 @@ def Build_pymod(parameters):
     #--------------------------------------------------------------------
     PymodDistDir = parameters['pymod_dist']
     # Using MacPorts
-    if PymodDistDir[ModulePython] == 'dist-MP3':
+    if PymodDistDir[ModulePython].find('dist-MP3') >= 0:
         addBinPath = "/opt/local/bin"
         addIncPath = "/opt/local/include"
         addLibPath = "/opt/local/lib"
     # Using Homebrew
-    elif PymodDistDir[ModulePython] == 'dist-HB3':
+    elif PymodDistDir[ModulePython].find('dist-HB3') >= 0:
         addBinPath = "%s/bin"     % DefaultHomebrewRoot  # defined in "build4mac_env.py"
         addIncPath = "%s/include" % DefaultHomebrewRoot  # -- ditto --
         addLibPath = "%s/lib"     % DefaultHomebrewRoot  # -- ditto --
     # Using Anaconda3
-    elif  PymodDistDir[ModulePython] == 'dist-ana3':
+    elif  PymodDistDir[ModulePython].find('dist-ana3') >= 0:
         addBinPath = "/Applications/anaconda3/bin"
         addIncPath = "/Applications/anaconda3/include"
         addLibPath = "/Applications/anaconda3/lib"
@@ -1149,7 +1149,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     if BuildPymod:
         try:
             PymodDistDir = parameters['pymod_dist']
-            pymodDistDir = PymodDistDir[ModulePython]   # [ 'dist-MP3', 'dist-HB3', 'dist-ana3' ]
+            pymodDistDir = PymodDistDir[ModulePython] # [ 'dist-MP3-${ModuleQt}', 'dist-HB3-${ModuleQt}', 'dist-ana3-${ModuleQt}' ]
         except KeyError:
             pymodDistDir = ""
         else:
