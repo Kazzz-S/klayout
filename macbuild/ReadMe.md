@@ -1,9 +1,9 @@
-Relevant KLayout version: 0.28.15<br>
+Relevant KLayout version: 0.28.17<br>
 Author: Kazzz-S<br>
-Last modified: 2024-01-22<br>
+Last modified: 2024-02-16<br>
 
 # 1. Introduction
-This directory **`macbuild`** contains various files required for building KLayout (http://www.klayout.de/) version 0.28.15 or later for different 64-bit macOS, including:
+This directory **`macbuild`** contains various files required for building KLayout (http://www.klayout.de/) version 0.28.17 or later for different 64-bit macOS, including:
 * Monterey    (12.x)    : the primary development environment
 * Ventura     (13.x)    : experimental
 * Sonoma      (14.x)    : -- ditto --
@@ -51,6 +51,8 @@ Some typical use cases are described in Section 6.
 # 4. Prerequisites
 You need to have the followings:
 * The latest Xcode and command-line tool kit compliant with each OS
+  * https://developer.apple.com/xcode/resources/
+  * https://mac.install.guide/commandlinetools/4
 * Qt5 package from Homebrew, MacPorts, or Anaconda3
 * Optionally, Ruby and Python packages from Homebrew, MacPorts, or Anaconda3
 #### For matching versions of Ruby and Python, please also refer to `build4mac_env.py`.
@@ -63,12 +65,12 @@ The operating system type is detected automatically.
 ```
 ---------------------------------------------------------------------------------------------------------
 << Usage of 'build4mac.py' >>
-       for building KLayout 0.28.15 or later on different Apple macOS platforms.
+       for building KLayout 0.28.17 or later on different Apple macOS platforms.
 
 $ [python] ./build4mac.py
    option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)| default value
    --------------------------------------------------------------------------------------+---------------
-   [-q|--qt <type>]     : case-insensitive type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3',    | qt5brew
+   [-q|--qt <type>]     : case-insensitive type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3',    | qt5macports
                         :                        'Qt6MacPorts', 'Qt6Brew']               |
                         :   Qt5MacPorts: use Qt5 from MacPorts                           |
                         :       Qt5Brew: use Qt5 from Homebrew                           |
@@ -76,20 +78,21 @@ $ [python] ./build4mac.py
                         :   Qt6MacPorts: use Qt6 from MacPorts (*)                       |
                         :       Qt6Brew: use Qt6 from Homebrew (*)                       |
                         :                        (*) migration to Qt6 is ongoing         |
-   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP33', 'HB33', 'Ana3']   | hb33
+   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP33', 'HB33', 'Ana3']   | sys
                         :    nil: don't bind Ruby                                        |
                         :    Sys: use [Sonoma|Ventura|Monterey]-bundled Ruby 2.6         |
                         :   MP33: use Ruby 3.3 from MacPorts                             |
                         :   HB33: use Ruby 3.3 from Homebrew                             |
                         :   Ana3: use Ruby 3.2 from Anaconda3                            |
-   [-p|--python <type>] : case-insensitive type=['nil', 'MP311', 'HB311', 'Ana3',        | hb311
-                        :                        'MP39', 'hb311', 'HBAuto']              |
+   [-p|--python <type>] : case-insensitive type=['nil', 'Sys', 'MP311', 'HB311', 'Ana3', | sys
+                        :                        'MP39', 'HB39', 'HBAuto']               |
                         :    nil: don't bind Python                                      |
+                        :    Sys: use [Sonoma|Ventura|Monterey]-bundled Python 3.9       |
                         :  MP311: use Python 3.11 from MacPorts                          |
                         :  HB311: use Python 3.11 from Homebrew                          |
                         :   Ana3: use Python 3.11 from Anaconda3                         |
                         :   MP39: use Python 3.9 from MacPorts (+)                       |
-                        :   hb311: use Python 3.9 from Homebrew (+)                      |
+                        :   HB39: use Python 3.9 from Homebrew (+)                       |
                         :                    (+) for the backward compatibility tests    |
                         : HBAuto: use the latest Python 3.x auto-detected from Homebrew  |
    [-P|--buildPymod]    : build and deploy Pymod (*.whl) for LW-*.dmg                    | disabled
@@ -118,8 +121,39 @@ $ [python] ./build4mac.py
 In this section, the actual file and directory names are those obtained on macOS Monterey.<br>
 On different OS, those names differ accordingly.
 
-### 6A. Standard build using the OS-bundled Ruby and Python with MacPorts
-This build has been discontinued.
+### 6A. Standard build using the OS-bundled Ruby and Python with MacPorts Qt
+0. Install MacPorts, then install Qt5 and libgit2 by
+```
+$ sudo port install coreutils
+$ sudo port install findutils
+$ sudo port install qt5
+$ sudo port install libgit2
+```
+
+Confirm that you have:
+```
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/*
+```
+  As of this writing, the provided Python version is `3.9.6`.
+
+1. Invoke **`build4mac.py`** with the following options: **((Notes))** These options are the default values for Monterey, Ventura, and Sonoma.
+```
+$ cd /where/'build.sh'/exists
+$ ./build4mac.py -q qt5macports -r sys -p sys
+```
+2. Confirm successful build (it will take about one hour, depending on your machine spec).
+3. Rerun **`build4mac.py`** with the same options used in 1. PLUS "-y" to deploy executables and libraries under **`klayout.app`** bundle.<br>
+   The buddy command-line tools (strm*) will also be deployed under **klayout.app/Contents/Buddy/** in this step.<br>
+
+```
+$ ./build4mac.py -q qt5macports -r sys -p sys -y
+```
+  The application bundle **`klayout.app`** is located under:<br>
+  **`ST-qt5MP.pkg.macos-Monterey-release-RsysPsys`** directory, where
+* "ST-"        means this is a standard package.
+* "qt5MP"      means that Qt5 from MacPorts is used.
+* "RsysPsys"   means that Ruby is 2.6 provided by OS; Python is 3.9 provided by OS.
+4. Copy/move the generated application bundle **`klayout.app`** to your **`/Applications`** directory for installation.
 
 ### 6B. Fully Homebrew-flavored build with Homebrew Ruby 3.3 and Homebrew Python 3.11
 0. Install Homebrew, then install Qt5, Ruby 3.3, Python 3.11, and libgit2 by
@@ -132,7 +166,7 @@ $ cd /where/'build.sh'/exists
 $ cd macbuild
 $ ./python3HB.py -v 3.11
 ```
-1. Invoke **`build4mac.py`** with the following options: **((Notes))** These options are the default values for Monterey, Ventura, and Sonoma.
+1. Invoke **`build4mac.py`** with the following options:
 ```
 $ cd /where/'build.sh'/exists
 $ ./build4mac.py -q qt5brew -r hb33 -p hb311
@@ -276,8 +310,8 @@ $ cd /where/'build.sh'/exists
 $ ./makeDMG4mac.py -p LW-qt5MP.pkg.macos-Monterey-release-Rmp33Pmp311 -m
 ```
 This command will generate the two files below:<br>
-* **`LW-klayout-0.28.15-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg`**      ---(1) the main DMG file
-* **`LW-klayout-0.28.15-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg.md5`**  ---(2) MD5-value text file
+* **`LW-klayout-0.28.17-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg`**      ---(1) the main DMG file
+* **`LW-klayout-0.28.17-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg.md5`**  ---(2) MD5-value text file
 
 # Known issues
 Because we assume some specific versions of non-OS-standard Ruby and Python, updating Homebrew, MacPorts, or Anaconda3 may cause build- and link errors.<br>

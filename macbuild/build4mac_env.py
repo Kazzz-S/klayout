@@ -6,7 +6,7 @@
 #
 # Here are dictionaries of ...
 #  different modules for building KLayout (http://www.klayout.de/index.php)
-#  version 0.28.15 or later on different Apple Mac OSX platforms.
+#  version 0.28.17 or later on different Apple Mac OSX platforms.
 #
 # This file is imported by 'build4mac.py' script.
 #===============================================================================
@@ -195,7 +195,7 @@ RubyDictionary  = { 'nil'           : None,
 #           for the previous states.
 #-----------------------------------------------------
 PythonNil  = [ 'nil' ]
-PythonSys  = [ ]
+PythonSys  = [ 'PythonMonterey', 'PythonVentura', 'PythonSonoma' ]
 PythonExt  = [ 'Python39MacPorts', 'Python39Brew' ]
 PythonExt += [ 'Python311MacPorts', 'Python311Brew' ]
 PythonExt += [ 'PythonAnaconda3', 'PythonAutoBrew' ]
@@ -204,6 +204,33 @@ Pythons    = PythonNil + PythonSys + PythonExt
 #-----------------------------------------------------
 # Whereabouts of different components of Python
 #-----------------------------------------------------
+# Bundled with Monterey (12.x)
+# [Key Type Name] = 'Sys'
+MontereyPy3FWXc = "/Applications/Xcode.app/Contents/Developer/Library/Frameworks"
+MontereyPy3FW   = "/Library/Developer/CommandLineTools/Library/Frameworks"
+PythonMonterey  = { 'exe': '%s/Python3.framework/Versions/3.9/bin/python3.9' % MontereyPy3FW,
+                    'inc': '%s/Python3.framework/Versions/3.9/include/python3.9' % MontereyPy3FW,
+                    'lib': '%s/Python3.framework/Versions/3.9/lib/libpython3.9.dylib' % MontereyPy3FW
+                  }
+
+# Bundled with Ventura (13.x)
+# [Key Type Name] = 'Sys'
+VenturaPy3FWXc  = "/Applications/Xcode.app/Contents/Developer/Library/Frameworks"
+VenturaPy3FW    = "/Library/Developer/CommandLineTools/Library/Frameworks"
+PythonVentura   = { 'exe': '%s/Python3.framework/Versions/3.9/bin/python3.9' % VenturaPy3FW,
+                    'inc': '%s/Python3.framework/Versions/3.9/include/python3.9' % VenturaPy3FW,
+                    'lib': '%s/Python3.framework/Versions/3.9/lib/libpython3.9.dylib' % VenturaPy3FW
+                  }
+
+# Bundled with Sonoma (14.x)
+# [Key Type Name] = 'Sys'
+SonomaPy3FWXc   = "/Applications/Xcode.app/Contents/Developer/Library/Frameworks"
+SonomaPy3FW     = "/Library/Developer/CommandLineTools/Library/Frameworks"
+PythonSonoma    = { 'exe': '%s/Python3.framework/Versions/3.9/bin/python3.9' % SonomaPy3FW,
+                    'inc': '%s/Python3.framework/Versions/3.9/include/python3.9' % SonomaPy3FW,
+                    'lib': '%s/Python3.framework/Versions/3.9/lib/libpython3.9.dylib' % SonomaPy3FW
+                  }
+
 # Python 3.9 from MacPorts (https://www.macports.org/)
 #   install with 'sudo port install python39'
 # [Key Type Name] = 'MP39'
@@ -299,6 +326,9 @@ else:
 
 # Consolidated dictionary kit for Python
 PythonDictionary = { 'nil'              : None,
+                     'PythonMonterey'   : PythonMonterey,
+                     'PythonVentura'    : PythonVentura,
+                     'PythonSonoma'     : PythonSonoma,
                      'Python39MacPorts' : Python39MacPorts,
                      'Python311MacPorts': Python311MacPorts,
                      'Python39Brew'     : Python39Brew,

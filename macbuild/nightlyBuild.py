@@ -8,16 +8,19 @@ import glob
 import platform
 import optparse
 import subprocess
-#
-# Avoid setting the first line to '#!/usr/bin/env python3'.
+#------------------------------------------------------------------------------
+# In general, avoid setting the first line to '#!/usr/bin/env python3'.
 # If so, when this script is invoked in the 'KLayoutNightlyBuild.app' script
 # bundle created by Automator, the python3 will be the macOS-bundled python3,
 # where pandas is not included by default.
-# Therefore, use one of:
+# Therefore, it is better to use one of:
 #   1) #!/Applications/anaconda3/bin/python3 (Anaconda3)
-#   2) #!/usr/local/bin/python3 (Homebrew)
-#   3) #!/opt/local/bin/python3 (MacPorts)
+#   2) #!/usr/local/bin/python3 (Homebrew needs 'pip3 install pandas')
+#   3) #!/opt/local/bin/python3 (MacPorts needs 'sudo pip3 install pandas')
 #
+# However, if we install 'pandas' and its dependencies to the system Python
+# environment, we can also set '#!/usr/bin/env python3'.
+#------------------------------------------------------------------------------
 import pandas as pd
 
 #------------------------------------------------------------------------------
@@ -55,7 +58,7 @@ def Test_My_Platform( platforms=[ 'Monterey', 'Ventura', 'Sonoma' ] ):
 #------------------------------------------------------------------------------
 def Get_Build_Target_Dict():
     buildTargetDic    = dict()
-    # buildTargetDic[0] = 'std'
+    buildTargetDic[0] = 'std'
     buildTargetDic[1] = 'ports'
     buildTargetDic[2] = 'brew'
     buildTargetDic[3] = 'brewHW'
@@ -87,7 +90,7 @@ def Get_Build_Options( targetDic, platform ):
 
         for key in targetDic.keys():
             target = targetDic[key]
-            if target == "std": # use 'Qt5MacPorts' that provides Qt 5.15.2~ to run on "Big Sur", too
+            if target == "std":
                 buildOp[(qtVer, "std")] = [ '-q', '%sMacPorts' % qtType, '-r', 'sys',  '-p', 'sys' ]
                 logfile[(qtVer, "std")] = "%sMP.build.macos-%s-%s-%s.log" % (qtType.lower(), platform, "release", "RsysPsys")
             elif target == "ports":
@@ -135,7 +138,9 @@ def Get_QAT_Directory( targetDic, platform ):
 
         for key in targetDic.keys():
             target = targetDic[key]
-            if target == "ports":
+            if target == "std":
+                dirQAT[(qtVer, "std")]     = '%sMP.build.macos-%s-release-RsysPsys.macQAT'       % (qtType.lower(), platform)
+            elif target == "ports":
                 dirQAT[(qtVer, "ports")]   = '%sMP.build.macos-%s-release-Rmp33Pmp311.macQAT'    % (qtType.lower(), platform)
             elif target == "brew":
                 dirQAT[(qtVer, "brew")]    = '%sBrew.build.macos-%s-release-Rhb33Phb311.macQAT'  % (qtType.lower(), platform)
@@ -176,7 +181,10 @@ def Get_Package_Options( targetDic, platform, srlDMG, makeflag ):
 
         for key in targetDic.keys():
             target = targetDic[key]
-            if target == "ports":
+            if target == "std":
+                packOp[(qtVer, "std")]     = [ '-p', 'ST-%sMP.pkg.macos-%s-release-RsysPsys'      % (qtType.lower(), platform),
+                                               '-s', '%d' % srlDMG, '%s' % flag ]
+            elif target == "ports":
                 packOp[(qtVer, "ports")]   = [ '-p', 'LW-%sMP.pkg.macos-%s-release-Rmp33Pmp311'   % (qtType.lower(), platform),
                                                '-s', '%d' % srlDMG, '%s' % flag ]
             elif target == "brew":
@@ -217,9 +225,9 @@ def Parse_CommandLine_Arguments():
 
     platform = Test_My_Platform()
     if platform in [ "Sonoma", "Ventura", "Monterey" ]:
-        targetopt = "1,2,3,4"
+        targetopt = "0,1,2,3,4"
     else:
-        targetopt = "0"
+        targetopt = None
 
     Usage  = "\n"
     Usage += "----------------------------------------------------------------------------------------------------------\n"
@@ -228,37 +236,39 @@ def Parse_CommandLine_Arguments():
     Usage += "                                               macOS Monterey, Ventura, or Sonoma >>\n"
     Usage += "\n"
     Usage += "$ [python] nightlyBuild.py\n"
-    Usage += "   option & argument : comment on option if any                            | default value\n"
-    Usage += "   ------------------------------------------------------------------------+--------------\n"
-    Usage += "   [--qt <type>] : 5='qt5', 6='qt6' (migration to Qt6 is ongoing)          | 5\n"
-    Usage += "   [--target <list>] : 1='ports', 2='brew', 3='brewHW', 4='ana3',          | '%s'\n" % targetopt
-    Usage += "                       5='brewA', 6='brewAHW'                              |\n"
-    Usage += "                       * with --qt=6, use --target='1,2,3' (4 is ignored)  |\n"
-    Usage += "   [--qttarget <tuple list>] : ex. '5,1' for qt=5, target=1                | disabled\n"
-    Usage += "      + This option supersedes, if used, the --qt and --target combination.|\n"
-    Usage += "      + You can use this option multiple times.                            |\n"
-    Usage += "      + Or you can pass those list by the 'nightlyBuild.csv' file.         |\n"
-    Usage += "   [--build] : build and deploy                                            | disabled\n"
-    Usage += "   [--pymod] : build and deploy Pymod, too                                 | disabled\n"
-    Usage += "   [--test]  : run the QA Test                                             | disabled\n"
-    Usage += "   [--check] : check the QA Test results                                   | disabled\n"
-    Usage += "   [--makedmg|--cleandmg <srlno>] : make or clean DMGs                     | disabled\n"
-    Usage += "   [--upload <dropbox>] : upload DMGs to $HOME/Dropbox/klayout/<dropbox>   | disabled\n"
-    Usage += "   [--dryrun]           : dry-run for --build option                       | disabled\n"
-    Usage += "   [-?|--?]             : print this usage and exit                        | disabled\n"
-    Usage += "                                                                           |\n"
-    Usage += "      To use this script, make a symbolic link in the project root by:     |\n"
-    Usage += "          $ ln -s ./macbuild/nightlyBuild.py .                             |\n"
-    Usage += "                                                                           |\n"
-    Usage += "      Regular sequence for using this script:                              |\n"
-    Usage += "          (1) $ ./nightlyBuild.py  --build  --pymod                        |\n"
-    Usage += "          (2)   (confirm the build results)                                |\n"
-    Usage += "          (3) $ ./nightlyBuild.py  --test                                  |\n"
-    Usage += "          (4) $ ./nightlyBuild.py  --check (confirm the QA Test results)   |\n"
-    Usage += "          (5) $ ./nightlyBuild.py  --makedmg  1                            |\n"
-    Usage += "          (6) $ ./nightlyBuild.py  --upload  '0.28.15'                     |\n"
-    Usage += "          (7) $ ./nightlyBuild.py  --cleandmg 1                            |\n"
-    Usage += "---------------------------------------------------------------------------+------------------------------\n"
+    Usage += "   option & argument : comment on option if any                              | default value\n"
+    Usage += "   --------------------------------------------------------------------------+--------------\n"
+    Usage += "   [--qt <type>] : 5='qt5', 6='qt6' (migration to Qt6 is ongoing)            | 5\n"
+    Usage += "   [--target <list>] : 0='std', 1='ports', 2='brew', 3='brewHW', 4='ana3',   | '%s'\n" % targetopt
+    Usage += "                       5='brewA', 6='brewAHW'                                |\n"
+    Usage += "                       * with --qt=6, use --target='0,1,2,3' (4 is ignored)  |\n"
+    Usage += "   [--qttarget <tuple list>] : ex. '5,1' for qt=5, target=1                  | disabled\n"
+    Usage += "      + This option supersedes, if used, the --qt and --target combination.  |\n"
+    Usage += "      + You can use this option multiple times.                              |\n"
+    Usage += "      + Or you can pass those list by the 'nightlyBuild.csv' file.           |\n"
+    Usage += "        A sample file 'macbuild/nightlyBuild.sample.csv' is available.       |\n"
+    Usage += "   [--build] : build and deploy                                              | disabled\n"
+    Usage += "   [--pymod] : build and deploy Pymod, too                                   | disabled\n"
+    Usage += "   [--test]  : run the QA Test                                               | disabled\n"
+    Usage += "   [--check] : check the QA Test results                                     | disabled\n"
+    Usage += "   [--makedmg|--cleandmg <srlno>] : make or clean DMGs                       | disabled\n"
+    Usage += "   [--upload <dropbox>] : upload DMGs to $HOME/Dropbox/klayout/<dropbox>     | disabled\n"
+    Usage += "   [--dryrun]           : dry-run for --build option                         | disabled\n"
+    Usage += "   [-?|--?]             : print this usage and exit                          | disabled\n"
+    Usage += "                                                                             |\n"
+    Usage += "      To use this script, make a symbolic link in the project root by:       |\n"
+    Usage += "          $ ln -s ./macbuild/nightlyBuild.py .                               |\n"
+    Usage += "            + edit and save ./macbuild/nightlyBuild.csv (optional)           |\n"
+    Usage += "                                                                             |\n"
+    Usage += "      Regular sequence for using this script:                                |\n"
+    Usage += "          (1) $ ./nightlyBuild.py  --build  --pymod                          |\n"
+    Usage += "          (2)   (confirm the build results)                                  |\n"
+    Usage += "          (3) $ ./nightlyBuild.py  --test                                    |\n"
+    Usage += "          (4) $ ./nightlyBuild.py  --check (confirm the QA Test results)     |\n"
+    Usage += "          (5) $ ./nightlyBuild.py  --makedmg  1                              |\n"
+    Usage += "          (6) $ ./nightlyBuild.py  --upload  '0.28.17'                       |\n"
+    Usage += "          (7) $ ./nightlyBuild.py  --cleandmg 1                              |\n"
+    Usage += "-----------------------------------------------------------------------------+----------------------------\n"
 
     p = optparse.OptionParser( usage=Usage )
     p.add_option( '--qt',
@@ -360,7 +370,7 @@ def Parse_CommandLine_Arguments():
     targetDic = Get_Build_Target_Dict()
     Target    = list()
     for idx in targetIdx:
-        if idx in range(1, 7):
+        if idx in range(0, 7):
             Target.append( targetDic[idx] )
 
     # Populate QtTarget
@@ -372,7 +382,7 @@ def Parse_CommandLine_Arguments():
     print( "# The --qt and --target combination specifies..." )
     print(QtTarget)
 
-    if (len(opt.qt_target) == 1) and (opt.qt_target[0] == "nightlyBuild.csv"):
+    if len(opt.qt_target) == 1 and opt.qt_target[0] == "nightlyBuild.csv": # reserved file name
         QtTarget     = list()
         withqttarget = True
         df = pd.read_csv( opt.qt_target[0], comment="#" )
@@ -383,7 +393,7 @@ def Parse_CommandLine_Arguments():
         for i in range(0, len(df)):
             qt  = df.iloc[i,0]
             idx = df.iloc[i,1]
-            if (qt == 5 and idx in range(1, 7)) or (qt == 6 and idx in [1,2,3,5,6]):
+            if (qt == 5 and idx in range(0, 7)) or (qt == 6 and idx in [0,1,2,3, 5,6]):
                 QtTarget.append( (qt, targetDic[idx]) )
     elif len(opt.qt_target) > 0:
         QtTarget     = list()
@@ -391,7 +401,7 @@ def Parse_CommandLine_Arguments():
         for item in opt.qt_target:
             qt  = int(item.split(",")[0])
             idx = int(item.split(",")[1])
-            if (qt == 5 and idx in range(1, 7)) or (qt == 6 and idx in [1,2,3,5,6]):
+            if (qt == 5 and idx in range(0, 7)) or (qt == 6 and idx in [0,1,2,3, 5,6]):
                 QtTarget.append( (qt, targetDic[idx]) )
     else:
         withqttarget = False
@@ -452,7 +462,7 @@ def Build_Deploy():
 
         command1 = [ pyBuilder ] + buildOp[(qttype, key)]
 
-        if key in [ "brewHW", "brewAHW" ] :
+        if key in [ "std", "brewHW", "brewAHW" ] :
             command2  = "time"
             command2 += " \\\n  %s" % pyBuilder
             for option in buildOp[(qttype, key)]:

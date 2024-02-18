@@ -5,7 +5,7 @@
 # File: "macbuild/build4mac.py"
 #
 #  The top Python script for building KLayout (http://www.klayout.de/index.php)
-#  version 0.28.15 or later on different Apple Mac OSX platforms.
+#  version 0.28.17 or later on different Apple Mac OSX platforms.
 #===============================================================================
 import sys
 import os
@@ -35,17 +35,17 @@ from build4mac_util import *
 #-------------------------------------------------------------------------------
 def GenerateUsage(platform):
     if platform.upper() in [ "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
-        myQt56    = "qt5brew"
-        myRuby    = "hb33"
-        myPython  = "hb311"
-        moduleset = ('qt5Brew', 'HB33', 'HB311')
+        myQt56    = "qt5macports"
+        myRuby    = "sys"
+        myPython  = "sys"
+        moduleset = ('Qt5MacPorts', 'Sys', 'Sys')
     else: # too obsolete
         raise Exception( "! Too obsolete platform <%s>" % platform )
 
     usage  = "\n"
     usage += "---------------------------------------------------------------------------------------------------------\n"
     usage += "<< Usage of 'build4mac.py' >>\n"
-    usage += "       for building KLayout 0.28.15 or later on different Apple macOS platforms.\n"
+    usage += "       for building KLayout 0.28.17 or later on different Apple macOS platforms.\n"
     usage += "\n"
     usage += "$ [python] ./build4mac.py\n"
     usage += "   option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)| default value\n"
@@ -64,9 +64,10 @@ def GenerateUsage(platform):
     usage += "                        :   MP33: use Ruby 3.3 from MacPorts                             |\n"
     usage += "                        :   HB33: use Ruby 3.3 from Homebrew                             |\n"
     usage += "                        :   Ana3: use Ruby 3.2 from Anaconda3                            |\n"
-    usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'MP311', 'HB311', 'Ana3',        | %s\n" % myPython
+    usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'Sys', 'MP311', 'HB311', 'Ana3', | %s\n" % myPython
     usage += "                        :                        'MP39', 'HB39', 'HBAuto']               |\n"
     usage += "                        :    nil: don't bind Python                                      |\n"
+    usage += "                        :    Sys: use [Sonoma|Ventura|Monterey]-bundled Python 3.9       |\n"
     usage += "                        :  MP311: use Python 3.11 from MacPorts                          |\n"
     usage += "                        :  HB311: use Python 3.11 from Homebrew                          |\n"
     usage += "                        :   Ana3: use Python 3.11 from Anaconda3                         |\n"
@@ -149,19 +150,19 @@ def Get_Default_Config():
 
     # Set the default modules
     if   Platform == "Sonoma":
-        ModuleQt     = "Qt5Brew"
-        ModuleRuby   = "Ruby33Brew"
-        ModulePython = "Python311Brew"
+        ModuleQt     = "Qt5MacPorts"
+        ModuleRuby   = "Sys"
+        ModulePython = "Sys"
     elif Platform == "Ventura":
-        ModuleQt     = "Qt5Brew"
-        ModuleRuby   = "Ruby33Brew"
-        ModulePython = "Python311Brew"
+        ModuleQt     = "Qt5MacPorts"
+        ModuleRuby   = "Sys"
+        ModulePython = "Sys"
     elif Platform == "Monterey":
-        ModuleQt     = "Qt5Brew"
-        ModuleRuby   = "Ruby33Brew"
-        ModulePython = "Python311Brew"
+        ModuleQt     = "Qt5MacPorts"
+        ModuleRuby   = "Sys"
+        ModulePython = "Sys"
     else:
-        ModuleQt     = "Qt5Brew"
+        ModuleQt     = "Qt5MacPorts"
         ModuleRuby   = "nil"
         ModulePython = "nil"
 
@@ -179,6 +180,7 @@ def Get_Default_Config():
     DeployVerbose = 1
     Version       = GetKLayoutVersionFrom( "./version.sh" )
     HBPythonIs39  = False # because ModulePython == "Python311Brew" by default
+    OSPython3FW   = None  # system Python3 frameworks in [ None, MontereyPy3FW, VenturaPy3FW, SonomaPy3FW ]
 
     config = dict()
     config['ProjectDir']    = ProjectDir        # project directory where "build.sh" exists
@@ -204,6 +206,7 @@ def Get_Default_Config():
     config['ModuleSet']     = ModuleSet         # (Qt, Ruby, Python)-tuple
     config['ToolDebug']     = ToolDebug         # debug level list for this tool
     config['HBPythonIs39']  = HBPythonIs39      # True if the Homebrew Python version <= 3.9
+    config['OSPython3FW']   = OSPython3FW       # system Python3 frameworks in [ None, MontereyPy3FW, VenturaPy3FW, SonomaPy3FW ]
     # auxiliary variables on platform
     config['System']        = System            # 6-tuple from platform.uname()
     config['Node']          = Node              # - do -
@@ -246,6 +249,7 @@ def Parse_CLI_Args(config):
     ModuleSet     = config['ModuleSet']
     ToolDebug     = config['ToolDebug']
     HBPythonIs39  = config['HBPythonIs39']
+    OSPython3FW   = config['OSPython3FW']
 
     #-----------------------------------------------------
     # [2] Parse the CLI arguments
@@ -331,9 +335,9 @@ def Parse_CLI_Args(config):
                     help='check usage' )
 
     if Platform.upper() in [ "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
-        p.set_defaults( type_qt        = "qt5brew",
-                        type_ruby      = "hb33",
-                        type_python    = "hb311",
+        p.set_defaults( type_qt        = "qt5macports",
+                        type_ruby      = "sys",
+                        type_python    = "sys",
                         build_pymod    = False,
                         no_qt_binding  = False,
                         no_qt_uitools  = False,
@@ -403,7 +407,6 @@ def Parse_CLI_Args(config):
         if choiceRuby == "nil":
             ModuleRuby = 'nil'
         elif choiceRuby == "Sys":
-            choiceRuby = "Sys"
             if Platform == "Sonoma":
                 ModuleRuby = 'RubySonoma'
             elif Platform == "Ventura":
@@ -429,6 +432,7 @@ def Parse_CLI_Args(config):
     # (C) Determine the Python type
     candidates           = dict()
     candidates['NIL']    = 'nil'
+    candidates['SYS']    = 'Sys'
     candidates['MP311']  = 'MP311'
     candidates['HB311']  = 'HB311'
     candidates['ANA3']   = 'Ana3'
@@ -445,29 +449,49 @@ def Parse_CLI_Args(config):
         if choicePython ==  "nil":
             ModulePython = 'nil'
             HBPythonIs39 = None
+            OSPython3FW  = None
+        elif choicePython == "Sys":
+            if Platform == "Sonoma":
+                ModulePython = 'PythonSonoma'
+                HBPythonIs39 = None
+                OSPython3FW  = SonomaPy3FW
+            elif Platform == "Ventura":
+                ModulePython = 'PythonVentura'
+                HBPythonIs39 = None
+                OSPython3FW  = VenturaPy3FW
+            elif Platform == "Monterey":
+                ModulePython = 'PythonMonterey'
+                HBPythonIs39 = None
+                OSPython3FW  = MontereyPy3FW
         elif choicePython == "MP311":
             ModulePython = 'Python311MacPorts'
             HBPythonIs39 = None
+            OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "HB311":
             ModulePython = 'Python311Brew'
             HBPythonIs39 = False
+            OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "Ana3":
             ModulePython = 'PythonAnaconda3'
             HBPythonIs39 = None
+            OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "MP39":
             ModulePython = 'Python39MacPorts'
             HBPythonIs39 = None
+            OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "HB39":
             ModulePython = 'Python39Brew'
             HBPythonIs39 = True
+            OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "HBAuto":
             ModulePython = 'PythonAutoBrew'
             HBPythonIs39 = (HBPythonAutoVersion == "3.9")
+            OSPython3FW  = None
             NonOSStdLang = True
     if ModulePython == '':
         print("")
@@ -524,7 +548,7 @@ def Parse_CLI_Args(config):
             else:
                 message += "a lightweight (LW-) package with Pymod excluding Qt5, Ruby, and Python..."
         elif DeploymentF:
-            if (ModuleRuby in RubySys) and (ModulePython in PythonSys): # won't meet this condition any more!
+            if (ModuleRuby in RubySys) and (ModulePython in PythonSys):
                 PackagePrefix = "ST-"
                 message      += "a standard (ST-) package including Qt[5|6] and using OS-bundled Ruby and Python..."
             elif ModulePython in ['Python311Brew', 'Python39Brew', 'PythonAutoBrew']:
@@ -568,6 +592,7 @@ def Parse_CLI_Args(config):
     config['ModuleSet']     = ModuleSet
     config['ToolDebug']     = ToolDebug
     config['HBPythonIs39']  = HBPythonIs39
+    config['OSPython3FW']   = OSPython3FW
 
     if CheckComOnly:
         pp = pprint.PrettyPrinter( indent=4, width=140 )
@@ -606,6 +631,7 @@ def Get_Build_Parameters(config):
     DeploymentF   = config['DeploymentF']
     DeploymentP   = config['DeploymentP']
     PackagePrefix = config['PackagePrefix']
+    OSPython3FW   = config['OSPython3FW']
 
     #-----------------------------------------------------
     # [2] Set parameters passed to the main Bash script
@@ -652,7 +678,10 @@ def Get_Build_Parameters(config):
 
     parameters['bin']   = MacBinDir
     parameters['build'] = MacBuildDir
-    parameters['rpath'] = "@executable_path/../Frameworks"
+    if OSPython3FW in [ MontereyPy3FW, VenturaPy3FW, SonomaPy3FW ]:
+        parameters['rpath'] = OSPython3FW
+    else:
+        parameters['rpath'] = "@executable_path/../Frameworks"
 
     # (E) want Qt bindings with Ruby scripts?
     parameters['no_qt_bindings'] = NoQtBindings
