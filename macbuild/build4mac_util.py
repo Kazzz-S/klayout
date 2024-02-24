@@ -16,6 +16,7 @@ import re
 import string
 import subprocess
 import shutil
+import fnmatch
 
 #----------------------------------------------------------------------------------------
 ## To import global dictionaries of different modules
@@ -789,6 +790,38 @@ def Generate_Start_Console_Py( template, pythonver, target ):
         return False
     else:
         return True
+
+#----------------------------------------------------------------------------------------
+## To deeply copy directory contents
+#
+# @param[in] src_dir : source directory
+# @param[in] dest_dir: destination directory
+# @param[in] excl_pat: exclude pattern (default=None)
+#
+# @return True on success, False on failure
+#----------------------------------------------------------------------------------------
+def Deeply_Copy_Dir( src_dir, dest_dir, excl_pat=None ):
+    if os.path.isfile(dest_dir):
+        print( "! Destination <%s> is an existing file" % dest_dir, file=sys.stderr )
+        return False
+
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+
+    for item in os.listdir(src_dir):
+        src_item = os.path.join(src_dir, item)
+        dest_item = os.path.join(dest_dir, item)
+
+        if os.path.isdir(src_item):
+            if excl_pat and fnmatch.fnmatch(item, excl_pat):
+                continue  # skip copying if directory name matches the exclusion pattern
+            Deeply_Copy_Dir( src_item, dest_item, excl_pat )
+        else:
+            if excl_pat and fnmatch.fnmatch(item, excl_pat):
+                continue  # skip copying if the file matches the exclusion pattern
+            shutil.copy2(src_item, dest_item)
+
+    return True
 
 #----------------
 # End of File
