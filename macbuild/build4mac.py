@@ -544,9 +544,9 @@ def Parse_CLI_Args(config):
         if DeploymentP:
             PackagePrefix = "LW-"
             if not BuildPymod:
-                message += "a lightweight (LW-) package excluding Qt5, Ruby, and Python..."
+                message += "a lightweight (LW-) package excluding Qt[5|6], Ruby, and Python..."
             else:
-                message += "a lightweight (LW-) package with Pymod excluding Qt5, Ruby, and Python..."
+                message += "a lightweight (LW-) package with Pymod excluding Qt[5|6], Ruby, and Python..."
         elif DeploymentF:
             if (ModuleRuby in RubySys) and (ModulePython in PythonSys):
                 PackagePrefix = "ST-"
@@ -1831,8 +1831,8 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         #-------------------------------------------------------------
         # [10] Special deployment of Ruby3.3 from Homebrew?
         #-------------------------------------------------------------
-        deploymentRuby32HB = (ModuleRuby == 'Ruby33Brew')
-        if deploymentRuby32HB and NonOSStdLang:
+        deploymentRuby33HB = (ModuleRuby == 'Ruby33Brew')
+        if deploymentRuby33HB and NonOSStdLang:
 
             print( "" )
             print( " [10] You have reached optional deployment of Ruby from %s ..." % HBRuby33Path )
