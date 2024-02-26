@@ -159,7 +159,7 @@ struct trans_defs
       "@param c The original transformation\n"
       "@param u The Additional displacement\n"
     ) +
-    constructor ("new", &new_cxy, arg ("c"), arg ("x"), arg ("y"),
+    constructor ("new", &new_cxy, arg ("c"), arg ("x", 0), arg ("y", 0),
       "@brief Creates a transformation from another transformation plus a displacement\n"
       "\n"
       "Creates a new transformation from a existing transformation. This constructor is provided for creating duplicates "
@@ -172,7 +172,7 @@ struct trans_defs
       "@param x The Additional displacement (x)\n"
       "@param y The Additional displacement (y)\n"
     ) +
-    constructor ("new", &new_rmu, arg ("rot"), arg ("mirr", false), arg ("u", displacement_type ()),
+    constructor ("new", &new_rmu, arg ("rot", 0), arg ("mirrx", false), arg ("u", displacement_type ()),
       "@brief Creates a transformation using angle and mirror flag\n"
       "\n"
       "The sequence of operations is: mirroring at x axis,\n"
@@ -182,7 +182,7 @@ struct trans_defs
       "@param mirrx True, if mirrored at x axis\n"
       "@param u The displacement\n"
     ) +
-    constructor ("new", &new_rmxy, arg ("rot"), arg ("mirr"), arg ("x"), arg ("y"),
+    constructor ("new", &new_rmxy, arg ("rot", 0), arg ("mirrx", false), arg ("x", 0), arg ("y", 0),
       "@brief Creates a transformation using angle and mirror flag and two coordinate values for displacement\n"
       "\n"
       "The sequence of operations is: mirroring at x axis,\n"
@@ -569,7 +569,7 @@ struct cplx_trans_defs
     return new C (C (u) * C (mag) * c);
   }
 
-  static C *new_cmxy (const C &c, double mag, coord_type x, coord_type y)
+  static C *new_cmxy (const C &c, double mag, target_coord_type x, target_coord_type y)
   {
     return new C (C (displacement_type (x, y)) * C (mag) * c);
   }
@@ -584,29 +584,24 @@ struct cplx_trans_defs
     return new C (u);
   }
 
-  static C *new_t (const simple_trans_type &t)
+  static C *new_tm (const simple_trans_type &t, double mag)
   {
-    return new C (t, 1.0, 1.0);
+    return new C (t, 1.0, mag);
   }
 
-  static C *new_tm (const simple_trans_type &t, double m)
+  static C *new_m (double mag)
   {
-    return new C (t, 1.0, m);
+    return new C (mag);
   }
 
-  static C *new_m (double m)
+  static C *new_mrmu (double mag, double r, bool mirrx, const displacement_type &u)
   {
-    return new C (m);
+    return new C (mag, r, mirrx, u);
   }
 
-  static C *new_mrmu (double mag, double r, bool m, const displacement_type &u)
+  static C *new_mrmxy (double mag, double r, bool mirrx, target_coord_type x, target_coord_type y)
   {
-    return new C (mag, r, m, u);
-  }
-
-  static C *new_mrmxy (double mag, double r, bool m, target_coord_type x, target_coord_type y)
-  {
-    return new C (mag, r, m, displacement_type (x, y));
+    return new C (mag, r, mirrx, displacement_type (x, y));
   }
 
   static simple_trans_type s_trans (const C *cplx_trans)
@@ -650,7 +645,7 @@ struct cplx_trans_defs
     constructor ("new", &new_v, 
       "@brief Creates a unit transformation\n"
     ) +
-    constructor ("new", &new_cmu, arg ("c"), arg ("m", 1.0), arg ("u", displacement_type ()),
+    constructor ("new", &new_cmu, arg ("c"), arg ("mag", 1.0), arg ("u", displacement_type ()),
       "@brief Creates a transformation from another transformation plus a magnification and displacement\n"
       "\n"
       "Creates a new transformation from a existing transformation. This constructor is provided for creating duplicates "
@@ -662,7 +657,7 @@ struct cplx_trans_defs
       "@param c The original transformation\n"
       "@param u The Additional displacement\n"
     ) +
-    constructor ("new", &new_cmxy, arg ("c"), arg ("m"), arg ("x"), arg ("y"),
+    constructor ("new", &new_cmxy, arg ("c"), arg ("mag", 1.0), arg ("x", 0), arg ("y", 0),
       "@brief Creates a transformation from another transformation plus a magnification and displacement\n"
       "\n"
       "Creates a new transformation from a existing transformation. This constructor is provided for creating duplicates "
@@ -684,20 +679,10 @@ struct cplx_trans_defs
       "@param x The x displacement\n"
       "@param y The y displacement\n"
     ) +
-    constructor ("new", &new_m, arg ("m"),
-      "@brief Creates a transformation from a magnification\n"
-      "\n"
-      "Creates a magnifying transformation without displacement and rotation given the magnification m."
-    ) +
-    constructor ("new", &new_tm, arg ("t"), arg ("m"),
+    constructor ("new", &new_tm, arg ("t"), arg ("mag", 1.0),
       "@brief Creates a transformation from a simple transformation and a magnification\n"
       "\n"
       "Creates a magnifying transformation from a simple transformation and a magnification."
-    ) +
-    constructor ("new", &new_t, arg ("t"),
-      "@brief Creates a transformation from a simple transformation alone\n"
-      "\n"
-      "Creates a magnifying transformation from a simple transformation and a magnification of 1.0."
     ) +
     constructor ("new", &new_u, arg ("u"),
       "@brief Creates a transformation from a displacement\n"
@@ -706,7 +691,7 @@ struct cplx_trans_defs
       "\n"
       "This method has been added in version 0.25."
     ) +
-    constructor ("new", &new_mrmu, arg ("mag"), arg ("rot"), arg ("mirrx"), arg ("u"),
+    constructor ("new", &new_mrmu, arg ("mag", 1.0), arg ("rot", 0.0), arg ("mirrx", false), arg ("u", displacement_type ()),
       "@brief Creates a transformation using magnification, angle, mirror flag and displacement\n"
       "\n"
       "The sequence of operations is: magnification, mirroring at x axis,\n"
@@ -717,7 +702,7 @@ struct cplx_trans_defs
       "@param mirrx True, if mirrored at x axis\n"
       "@param u The displacement\n"
     ) +
-    constructor ("new", &new_mrmxy, arg ("mag"), arg ("rot"), arg ("mirrx"), arg ("x"), arg ("y"),
+    constructor ("new", &new_mrmxy, arg ("mag", 1.0), arg ("rot", 0.0), arg ("mirrx", false), arg ("x", 0), arg ("y", 0),
       "@brief Creates a transformation using magnification, angle, mirror flag and displacement\n"
       "\n"
       "The sequence of operations is: magnification, mirroring at x axis,\n"
@@ -980,72 +965,114 @@ struct cplx_trans_defs
   }
 };
 
-template <class F, class I>
-static F *cplxtrans_from_cplxtrans (const I &t)
+namespace {
+
+template<class F, class I> struct dbu_trans;
+
+template<>
+struct dbu_trans<db::Coord, db::Coord>
 {
-  return new F (t);
+  db::ICplxTrans operator() (double /*dbu*/) const { return db::ICplxTrans (); }
+};
+
+template<>
+struct dbu_trans<db::Coord, db::DCoord>
+{
+  db::VCplxTrans operator() (double dbu) const { return db::VCplxTrans (1.0 / dbu); }
+};
+
+template<>
+struct dbu_trans<db::DCoord, db::Coord>
+{
+  db::CplxTrans operator() (double dbu) const { return db::CplxTrans (dbu); }
+};
+
+template<>
+struct dbu_trans<db::DCoord, db::DCoord>
+{
+  db::DCplxTrans operator() (double /*dbu*/) const { return db::DCplxTrans (); }
+};
+
 }
 
 template <class F, class I>
-static F cplxtrans_to_cplxtrans (const I *t)
+static F *cplxtrans_from_cplxtrans (const I &t, double dbu)
 {
-  return F (*t);
+  return new F (dbu_trans<typename F::target_coord_type, typename I::target_coord_type> () (dbu) * t * dbu_trans<typename I::coord_type, typename F::coord_type> () (dbu));
 }
 
 template <class F, class I>
-static F cplxtrans_to_icplxtrans (const I *t, double dbu)
+static F cplxtrans_to_cplxtrans (const I *t, double dbu)
 {
-  F f = F (*t);
-  f.disp (typename F::displacement_type (f.disp () * (1.0 / dbu)));
-  return f;
-}
-
-template <class F, class I>
-static F cplxtrans_to_dcplxtrans (const I *t, double dbu)
-{
-  F f = F (*t);
-  f.disp (f.disp () * dbu);
-  return f;
+  return F (dbu_trans<typename F::target_coord_type, typename I::target_coord_type> () (dbu) * *t * dbu_trans<typename I::coord_type, typename F::coord_type> () (dbu));
 }
 
 Class<db::DCplxTrans> decl_DCplxTrans ("db", "DCplxTrans",
-  constructor ("new|#from_itrans", &cplxtrans_from_cplxtrans<db::DCplxTrans, db::CplxTrans>, gsi::arg ("trans"),
+  constructor ("new|#from_itrans", &cplxtrans_from_cplxtrans<db::DCplxTrans, db::CplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
     "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+    "The 'dbu' argument is used to transform the input space from integer units to floating-point units. "
+    "Formally, the DCplxTrans transformation is initialized with 'trans * to_dbu' where 'to_dbu' is the transformation "
+    "into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.\n"
     "\n"
-    "This constructor has been introduced in version 0.25 and replaces the previous static method 'from_itrans'."
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  constructor ("new", &cplxtrans_from_cplxtrans<db::DCplxTrans, db::ICplxTrans>, gsi::arg ("trans"),
+  constructor ("new", &cplxtrans_from_cplxtrans<db::DCplxTrans, db::ICplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
     "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+    "The 'dbu' argument is used to transform the input and output space from integer units to floating-point units and vice versa. "
+    "Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans * to_dbu' where 'to_dbu' is the transformation "
+    "into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'. 'from_dbu' is the transformation into micrometer space, "
+    "or more precisely 'CplxTrans(mag=dbu)'.\n"
     "\n"
-    "This constructor has been introduced in version 0.25."
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  constructor ("new", &cplxtrans_from_cplxtrans<db::DCplxTrans, db::VCplxTrans>, gsi::arg ("trans"),
+  constructor ("new", &cplxtrans_from_cplxtrans<db::DCplxTrans, db::VCplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
     "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+    "The 'dbu' argument is used to transform the output space from integer units to floating-point units. "
+    "Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans' where 'from_dbu' is the transformation "
+    "into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.\n"
     "\n"
-    "This constructor has been introduced in version 0.25."
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  method_ext ("to_itrans", &cplxtrans_to_icplxtrans<db::ICplxTrans, db::DCplxTrans>, gsi::arg ("dbu", 1.0),
+  method_ext ("#to_itrans", &cplxtrans_to_cplxtrans<db::ICplxTrans, db::DCplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with integer input and output coordinates\n"
     "\n"
     "The database unit can be specified to translate the floating-point coordinate "
     "displacement in micron units to an integer-coordinate displacement in database units. The displacement's' "
     "coordinates will be divided by the database unit.\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors. Instead of 'to_itrans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "itrans = RBA::ICplxTrans::new(dtrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
-  method_ext ("to_vtrans", &cplxtrans_to_icplxtrans<db::VCplxTrans, db::DCplxTrans>, gsi::arg ("dbu", 1.0),
+  method_ext ("#to_vtrans", &cplxtrans_to_cplxtrans<db::VCplxTrans, db::DCplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with integer output coordinates\n"
     "\n"
     "The database unit can be specified to translate the floating-point coordinate "
     "displacement in micron units to an integer-coordinate displacement in database units. The displacement's' "
     "coordinates will be divided by the database unit.\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors. Instead of 'to_vtrans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "vtrans = RBA::VCplxTrans::new(dtrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
-  method_ext ("to_trans", &cplxtrans_to_cplxtrans<db::CplxTrans, db::DCplxTrans>,
+  method_ext ("#to_trans", &cplxtrans_to_cplxtrans<db::CplxTrans, db::DCplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with integer input coordinates\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors. Instead of 'to_trans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "trans = RBA::CplxTrans::new(dtrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
   method ("*!", (db::CplxTrans (db::DCplxTrans::*) (const db::CplxTrans &) const) &db::DCplxTrans::concat, gsi::arg ("t"),
     "@brief Multiplication (concatenation) of transformations\n"
@@ -1088,43 +1115,62 @@ Class<db::DCplxTrans> decl_DCplxTrans ("db", "DCplxTrans",
 );
 
 Class<db::CplxTrans> decl_CplxTrans ("db", "CplxTrans",
-  constructor ("new|#from_dtrans", &cplxtrans_from_cplxtrans<db::CplxTrans, db::DCplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new|#from_dtrans", &cplxtrans_from_cplxtrans<db::CplxTrans, db::DCplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour\n"
+    "The 'dbu' argument is used to transform the input space from floating-point units to integer units. "
+    "Formally, the CplxTrans transformation is initialized with 'trans * from_dbu' where 'from_dbu' is the transformation "
+    "into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.\n"
     "\n"
-    "This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'."
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  constructor ("new", &cplxtrans_from_cplxtrans<db::CplxTrans, db::ICplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new", &cplxtrans_from_cplxtrans<db::CplxTrans, db::ICplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour\n"
+    "The 'dbu' argument is used to transform the output space from integer units to floating-point units. "
+    "Formally, the CplxTrans transformation is initialized with 'from_dbu * trans' where 'from_dbu' is the transformation "
+    "into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.\n"
     "\n"
-    "This constructor has been introduced in version 0.25."
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  constructor ("new", &cplxtrans_from_cplxtrans<db::CplxTrans, db::VCplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new", &cplxtrans_from_cplxtrans<db::CplxTrans, db::VCplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour\n"
+    "The 'dbu' argument is used to transform the input and output space from integer units to floating-point units and vice versa. "
+    "Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans * from_dbu' where 'from_dbu' is the transformation "
+    "into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.\n"
     "\n"
-    "This constructor has been introduced in version 0.25."
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  method_ext ("to_itrans", &cplxtrans_to_icplxtrans<db::ICplxTrans, db::CplxTrans>, gsi::arg ("dbu", 1.0),
+  method_ext ("#to_itrans", &cplxtrans_to_cplxtrans<db::ICplxTrans, db::CplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with integer input and output coordinates\n"
     "\n"
-    "The database unit can be specified to translate the floating-point coordinate "
-    "displacement in micron units to an integer-coordinate displacement in database units. The displacement's' "
-    "coordinates will be divided by the database unit.\n"
+    "This method is redundant with the conversion constructors. Instead of 'to_itrans' use the conversion constructor:\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "@code\n"
+    "itrans = RBA::ICplxTrans::new(trans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
-  method_ext ("to_vtrans", &cplxtrans_to_icplxtrans<db::VCplxTrans, db::CplxTrans>, gsi::arg ("dbu", 1.0),
+  method_ext ("#to_vtrans", &cplxtrans_to_cplxtrans<db::VCplxTrans, db::CplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with integer output and floating-point input coordinates\n"
     "\n"
-    "The database unit can be specified to translate the floating-point coordinate "
-    "displacement in micron units to an integer-coordinate displacement in database units. The displacement's' "
-    "coordinates will be divided by the database unit.\n"
+    "This method is redundant with the conversion constructors. Instead of 'to_vtrans' use the conversion constructor:\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "@code\n"
+    "vtrans = RBA::VCplxTrans::new(trans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
-  method_ext ("to_trans", &cplxtrans_to_cplxtrans<db::DCplxTrans, db::CplxTrans>,
+  method_ext ("#to_trans", &cplxtrans_to_cplxtrans<db::DCplxTrans, db::CplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with floating-point input coordinates\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors. Instead of 'to_trans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "dtrans = RBA::DCplxTrans::new(trans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
   method ("*!", (db::DCplxTrans (db::CplxTrans::*) (const db::VCplxTrans &) const) &db::CplxTrans::concat, gsi::arg ("t"),
     "@brief Multiplication (concatenation) of transformations\n"
@@ -1178,43 +1224,77 @@ Class<db::CplxTrans> decl_CplxTrans ("db", "CplxTrans",
 );
 
 Class<db::ICplxTrans> decl_ICplxTrans ("db", "ICplxTrans",
-  constructor ("new|#from_dtrans", &cplxtrans_from_cplxtrans<db::ICplxTrans, db::DCplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new|#from_dtrans", &cplxtrans_from_cplxtrans<db::ICplxTrans, db::DCplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates an integer coordinate transformation from another coordinate flavour\n"
     "\n"
-    "This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'."
-  ) +
-  constructor ("new|#from_trans", &cplxtrans_from_cplxtrans<db::ICplxTrans, db::CplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+    "The 'dbu' argument is used to transform the input space and output space from floating-point units to integer units and vice versa. "
+    "Formally, the ICplxTrans transformation is initialized with 'to_dbu * trans * from_dbu' where 'from_dbu' is the transformation "
+    "into micrometer space, or more precisely 'CplxTrans(mag=dbu)' and 'to_dbu' is the transformation into DBU space, or more "
+    "precisely 'VCplxTrans(mag=1/dbu)'.\n"
     "\n"
-    "This constructor has been introduced in version 0.25 and replaces the previous static method 'from_trans'."
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  constructor ("new", &cplxtrans_from_cplxtrans<db::ICplxTrans, db::VCplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new|#from_trans", &cplxtrans_from_cplxtrans<db::ICplxTrans, db::CplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates an integer coordinate transformation from another coordinate flavour\n"
     "\n"
-    "This constructor has been introduced in version 0.25."
+    "The 'dbu' argument is used to transform the output space from floating-point units to integer units. "
+    "Formally, the CplxTrans transformation is initialized with 'to_dbu * trans' where 'to_dbu' is the transformation into DBU space, or more "
+    "precisely 'VCplxTrans(mag=1/dbu)'.\n"
+    "\n"
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
   ) +
-  method_ext ("to_itrans", &cplxtrans_to_dcplxtrans<db::DCplxTrans, db::ICplxTrans>, gsi::arg ("dbu", 1.0),
+  constructor ("new", &cplxtrans_from_cplxtrans<db::ICplxTrans, db::VCplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates an integer coordinate transformation from another coordinate flavour\n"
+    "\n"
+    "The 'dbu' argument is used to transform the input space from floating-point units to integer units. "
+    "Formally, the CplxTrans transformation is initialized with 'trans * from_dbu' where 'from_dbu' is the transformation "
+    "into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.\n"
+    "\n"
+    "This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29."
+  ) +
+  method_ext ("#to_itrans", &cplxtrans_to_cplxtrans<db::DCplxTrans, db::ICplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with floating-point input and output coordinates\n"
     "\n"
     "The database unit can be specified to translate the integer coordinate "
     "displacement in database units to a floating-point displacement in micron units. The displacement's' "
     "coordinates will be multiplied with the database unit.\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors and is ill-named. "
+    "Instead of 'to_itrans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "dtrans = RBA::DCplxTrans::new(itrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
-  method_ext ("to_vtrans", &cplxtrans_to_dcplxtrans<db::CplxTrans, db::ICplxTrans>, gsi::arg ("dbu", 1.0),
+  method_ext ("#to_vtrans", &cplxtrans_to_cplxtrans<db::CplxTrans, db::ICplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with floating-point output coordinates\n"
     "\n"
     "The database unit can be specified to translate the integer coordinate "
     "displacement in database units to a floating-point displacement in micron units. The displacement's' "
     "coordinates will be multiplied with the database unit.\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors and is ill-named. "
+    "Instead of 'to_vtrans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "trans = RBA::CplxTrans::new(itrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
-  method_ext ("to_trans", &cplxtrans_to_cplxtrans<db::VCplxTrans, db::ICplxTrans>,
+  method_ext ("#to_trans", &cplxtrans_to_cplxtrans<db::VCplxTrans, db::ICplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with floating-point input coordinates\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors and is ill-named. "
+    "Instead of 'to_trans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "vtrans = RBA::VCplxTrans::new(itrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been introduced in version 0.25 and was deprecated in version 0.29."
   ) +
   method ("*!", (db::VCplxTrans (db::ICplxTrans::*) (const db::VCplxTrans &) const) &db::ICplxTrans::concat, gsi::arg ("t"),
     "@brief Multiplication (concatenation) of transformations\n"
@@ -1256,37 +1336,76 @@ Class<db::ICplxTrans> decl_ICplxTrans ("db", "ICplxTrans",
 );
 
 Class<db::VCplxTrans> decl_VCplxTrans ("db", "VCplxTrans",
-  constructor ("new", &cplxtrans_from_cplxtrans<db::VCplxTrans, db::DCplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new", &cplxtrans_from_cplxtrans<db::VCplxTrans, db::DCplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates a floating-point to integer coordinate transformation from another coordinate flavour\n"
+    "\n"
+    "The 'dbu' argument is used to transform the output space from floating-point units to integer units. "
+    "Formally, the VCplxTrans transformation is initialized with 'to_dbu * trans' where 'to_dbu' is the transformation "
+    "into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.\n"
+    "\n"
+    "The 'dbu' argument has been added in version 0.29."
   ) +
-  constructor ("new", &cplxtrans_from_cplxtrans<db::VCplxTrans, db::CplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new", &cplxtrans_from_cplxtrans<db::VCplxTrans, db::CplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates a floating-point to integer coordinate transformation from another coordinate flavour\n"
+    "\n"
+    "The 'dbu' argument is used to transform the input and output space from floating-point units to integer units and vice versa. "
+    "Formally, the VCplxTrans transformation is initialized with 'to_dbu * trans * to_dbu' where 'to_dbu' is the transformation "
+    "into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.\n"
+    "\n"
+    "The 'dbu' argument has been added in version 0.29."
   ) +
-  constructor ("new", &cplxtrans_from_cplxtrans<db::VCplxTrans, db::ICplxTrans>, gsi::arg ("trans"),
-    "@brief Creates a floating-point coordinate transformation from another coordinate flavour\n"
+  constructor ("new", &cplxtrans_from_cplxtrans<db::VCplxTrans, db::ICplxTrans>, gsi::arg ("trans"), gsi::arg ("dbu", 1.0),
+    "@brief Creates a floating-point to integer coordinate transformation from another coordinate flavour\n"
+    "\n"
+    "The 'dbu' argument is used to transform the input and output space from floating-point units to integer units and vice versa. "
+    "Formally, the VCplxTrans transformation is initialized with 'trans * to_dbu' where 'to_dbu' is the transformation "
+    "into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.\n"
+    "\n"
+    "The 'dbu' argument has been added in version 0.29."
   ) +
-  method_ext ("to_itrans", &cplxtrans_to_dcplxtrans<db::DCplxTrans, db::VCplxTrans>, gsi::arg ("dbu", 1.0),
+  method_ext ("#to_itrans", &cplxtrans_to_cplxtrans<db::DCplxTrans, db::VCplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with floating-point output coordinates\n"
     "\n"
     "The database unit can be specified to translate the integer coordinate "
     "displacement in database units to a floating-point displacement in micron units. The displacement's' "
     "coordinates will be multiplied with the database unit.\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors and is ill-named. "
+    "Instead of 'to_itrans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "dtrans = RBA::DCplxTrans::new(vtrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been deprecated in version 0.29."
   ) +
-  method_ext ("to_vtrans", &cplxtrans_to_dcplxtrans<db::CplxTrans, db::VCplxTrans>, gsi::arg ("dbu", 1.0),
+  method_ext ("#to_vtrans", &cplxtrans_to_cplxtrans<db::CplxTrans, db::VCplxTrans>, gsi::arg ("dbu", 1.0),
     "@brief Converts the transformation to another transformation with integer input and floating-point output coordinates\n"
     "\n"
     "The database unit can be specified to translate the integer coordinate "
     "displacement in database units to an floating-point displacement in micron units. The displacement's' "
     "coordinates will be multiplied with the database unit.\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors and is ill-named. "
+    "Instead of 'to_vtrans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "trans = RBA::CplxTrans::new(vtrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been deprecated in version 0.29."
   ) +
-  method_ext ("to_trans", &cplxtrans_to_cplxtrans<db::ICplxTrans, db::VCplxTrans>,
+  method_ext ("#to_trans", &cplxtrans_to_cplxtrans<db::ICplxTrans, db::VCplxTrans>,
     "@brief Converts the transformation to another transformation with integer input coordinates\n"
     "\n"
-    "This method has been introduced in version 0.25."
+    "This method is redundant with the conversion constructors and is ill-named. "
+    "Instead of 'to_trans' use the conversion constructor:\n"
+    "\n"
+    "@code\n"
+    "itrans = RBA::ICplxTrans::new(vtrans, dbu)\n"
+    "@/code\n"
+    "\n"
+    "This method has been deprecated in version 0.29."
   ) +
   method ("*!", (db::VCplxTrans (db::VCplxTrans::*) (const db::DCplxTrans &) const) &db::VCplxTrans::concat, gsi::arg ("t"),
     "@brief Multiplication (concatenation) of transformations\n"

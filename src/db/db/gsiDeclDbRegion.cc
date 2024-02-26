@@ -235,6 +235,22 @@ static void insert_si2 (db::Region *r, db::RecursiveShapeIterator si, db::ICplxT
   }
 }
 
+static db::Region delaunay (const db::Region *r)
+{
+  db::TriangulationProcessor tri (0.0, 0.0);
+  db::Region res = r->processed (tri);
+  res.set_merged_semantics (false);
+  return res;
+}
+
+static db::Region refined_delaunay (const db::Region *r, double max_area, double min_b)
+{
+  db::TriangulationProcessor tri (max_area, min_b);
+  db::Region res = r->processed (tri);
+  res.set_merged_semantics (false);
+  return res;
+}
+
 static db::Region minkowski_sum_pe (const db::Region *r, const db::Edge &e)
 {
   return r->processed (db::minkowski_sum_computation<db::Edge> (e));
@@ -770,6 +786,40 @@ size_dvm (db::Region *region, const db::Vector &dv, unsigned int mode)
 {
   region->size (dv.x (), dv.y (), mode);
   return *region;
+}
+
+static std::vector<std::vector<double> >
+rasterize2 (const db::Region *region, const db::Point &origin, const db::Vector &pixel_distance, const db::Vector &pixel_size, unsigned int nx, unsigned int ny)
+{
+  db::DAreaMap am (db::DPoint (origin), db::DVector (pixel_distance), db::DVector (pixel_size), nx, ny);
+
+  auto pi = region->begin ();
+  pi = pi.confined (db::Box (am.bbox ()), false /*not overlapping*/);
+
+  while (! pi.at_end ()) {
+    db::DPolygon dp (*pi);
+    db::rasterize (dp, am);
+    ++pi;
+  }
+
+  std::vector<std::vector<double> > result;
+  result.reserve (ny);
+  for (unsigned int y = 0; y < ny; ++y) {
+    result.push_back (std::vector<double> ());
+    std::vector<double> &row = result.back ();
+    row.reserve (nx);
+    for (unsigned int x = 0; x < nx; ++x) {
+      row.push_back (am.get (x, y));
+    }
+  }
+
+  return result;
+}
+
+static std::vector<std::vector<double> >
+rasterize1 (const db::Region *region, const db::Point &origin, const db::Vector &pixel_size, unsigned int nx, unsigned int ny)
+{
+  return rasterize2 (region, origin, pixel_size, pixel_size, nx, ny);
 }
 
 static db::Point default_origin;
@@ -2362,6 +2412,37 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
     "\n"
     "This method has been introduced in version 0.26."
   ) +
+  method_ext ("delaunay", &delaunay,
+    "@brief Computes a constrained Delaunay triangulation from the given region\n"
+    "\n"
+    "@return A new region holding the triangles of the constrained Delaunay triangulation.\n"
+    "\n"
+    "Note that the result is a region in raw mode as otherwise the triangles are likely to get "
+    "merged later on.\n"
+    "\n"
+    "This method has been introduced in version 0.29."
+  ) +
+  method_ext ("delaunay", &refined_delaunay, gsi::arg ("max_area"), gsi::arg ("min_b", 1.0),
+    "@brief Computes a refined, constrained Delaunay triangulation from the given region\n"
+    "\n"
+    "@return A new region holding the triangles of the refined, constrained Delaunay triangulation.\n"
+    "\n"
+    "Refinement is implemented by Chew's second algorithm. A maximum area can be given. Triangles "
+    "larger than this area will be split. In addition 'skinny' triangles will be resolved where "
+    "possible. 'skinny' is defined in terms of shortest edge to circumcircle radius ratio (b). "
+    "A minimum number for b can be given. The default of 1.0 corresponds to a minimum angle of 30 degree "
+    "and is usually a good choice. The algorithm is stable up to roughly 1.2 which corresponds to "
+    "a minimum angle of abouth 37 degree.\n"
+    "\n"
+    "The area value is given in terms of DBU units. Picking a value of 0.0 for area and min b will "
+    "make the implementation skip the refinement step. In that case, the results are identical to "
+    "the standard constrained Delaunay triangulation.\n"
+    "\n"
+    "Note that the result is a region in raw mode as otherwise the triangles are likely to get "
+    "merged later on.\n"
+    "\n"
+    "This method has been introduced in version 0.29."
+  ) +
   method_ext ("minkowski_sum|#minkowsky_sum", &minkowski_sum_pe, gsi::arg ("e"),
     "@brief Compute the Minkowski sum of the region and an edge\n"
     "\n"
@@ -3047,6 +3128,36 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
   method_ext ("to_s", &to_string1, gsi::arg ("max_count"),
     "@brief Converts the region to a string\n"
     "This version allows specification of the maximum number of polygons contained in the string."
+  ) +
+  method_ext ("rasterize", &rasterize1, gsi::arg ("origin"), gsi::arg ("pixel_size"), gsi::arg ("nx"), gsi::arg ("ny"),
+    "@brief A grayscale rasterizer delivering the area covered per pixel\n"
+    "@param origin The lower-left corner of the lowest-left pixel\n"
+    "@param pixel_size The dimension of each pixel (the x component gives the width, the y component the height)\n"
+    "@param nx The number of pixels in horizontal direction\n"
+    "@param ny The number of pixels in vertical direction\n"
+    "The method will create a grayscale, high-resolution density map of a rectangular region.\n"
+    "The scan region is defined by the origin, the pixel size and the number of pixels in horizontal (nx) and\n"
+    "vertical (ny) direction. The resulting array will contain the area covered by polygons from the region\n"
+    "in square database units.\n"
+    "\n"
+    "For non-overlapping polygons, the maximum density value is px*py. Overlapping polygons are counted multiple\n"
+    "times, so the actual values may be larger. If you want overlaps removed, you have to\n"
+    "merge the region before. Merge semantics does not apply for the 'rasterize' method.\n"
+    "\n"
+    "The resulting area values are precise within the limits of double-precision floating point arithmetics.\n"
+    "\n"
+    "A second version exists that allows specifying an active pixel size which is smaller than the\n"
+    "pixel distance hence allowing pixels samples that do not cover the full area, but leave gaps between the pixels.\n"
+    "\n"
+    "This method has been added in version 0.29.\n"
+  ) +
+  method_ext ("rasterize", &rasterize2, gsi::arg ("origin"), gsi::arg ("pixel_distance"), gsi::arg ("pixel_size"), gsi::arg ("nx"), gsi::arg ("ny"),
+    "@brief A version of 'rasterize' that allows a pixel step distance which is larger than the pixel size\n"
+    "This version behaves like the first variant of 'rasterize', but the pixel distance (pixel-to-pixel step raster)\n"
+    "can be specified separately from the pixel size. Currently, the pixel size must be equal or smaller than the\n"
+    "pixel distance - i.e. the pixels must not overlap.\n"
+    "\n"
+    "This method has been added in version 0.29.\n"
   ) +
   method ("enable_progress", &db::Region::enable_progress, gsi::arg ("label"),
     "@brief Enable progress reporting\n"

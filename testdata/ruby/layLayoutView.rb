@@ -183,8 +183,9 @@ class LAYLayoutView_TestClass < TestBase
     assert_equal(view.has_selection?, false)
     assert_equal(view.selection_size, 0)
 
-    view.set_config("search-range-box", "5")
-    view.select_from(RBA::DBox::new(-1.0, -1.0, 1.0, 1.0))
+    view.set_config("search-range-box", "0")  # so the selection becomes independent from resolution and size
+    view.set_config("search-range", "0")
+    view.select_from(RBA::DBox::new(-2.5, -2.5, 2.5, 2.5))
     assert_equal(selection_changed, 1)
     assert_equal(view.selection_size, 2)
     assert_equal(view.has_selection?, true)
@@ -568,6 +569,30 @@ class LAYLayoutView_TestClass < TestBase
     # was crashing
     mw.current_view.show_layout(ly, false)
 
+  end
+
+  def test_9
+
+    if !RBA.constants.member?(:Application)
+      return
+    end
+
+    app = RBA::Application.instance
+    mw = app.main_window
+    mw.close_all
+
+    mw.create_layout(1)
+    assert_equal(false, mw.current_view.is_dirty?)
+
+    cv = mw.current_view.cellview(0)
+    cv.cell = cv.layout.create_cell("TOP")
+
+    assert_equal(true, mw.current_view.cellview(0).is_dirty?)
+
+    if cv.layout.is_editable?
+      assert_equal(true, mw.current_view.is_dirty?)
+    end
+    
   end
 
 end

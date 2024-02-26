@@ -41,10 +41,6 @@
 #include "tlString.h"
 #include "tlInternational.h"
 
-#if defined(HAVE_QT)
-#  include <QCoreApplication>
-#endif
-
 //  For the installation path
 #ifdef _WIN32
 #  include <windows.h>
@@ -179,38 +175,6 @@ private:
 
 static const char *pya_module_name = "pya";
 
-#if PY_MAJOR_VERSION < 3
-
-static PyObject *
-init_pya_module ()
-{
-  static PyMethodDef module_methods[] = {
-    {NULL}  // Sentinel
-  };
-  return Py_InitModule3 (pya_module_name, module_methods, "KLayout Python API.");
-}
-
-#else
-
-static PyObject *
-init_pya_module ()
-{
-  static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    pya_module_name,        // m_name
-    "KLayout Python API.",  // m_doc
-    -1,                     // m_size
-    NULL,                   // m_methods
-    NULL,                   // m_reload
-    NULL,                   // m_traverse
-    NULL,                   // m_clear
-    NULL,                   // m_free
-  };
-  return PyModule_Create (&moduledef);
-}
-
-#endif
-
 static void reset_interpreter ()
 {
   delete sp_interpreter;
@@ -241,21 +205,62 @@ PythonInterpreter::PythonInterpreter (bool embedded)
 
   std::string app_path = tl::get_app_path ();
 
-#if PY_MAJOR_VERSION >= 3
+  //  If set, use $KLAYOUT_PYTHONPATH to initialize the path.
+  //  Otherwise there may be some conflict between external installations and KLayout.
 
-  //  if set, use $KLAYOUT_PYTHONPATH to initialize the path
-# if defined(_WIN32)
+  bool has_klayout_pythonpath = false;
+
+  //  Python is not easily convinced to use an external path properly.
+  //  So we simply redirect PYTHONPATH
+  std::string pythonpath_name ("PYTHONPATH");
+  std::string klayout_pythonpath_name ("KLAYOUT_PYTHONPATH");
+  if (tl::has_env (pythonpath_name)) {
+    tl::unset_env (pythonpath_name);
+  }
+  if (tl::has_env (klayout_pythonpath_name)) {
+    has_klayout_pythonpath = true;
+    tl::set_env (pythonpath_name, tl::get_env (klayout_pythonpath_name));
+  }
+
+  //  If set, use $KLAYOUT_PYTHONHOME to initialize the path.
+  //  Otherwise there may be some conflict between external installations and KLayout.
+
+  bool has_klayout_pythonhome = false;
+
+  //  Python is not easily convinced to use an external path properly.
+  //  So we simply redirect PYTHONHOME
+  std::string pythonhome_name ("PYTHONHOME");
+  std::string klayout_pythonhome_name ("KLAYOUT_PYTHONHOME");
+  if (tl::has_env (pythonhome_name)) {
+    tl::unset_env (pythonhome_name);
+  }
+  if (tl::has_env (klayout_pythonhome_name)) {
+    has_klayout_pythonhome = true;
+    tl::set_env (pythonhome_name, tl::get_env (klayout_pythonhome_name));
+  }
+
+#if defined(_WIN32) && PY_MAJOR_VERSION >= 3
 
   tl_assert (sizeof (wchar_t) == 2);
 
-  Py_SetPythonHome ((wchar_t *) L"");  //  really ignore $PYTHONHOME + without this, we get dummy error message about lacking path for libraries
+  std::string inst_dir;
 
-  const wchar_t *python_path = _wgetenv (L"KLAYOUT_PYTHONPATH");
-  if (python_path) {
+  wchar_t buffer[MAX_PATH];
+  int len;
 
-    Py_SetPath (python_path);
+  if ((len = GetModuleFileNameW (NULL, buffer, MAX_PATH)) > 0) {
+    inst_dir = tl::absolute_path (tl::to_string (std::wstring (buffer, len)));
+  }
 
-  } else {
+  if (! has_klayout_pythonhome) {
+
+    //  Use our own installation path for PYTHONHOME unless given
+    //  (Our Windows installation comes with its own copy of the libraries)
+    tl::set_env (pythonhome_name, inst_dir);
+
+  }
+
+  if (! has_klayout_pythonpath) {
 
     //  If present, read the paths from a file in INST_PATH/.python-paths.txt.
     //  The content of this file is evaluated as an expression and the result
@@ -265,39 +270,32 @@ PythonInterpreter::PythonInterpreter (bool embedded)
 
       std::string path;
 
-      wchar_t buffer[MAX_PATH];
-      int len;
-      if ((len = GetModuleFileNameW (NULL, buffer, MAX_PATH)) > 0) {
+      std::string path_file = tl::combine_path (inst_dir, ".python-paths.txt");
+      if (tl::file_exists (path_file)) {
 
-        std::string inst_dir = tl::absolute_path (tl::to_string (std::wstring (buffer, len)));
-        std::string path_file = tl::combine_path (inst_dir, ".python-paths.txt");
-        if (tl::file_exists (path_file)) {
+        tl::log << tl::to_string (tr ("Reading Python path from ")) << path_file;
 
-          tl::log << tl::to_string (tr ("Reading Python path from ")) << path_file;
+        tl::InputStream path_file_stream (path_file);
+        std::string path_file_text = path_file_stream.read_all ();
 
-          tl::InputStream path_file_stream (path_file);
-          std::string path_file_text = path_file_stream.read_all ();
+        tl::Eval eval;
+        eval.set_global_var ("inst_path", tl::Variant (inst_dir));
+        tl::Expression ex;
+        eval.parse (ex, path_file_text.c_str ());
+        tl::Variant v = ex.execute ();
 
-          tl::Eval eval;
-          eval.set_global_var ("inst_path", tl::Variant (inst_dir));
-          tl::Expression ex;
-          eval.parse (ex, path_file_text.c_str ());
-          tl::Variant v = ex.execute ();
-
-          if (v.is_list ()) {
-            for (tl::Variant::iterator i = v.begin (); i != v.end (); ++i) {
-              if (! path.empty ()) {
-                path += ";";
-              }
-              path += i->to_string ();
+        if (v.is_list ()) {
+          for (tl::Variant::iterator i = v.begin (); i != v.end (); ++i) {
+            if (! path.empty ()) {
+              path += ";";
             }
+            path += i->to_string ();
           }
-
         }
 
-      }
+        Py_SetPath (tl::to_wstring (path).c_str ());
 
-      Py_SetPath (tl::to_wstring (path).c_str ());
+      }
 
     } catch (tl::Exception &ex) {
       tl::error << tl::to_string (tr ("Evaluation of Python path expression failed")) << ": " << ex.msg ();
@@ -306,18 +304,6 @@ PythonInterpreter::PythonInterpreter (bool embedded)
     }
 
   }
-
-# else
-
-  const char *python_path = getenv ("KLAYOUT_PYTHONPATH");
-  if (python_path) {
-
-    std::wstring path = tl::to_wstring (tl::to_string_from_local (python_path));
-    Py_SetPath (path.c_str ());
-
-  }
-
-# endif
 
 #endif
 
@@ -336,14 +322,6 @@ PythonInterpreter::PythonInterpreter (bool embedded)
   PySys_SetArgv (1, argv);
 #endif
 
-  PyObject *module = init_pya_module ();
-  if (module == NULL) {
-    check_error ();
-    return;
-  }
-
-  PyImport_ImportModule (pya_module_name);
-
 #else
 
   //  Python 3 requires a unicode string for the application name
@@ -351,7 +329,6 @@ PythonInterpreter::PythonInterpreter (bool embedded)
   mp_py3_app_name = tl::to_wstring (app_path);
   Py_SetProgramName (const_cast<wchar_t *> (mp_py3_app_name.c_str ()));
 
-  PyImport_AppendInittab (pya_module_name, &init_pya_module);
   Py_InitializeEx (0 /*don't set signals*/);
 
   //  Set dummy argv[]
@@ -359,28 +336,26 @@ PythonInterpreter::PythonInterpreter (bool embedded)
   wchar_t *argv[1] = { const_cast<wchar_t *> (mp_py3_app_name.c_str()) };
   PySys_SetArgvEx (1, argv, 0);
 
-  //  Import the module
-  PyObject *module = PyImport_ImportModule (pya_module_name);
-  if (module == NULL) {
-    check_error ();
-    return;
-  }
-
 #endif
+
+  sp_interpreter = this;
+
+  //  Add a reference to the "pymod" directory close to our own library.
+  //  We can put build-in modules there.
+  std::string module_path = tl::get_module_path ((void *) &reset_interpreter);
+  if (! module_path.empty ()) {
+    add_path (tl::combine_path (tl::absolute_path (module_path), "pymod"), true /*prepend*/);
+  } else {
+    tl::warn << tl::to_string (tr ("Unable to find built-in Python module library path"));
+  }
 
   //  Build two objects that provide a way to redirect stdout, stderr
   //  and instantiate them two times for stdout and stderr.
-  PYAChannelObject::make_class (module);
+  PYAChannelObject::make_class ();
   m_stdout_channel = PythonRef (PYAChannelObject::create (gsi::Console::OS_stdout));
   m_stdout = PythonPtr (m_stdout_channel.get ());
   m_stderr_channel = PythonRef (PYAChannelObject::create (gsi::Console::OS_stderr));
   m_stderr = PythonPtr (m_stderr_channel.get ());
-
-  sp_interpreter = this;
-
-  m_pya_module.reset (new pya::PythonModule ());
-  m_pya_module->init (pya_module_name, module);
-  m_pya_module->make_classes ();
 }
 
 PythonInterpreter::~PythonInterpreter ()
@@ -405,11 +380,15 @@ PythonInterpreter::make_string (const std::string &s)
 }
 
 void
-PythonInterpreter::add_path (const std::string &p)
+PythonInterpreter::add_path (const std::string &p, bool prepend)
 {
   PyObject *path = PySys_GetObject ((char *) "path");
   if (path != NULL && PyList_Check (path)) {
-    PyList_Append (path, c2python (p));
+    if (prepend) {
+      PyList_Insert (path, 0, c2python (p));
+    } else {
+      PyList_Append (path, c2python (p));
+    }
   }
 }
 
@@ -631,7 +610,11 @@ PythonInterpreter::available () const
 void
 PythonInterpreter::initialize ()
 {
-  // .. no implementation required ..
+  //  Import the pya module
+  PyObject *pya_module = PyImport_ImportModule (pya_module_name);
+  if (pya_module == NULL) {
+    check_error ();
+  }
 }
 
 size_t

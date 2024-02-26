@@ -91,6 +91,7 @@ void run_rubytest (tl::TestBase * /*_this*/, const std::string &fn)
 #define RUBYTEST(n, file) \
   TEST(n) { run_rubytest(_this, file); }
 
+RUBYTEST (kwargsTest, "kwargs.rb")
 RUBYTEST (antTest, "antTest.rb")
 RUBYTEST (dbBooleanTest, "dbBooleanTest.rb")
 RUBYTEST (dbBoxTest, "dbBoxTest.rb")
@@ -143,6 +144,7 @@ RUBYTEST (extNetTracer, "extNetTracer.rb")
 RUBYTEST (imgObject, "imgObject.rb")
 RUBYTEST (layLayers, "layLayers.rb")
 RUBYTEST (layLayoutView, "layLayoutView.rb")
+RUBYTEST (layMainWindow, "layMainWindow.rb")
 RUBYTEST (layMarkers, "layMarkers.rb")
 RUBYTEST (layMacro, "layMacro.rb")
 RUBYTEST (layMenuTest, "layMenuTest.rb")

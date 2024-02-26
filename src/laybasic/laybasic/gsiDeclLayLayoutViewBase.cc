@@ -474,6 +474,12 @@ static lay::AbstractMenu *menu (lay::LayoutViewBase *view)
   return view->menu ();
 }
 
+static bool view_is_dirty (lay::LayoutViewBase *view)
+{
+  view->refresh ();
+  return view->is_dirty ();
+}
+
 LAYBASIC_PUBLIC Class<lay::LayoutViewBase> decl_LayoutViewBase ("lay", "LayoutViewBase",
   gsi::constant ("LV_NoLayers", (unsigned int) lay::LayoutViewBase::LV_NoLayers,
     "@brief With this option, no layers view will be provided (see \\layer_control_frame)\n"
@@ -955,7 +961,7 @@ LAYBASIC_PUBLIC Class<lay::LayoutViewBase> decl_LayoutViewBase ("lay", "LayoutVi
     "\n"
     "@param props The layer properties object to initialize."
   ) +
-  gsi::method ("switch_mode", static_cast<void (lay::LayoutViewBase::*) (const std::string &)> (&lay::LayoutViewBase::switch_mode),
+  gsi::method ("switch_mode", static_cast<void (lay::LayoutViewBase::*) (const std::string &)> (&lay::LayoutViewBase::switch_mode), gsi::arg ("mode"),
     "@brief Switches the mode.\n"
     "\n"
     "See \\mode_name about a method to get the name of the current mode and \\mode_names for a method "
@@ -1136,7 +1142,14 @@ LAYBASIC_PUBLIC Class<lay::LayoutViewBase> decl_LayoutViewBase ("lay", "LayoutVi
     "Show the layout in full depth down to the deepest level of hierarchy. "
     "This method may cause a redraw."
   ) +
-  gsi::method ("resize", static_cast<void (lay::LayoutViewBase::*) (unsigned int, unsigned int)> (&lay::LayoutViewBase::resize),
+  gsi::method_ext ("is_dirty?", &view_is_dirty,
+    "@brief Gets a flag indicating whether one of the layouts displayed needs saving\n"
+    "A layout is 'dirty' if it is modified and needs saving. This method returns "
+    "true if this is the case for at least one of the layouts shown in the view.\n"
+    "\n"
+    "This method has been introduced in version 0.29.\n"
+  ) +
+  gsi::method ("resize", static_cast<void (lay::LayoutViewBase::*) (unsigned int, unsigned int)> (&lay::LayoutViewBase::resize), gsi::arg ("w"), gsi::arg ("h"),
     "@brief Resizes the layout view to the given dimension\n"
     "\n"
     "This method has been made available in all builds in 0.28.\n"

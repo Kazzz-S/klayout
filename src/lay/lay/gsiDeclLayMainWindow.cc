@@ -433,7 +433,7 @@ Class<lay::MainWindow> decl_MainWindow (QT_EXTERNAL_BASE (QMainWindow) "lay", "M
     "\n"
     "This method has been introduced in version 0.27.\n"
   ) +
-  gsi::method_ext ("set_menu_items_hidden", &set_menu_items_hidden,
+  gsi::method_ext ("set_menu_items_hidden", &set_menu_items_hidden, gsi::arg ("flags"),
     "@brief sets the flags indicating whether menu items are hidden\n"
     "This method allows hiding certain menu items. It takes a hash with hidden flags vs. menu item paths. "
     "\n"
@@ -655,6 +655,30 @@ Class<lay::MainWindow> decl_MainWindow (QT_EXTERNAL_BASE (QMainWindow) "lay", "M
     "no user interactions are possible. Although this is not desirable for smooth operation, "
     "it can be beneficial for test or automation purposes, i.e. if a screenshot needs to be "
     "produced once the application has finished drawing."
+  ) +
+  gsi::method ("synchronous", &lay::MainWindow::synchronous,
+    "@brief Gets a value indicating whether synchronous mode is activated\n"
+    "See \\synchronous= for details about this attribute\n"
+    "\n"
+    "This property getter was introduced in version 0.29."
+  ) +
+  gsi::method ("title=", &lay::MainWindow::set_title, gsi::arg ("title"),
+    "@brief Sets the window title\n"
+    "If the window title is not empty, it will be used for the application window's title. Otherwise "
+    "the default title is used. The title string is subject to expression interpolation. So it is "
+    "possible to implement the default scheme of adding the current view using the following code:\n"
+    "\n"
+    "@code\n"
+    "add_view_info = \"$(var view=LayoutView.current; view ? ' - ' + (view.is_dirty ? '[+] ' : '') + view.title : '')\"\n"
+    "RBA::MainWindow.instance.title = \"Custom Title\" + add_view_info\n"
+    "@/code\n"
+    "\n"
+    "This property was introduced in version 0.29."
+  ) +
+  gsi::method ("title", &lay::MainWindow::title,
+    "@brief Gets the window title\n"
+    "See \\title= for a description of this property.\n"
+    "This property was introduced in version 0.29."
   ) +
   gsi::method ("close_all", &lay::MainWindow::close_all,
     "@brief Closes all views\n"
