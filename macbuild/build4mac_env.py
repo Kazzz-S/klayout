@@ -72,14 +72,16 @@ Qts += [ 'Qt6MacPorts', 'Qt6Brew' ]
 #   install with 'sudo port install [qt5|qt5-qttools]'
 # [Key Type Name] = 'Qt5MacPorts'
 Qt5MacPorts = { 'qmake' : '/opt/local/libexec/qt5/bin/qmake',
-                'deploy': '/opt/local/libexec/qt5/bin/macdeployqt'
+                'deploy': '/opt/local/libexec/qt5/bin/macdeployqt',
+                'libdir': '/opt/local/libexec/qt5/lib'
               }
 
 # Qt5 from Homebrew (https://brew.sh/)
 #   install with 'brew install qt5'
 # [Key Type Name] = 'Qt5Brew'
 Qt5Brew = { 'qmake' : '%s/opt/qt@5/bin/qmake' % DefaultHomebrewRoot,
-            'deploy': '%s/opt/qt@5/bin/macdeployqt' % DefaultHomebrewRoot
+            'deploy': '%s/opt/qt@5/bin/macdeployqt' % DefaultHomebrewRoot,
+            'libdir': '%s/opt/qt@5/lib' % DefaultHomebrewRoot
           }
 
 # Qt5 bundled with anaconda3 installed under /Applications/anaconda3/
@@ -87,7 +89,8 @@ Qt5Brew = { 'qmake' : '%s/opt/qt@5/bin/qmake' % DefaultHomebrewRoot,
 # If so, you need to make a symbolic link: /Applications/anaconda3 ---> $HOME/opt/anaconda3/
 # [Key Type Name] = 'Qt5Ana3'
 Qt5Ana3 = { 'qmake' : '/Applications/anaconda3/bin/qmake',
-            'deploy': '/Applications/anaconda3/bin/macdeployqt'
+            'deploy': '/Applications/anaconda3/bin/macdeployqt',
+            'libdir': '/Applications/anaconda3/lib'
           }
 
 #-------------------------------------------------------------------------
@@ -97,15 +100,25 @@ Qt5Ana3 = { 'qmake' : '/Applications/anaconda3/bin/qmake',
 #   install with 'sudo port install [qt6|qt6-qttools]'
 # [Key Type Name] = 'Qt6MacPorts'
 Qt6MacPorts = { 'qmake' : '/opt/local/libexec/qt6/bin/qmake',
-                'deploy': '/opt/local/libexec/qt6/bin/macdeployqt'
+                'deploy': '/opt/local/libexec/qt6/bin/macdeployqt',
+                'libdir': '/opt/local/libexec/qt6/lib'
               }
 
 # Qt6 from Homebrew (https://brew.sh/)
 #   install with 'brew install qt6'
 # [Key Type Name] = 'Qt6Brew'
 Qt6Brew = { 'qmake' : '%s/opt/qt@6/bin/qmake' % DefaultHomebrewRoot,
-            'deploy': '%s/opt/qt@6/bin/macdeployqt' % DefaultHomebrewRoot
+            'deploy': '%s/opt/qt@6/bin/macdeployqt' % DefaultHomebrewRoot,
+            'libdir': '%s/opt/qt@6/lib' % DefaultHomebrewRoot
           }
+
+# Consolidated dictionary kit for Qt[5|6]
+Qt56Dictionary  = { 'Qt5MacPorts': Qt5MacPorts,
+                    'Qt5Brew'    : Qt5Brew,
+                    'Qt5Ana3'    : Qt5Ana3,
+                    'Qt6MacPorts': Qt6MacPorts,
+                    'Qt6Brew'    : Qt6Brew
+                  }
 
 #-----------------------------------------------------
 # [2] Ruby
@@ -132,8 +145,8 @@ Rubies   = RubyNil + RubySys + RubyExt
 # Where is the 'ruby.h' used to build the 'ruby' executable?
 #
 # % ruby -e "puts File.expand_path('ruby.h', RbConfig::CONFIG['rubyhdrdir'])"
-#   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk \
-#     /System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/include/ruby-2.6.0/ruby.h
+#   ===> /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk \
+#        /System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/include/ruby-2.6.0/ruby.h
 #
 # Bundled with Monterey (12.x)
 # [Key Type Name] = 'Sys'

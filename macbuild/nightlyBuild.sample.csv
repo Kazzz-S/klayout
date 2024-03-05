@@ -8,7 +8,7 @@
 # qtVer,target
 #   where
 #     qtVer  = 5 or 6
-#     target = [0='std', 1='ports', 2='brew', 3='brewHW', 4='ana3', 
+#     target = [0='std', 1='ports', 2='brew', 3='brewHW', 4='ana3',
 #               12='pbrew', 13='pbrewHW']
 #   note that
 #     (qtVer,target)=(6,4) will be omitted

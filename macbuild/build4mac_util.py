@@ -81,6 +81,9 @@ def PrintLibraryDependencyDictionary( depdic, pathdic, namedic ):
 # @return 0 on success; non-zero on failure
 #----------------------------------------------------------------------------------------
 def SetChangeIdentificationNameOfDyLib( libdic, pathDic ):
+    if len(libdic) == 0 or len(pathDic) == 0:
+        return 0
+
     cmdNameId     = XcodeToolChain['nameID']
     cmdNameChg    = XcodeToolChain['nameCH']
     dependentLibs = libdic.keys()
@@ -134,11 +137,15 @@ def SetChangeIdentificationNameOfDyLib( libdic, pathDic ):
 #                             +-- Frameworks/+
 #                             |              +-- '*.framework'
 #                             |              +-- '*.dylib'
-#                             |              +-- 'db_plugins' --slink--> ../MacOS/db_plugins/
+#                             |              +-- 'db_plugins'  --sym.link--> ../MacOS/db_plugins/
+#                             |              +-- 'lay_plugins' --sym.link--> ../MacOS/lay_plugins/
+#                             |              +-- 'pymod'       --sym.link--> ../MacOS/pymod/
 #                             +-- MacOS/+
 #                             |         +-- 'klayout'
 #                             |         +-- db_plugins/
 #                             |         +-- lay_plugins/
+#                             |         +-- pymod/
+#                             |
 #                             +-- Buddy/+
 #                                       +-- 'strm2cif'
 #                                       +-- 'strm2dxf'
@@ -794,13 +801,20 @@ def Generate_Start_Console_Py( template, pythonver, target ):
 #----------------------------------------------------------------------------------------
 ## To deeply copy directory contents
 #
-# @param[in] src_dir : source directory
-# @param[in] dest_dir: destination directory
-# @param[in] excl_pat: exclude pattern (default=None)
+# @param[in] src_dir      : source directory
+# @param[in] dest_dir     : destination directory
+# @param[in] excl_pat_list: exclude pattern list (default=[]])
 #
 # @return True on success, False on failure
 #----------------------------------------------------------------------------------------
-def Deeply_Copy_Dir( src_dir, dest_dir, excl_pat=None ):
+def Deeply_Copy_Dir( src_dir, dest_dir, excl_pat_list=[] ):
+
+    def FnameMatch(item):
+        for excl_pat in excl_pat_list:
+            if fnmatch.fnmatch( item, excl_pat ):
+                return True
+        return False
+
     if os.path.isfile(dest_dir):
         print( "! Destination <%s> is an existing file" % dest_dir, file=sys.stderr )
         return False
@@ -813,15 +827,49 @@ def Deeply_Copy_Dir( src_dir, dest_dir, excl_pat=None ):
         dest_item = os.path.join(dest_dir, item)
 
         if os.path.isdir(src_item):
-            if excl_pat and fnmatch.fnmatch(item, excl_pat):
+            if FnameMatch(item):
                 continue  # skip copying if directory name matches the exclusion pattern
-            Deeply_Copy_Dir( src_item, dest_item, excl_pat )
+            Deeply_Copy_Dir( src_item, dest_item, excl_pat_list )
         else:
-            if excl_pat and fnmatch.fnmatch(item, excl_pat):
+            if FnameMatch(item):
                 continue  # skip copying if the file matches the exclusion pattern
-            shutil.copy2(src_item, dest_item)
+            shutil.copy2( src_item, dest_item )
 
     return True
+
+#----------------------------------------------------------------------------------------
+## To dump the contents of a dependency dictionary
+#
+# @param[in] title:     title
+# @param[in] depDic:    dependency dictionary to dump
+# @param[in] pathDic:   path dictionary to dump
+#
+# @return void
+#----------------------------------------------------------------------------------------
+def DumpDependencyDicPair( title, depDic, pathDic ):
+
+    print( "### Dependency Dictionary Pair <%s> ###" % title )
+
+    # depDic
+    count1 = 0
+    for key1 in sorted(depDic.keys()):
+        count1 += 1
+        diclist = depDic[key1]
+        print( "    %3d:%s" % (count1, key1) )
+
+        count2 = 0
+        for dict_file in diclist:
+            count2 += 1
+            print( "      %3d:%s" % (count2, dict_file) )
+
+    # pathDic
+    print( "    ==========" )
+    count3 = 0
+    for key3 in sorted(pathDic.keys()):
+        count3 += 1
+        print( "    %3d:%s: %s" % (count3, key3, pathDic[key3]) )
+
+    return
 
 #----------------
 # End of File
