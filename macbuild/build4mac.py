@@ -689,7 +689,7 @@ def Get_Build_Parameters(config):
 
     # (E) rpath
     if OSPython3FW in [ MontereyPy3FW, VenturaPy3FW, SonomaPy3FW ]:
-        parameters['rpath'] = OSPython3FW + ":" + "@executable_path/../Frameworks"
+        parameters['rpath'] = OSPython3FW
     else:
         parameters['rpath'] = "@executable_path/../Frameworks"
 
@@ -1499,9 +1499,9 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     #     /usr/lib/libSystem.B.dylib (compatibility...)
     #--------------------------------------------------------------------------------------------------------------
     os.chdir(AbsMacBinDir)
-    sourceDirK      = "pymod/klayout"
-    sourdeDirP      = "pymod/pya"
-    pymodDirInBin   = os.path.isdir(sourceDirK) and os.path.isdir(sourdeDirP)
+    sourceDirKly    = "pymod/klayout"
+    sourdeDirPya    = "pymod/pya"
+    pymodDirInBin   = os.path.isdir(sourceDirKly) and os.path.isdir(sourdeDirPya)
     dependencyDic_2 = dict() # inter-library dependency dictionary
     pathDic_2       = dict() # paths to insert for each library
     dependencyDic_3 = dict() # inter-library dependency dictionary
@@ -1510,18 +1510,18 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     pathDic_4       = dict() # paths to insert for each library
 
     if pymodDirInBin:
-        targetDirK = os.path.join(targetDirM, sourceDirK)
-        targetDirP = os.path.join(targetDirM, sourdeDirP)
+        targetDirKly = os.path.join(targetDirM, sourceDirKly)
+        targetDirPya = os.path.join(targetDirM, sourdeDirPya)
 
-        retK = Deeply_Copy_Dir( sourceDirK, targetDirK, excl_pat_list=["__pycache__"] )
-        retP = Deeply_Copy_Dir( sourdeDirP, targetDirP, excl_pat_list=["__pycache__"] )
+        retK = Deeply_Copy_Dir( sourceDirKly, targetDirKly, excl_pat_list=["__pycache__"] )
+        retP = Deeply_Copy_Dir( sourdeDirPya, targetDirPya, excl_pat_list=["__pycache__"] )
         if not (retK and retP):
             msg = "!!! Failed to deeply copy the 'pymod' directory's contents !!!"
             print(msg)
             return 1
 
         # <<< Do the remaining job in "MacOS/pymod/klayout/" >>>
-        os.chdir(targetDirK)
+        os.chdir(targetDirKly)
         #-------------------------------------------------------------------
         # [A] Prepare regular expressions
         #-------------------------------------------------------------------
@@ -1545,17 +1545,17 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         patQt = r'(%s/)(Qt.+[.]framework.+)' % QtLibRoot
         regQt = re.compile(patQt)
 
-        # (4) Python frameworks (only for Homebrew)
-        libPy3_1 = "%s/" % HBPython311FrameworkPath
-        libPy3_2 = "%s/" % HBPython39FrameworkPath
-        patPy3   = r'^(%s|%s)(Python[.]framework.+)' % (libPy3_1, libPy3_2)
+        # (4) Python frameworks (only for Homebrew) # for an Intel Mac
+        libPy3_1 = "%s/" % HBPython311FrameworkPath # /usr/local/opt/python@3.11/Frameworks/Python.framework/
+        libPy3_2 = "%s/" % HBPython39FrameworkPath  # /usr/local/opt/python@3.9/Frameworks/Python.framework/
+        patPy3   = r'^(%s|%s)(.+)' % (libPy3_1, libPy3_2)
         regPy3   = re.compile(patPy3)
 
         #-------------------------------------------------------------------------------
         # [B] Copy the contents of the pymod/klayout directory to a place next to
         #     the application binary
         #-------------------------------------------------------------------------------
-        dynamicLinkLibs = glob.glob( os.path.join( targetDirM, sourceDirK, "*.so" ) )
+        dynamicLinkLibs = glob.glob( os.path.join( targetDirM, sourceDirKly, "*.so" ) )
         for item in dynamicLinkLibs:
             if os.path.isfile(item) and not os.path.islink(item):
                 #-------------------------------------------------------------------
@@ -1565,7 +1565,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                 baseName = os.path.basename(item) # 'QtCore.cpython-311-darwin.so'
                 fullName = os.path.basename(item).split('.') # [ 'QtCore', 'cpython-311-darwin', 'so' ]
                 nameStyle3 = fullName[0] + "." + fullName[1] + ".so" # == fullName; no need to change!
-                destPath = os.path.join( targetDirM, sourceDirK, nameStyle3 )
+                destPath = os.path.join( targetDirM, sourceDirKly, nameStyle3 )
                 # shutil.copy2( item, destPath ) # already deeply copied!
                 os.chmod( destPath, 0o0755 ) # just for confirmation
 
@@ -1594,7 +1594,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                                 dependLib_2[fname] = fname
 
                     dependencyDic_2.update( {dicKey: dependLib_2} )
-                    pathDic_2[nameStyle3] = "@executable_path/" + sourceDirK + "/" + nameStyle3
+                    pathDic_2[nameStyle3] = "@executable_path/" + sourceDirKly + "/" + nameStyle3
 
                     for libname in dependLib_2.keys():
                         if libname == baseName:
@@ -1616,8 +1616,13 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                             dependLib_3[fname] = regQt.match(fname).groups()[1]
 
                     dependencyDic_3.update( {dicKey: dependLib_3} )
+                    pathDic_3[nameStyle3] = "@executable_path/" + sourceDirKly + "/" + nameStyle3
+
                     for libname in dependLib_3.keys():
-                        pathDic_3[libname] = "@executable_path/../Frameworks/" + dependLib_3[libname]
+                        if libname == baseName:
+                            continue
+                        else:
+                            pathDic_3[libname] = "@executable_path/../Frameworks/" + dependLib_3[libname]
 
                 #-------------------------------------------------------------------
                 # (G) Dependencies on Python (optional)
@@ -1628,11 +1633,16 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                     for idx in dicValIdx:
                         fname = dicVal[idx]
                         if regPy3.match(fname):
-                            dependLib_4[fname] = regPy3.match(fname).groups()[1]
+                            dependLib_4[fname] = "Python.framework/%s" % regPy3.match(fname).groups()[1]
 
                     dependencyDic_4.update( {dicKey: dependLib_4} )
+                    pathDic_4[nameStyle3] = "@executable_path/" + sourceDirKly + "/" + nameStyle3
+
                     for libname in dependLib_4.keys():
-                        pathDic_4[libname] = "@executable_path/../Frameworks/" + dependLib_4[libname]
+                        if libname == baseName:
+                            continue
+                        else:
+                            pathDic_4[libname] = "@executable_path/../Frameworks/" + dependLib_4[libname]
 
     if 441 in ToolDebug:
         DumpDependencyDicPair( "In [4-4 441]:", dependencyDic_2, pathDic_2 )
@@ -1660,8 +1670,8 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     #-------------------------------------------------------------
     # [5-2] Similarly for the pymod's libraries...
     #-------------------------------------------------------------
-    if not targetDirK == None:
-        os.chdir(targetDirK)
+    if not targetDirKly == None:
+        os.chdir(targetDirKly)
         if len(dependencyDic_2) > 0 and len(pathDic_2) > 0:
             ret = SetChangeIdentificationNameOfDyLib( dependencyDic_2, pathDic_2 )
             if not ret == 0:
@@ -1671,7 +1681,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
 
         if len(dependencyDic_3) > 0 and len(pathDic_3) > 0:
             ret = SetChangeIdentificationNameOfDyLib( dependencyDic_3, pathDic_3 )
-            if not ret > 0:
+            if not ret == 0:
                 msg = "!!! Failed to set and change to new identification names with (dependencyDic_3, pathDic_3) !!!"
                 print(msg)
                 return 1

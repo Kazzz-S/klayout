@@ -105,10 +105,9 @@ def SetChangeIdentificationNameOfDyLib( libdic, pathDic ):
         # [2] Make the library aware of the new identifications of all supporters
         #-------------------------------------------------------------------------
         supporters = libdic[lib]
-        for sup in supporters:
-            supName = os.path.basename(sup)
-            if libName != supName and (supName in pathDic):
-                nameOld = "%s" % sup
+        for supName in supporters:
+            if (libName != supName) and (supName in pathDic):
+                nameOld = "%s" % supName
                 nameNew = pathDic[supName]
                 command = "%s %s %s %s" % ( cmdNameChg, nameOld, nameNew, lib )
                 if subprocess.call( command, shell=True ) != 0:

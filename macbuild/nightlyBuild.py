@@ -125,6 +125,7 @@ def Get_Build_Options( targetDic, platform ):
             buildOp[(qtVer,"ports")] = buildOp[(qtVer,"ports")] + ['--buildPymod']
             buildOp[(qtVer,"brew")]  = buildOp[(qtVer,"brew")]  + ['--buildPymod']
             buildOp[(qtVer,"ana3")]  = buildOp[(qtVer,"ana3")]  + ['--buildPymod']
+            buildOp[(qtVer,"pbrew")] = buildOp[(qtVer,"pbrew")] + ['--buildPymod']
 
     return (buildOp, logfile)
 

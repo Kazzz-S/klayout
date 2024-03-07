@@ -162,36 +162,50 @@ def SetGlobals():
     Item3AppleScript  = ""
 
     # Populate DicStdLightHeavyW
-    DicStdLightHeavyW[ "std" ]   = dict() # ST-*
-    DicStdLightHeavyW[ "ports" ] = dict() # LW-*
-    DicStdLightHeavyW[ "brew" ]  = dict() # LW-*
-    DicStdLightHeavyW[ "ana3" ]  = dict() # LW-*
-    DicStdLightHeavyW[ "brewH" ] = dict() # HW-*
+    DicStdLightHeavyW[ "std" ]     = dict() # ST-*
+    DicStdLightHeavyW[ "ports" ]   = dict() # LW-*
+    DicStdLightHeavyW[ "brew" ]    = dict() # LW-*
+    DicStdLightHeavyW[ "ana3" ]    = dict() # LW-*
+    DicStdLightHeavyW[ "brewH" ]   = dict() # HW-*
+    # "pbrew"   is the alternative of "brew"  using MacPorts' Qt and Homebrew's (Ruby, Python)
+    # "pbrewHW" is the alternative of "brewH" using MacPorts' Qt and Homebrew's Python
+    DicStdLightHeavyW[ "pbrew" ]   = dict() # LW-*
+    DicStdLightHeavyW[ "pbrewHW" ] = dict() # HW-*
 
-    DicStdLightHeavyW[ "std" ]["zip"]     = "macbuild/Resources/script-bundle-S.zip"
-    DicStdLightHeavyW[ "std" ]["src"]     = "script-bundle-S"
-    DicStdLightHeavyW[ "std" ]["des"]     = "MacStdUser-ReadMeFirst"
-    DicStdLightHeavyW[ "std" ]["item3"]   = 'set position of item "MacStdUser-ReadMeFirst" to {700, 400}'
+    DicStdLightHeavyW[ "std" ]["zip"]       = "macbuild/Resources/script-bundle-S.zip"
+    DicStdLightHeavyW[ "std" ]["src"]       = "script-bundle-S"
+    DicStdLightHeavyW[ "std" ]["des"]       = "MacStdUser-ReadMeFirst"
+    DicStdLightHeavyW[ "std" ]["item3"]     = 'set position of item "MacStdUser-ReadMeFirst" to {700, 400}'
 
-    DicStdLightHeavyW[ "ports" ]["zip"]   = "macbuild/Resources/script-bundle-P.zip"
-    DicStdLightHeavyW[ "ports" ]["src"]   = "script-bundle-P"
-    DicStdLightHeavyW[ "ports" ]["des"]   = "MacPortsUser-ReadMeFirst"
-    DicStdLightHeavyW[ "ports" ]["item3"] = 'set position of item "MacPortsUser-ReadMeFirst" to {700, 400}'
+    DicStdLightHeavyW[ "ports" ]["zip"]     = "macbuild/Resources/script-bundle-P.zip"
+    DicStdLightHeavyW[ "ports" ]["src"]     = "script-bundle-P"
+    DicStdLightHeavyW[ "ports" ]["des"]     = "MacPortsUser-ReadMeFirst"
+    DicStdLightHeavyW[ "ports" ]["item3"]   = 'set position of item "MacPortsUser-ReadMeFirst" to {700, 400}'
 
-    DicStdLightHeavyW[ "brew" ]["zip"]    = "macbuild/Resources/script-bundle-B.zip"
-    DicStdLightHeavyW[ "brew" ]["src"]    = "script-bundle-B"
-    DicStdLightHeavyW[ "brew" ]["des"]    = "HomebrewUser-ReadMeFirst"
-    DicStdLightHeavyW[ "brew" ]["item3"]  = 'set position of item "HomebrewUser-ReadMeFirst" to {700, 400}'
+    DicStdLightHeavyW[ "brew" ]["zip"]      = "macbuild/Resources/script-bundle-B.zip"
+    DicStdLightHeavyW[ "brew" ]["src"]      = "script-bundle-B"
+    DicStdLightHeavyW[ "brew" ]["des"]      = "HomebrewUser-ReadMeFirst"
+    DicStdLightHeavyW[ "brew" ]["item3"]    = 'set position of item "HomebrewUser-ReadMeFirst" to {700, 400}'
 
-    DicStdLightHeavyW[ "ana3" ]["zip"]    = "macbuild/Resources/script-bundle-A.zip"
-    DicStdLightHeavyW[ "ana3" ]["src"]    = "script-bundle-A"
-    DicStdLightHeavyW[ "ana3" ]["des"]    = "Anaconda3User-ReadMeFirst"
-    DicStdLightHeavyW[ "ana3" ]["item3"]  = 'set position of item "Anaconda3User-ReadMeFirst" to {700, 400}'
+    DicStdLightHeavyW[ "ana3" ]["zip"]      = "macbuild/Resources/script-bundle-A.zip"
+    DicStdLightHeavyW[ "ana3" ]["src"]      = "script-bundle-A"
+    DicStdLightHeavyW[ "ana3" ]["des"]      = "Anaconda3User-ReadMeFirst"
+    DicStdLightHeavyW[ "ana3" ]["item3"]    = 'set position of item "Anaconda3User-ReadMeFirst" to {700, 400}'
 
-    DicStdLightHeavyW[ "brewH" ]["zip"]   = "macbuild/Resources/script-bundle-H.zip"
-    DicStdLightHeavyW[ "brewH" ]["src"]   = "script-bundle-H"
-    DicStdLightHeavyW[ "brewH" ]["des"]   = "Homebrew-HUser-ReadMeFirst"
-    DicStdLightHeavyW[ "brewH" ]["item3"] = 'set position of item "Homebrew-HUser-ReadMeFirst" to {700, 400}'
+    DicStdLightHeavyW[ "brewH" ]["zip"]     = "macbuild/Resources/script-bundle-H.zip"
+    DicStdLightHeavyW[ "brewH" ]["src"]     = "script-bundle-H"
+    DicStdLightHeavyW[ "brewH" ]["des"]     = "Homebrew-HUser-ReadMeFirst"
+    DicStdLightHeavyW[ "brewH" ]["item3"]   = 'set position of item "Homebrew-HUser-ReadMeFirst" to {700, 400}'
+
+    DicStdLightHeavyW[ "pbrew" ]["zip"]     = "macbuild/Resources/script-bundle-B.zip"
+    DicStdLightHeavyW[ "pbrew" ]["src"]     = "script-bundle-B"
+    DicStdLightHeavyW[ "pbrew" ]["des"]     = "HomebrewUser-ReadMeFirst"
+    DicStdLightHeavyW[ "pbrew" ]["item3"]   = 'set position of item "HomebrewUser-ReadMeFirst" to {700, 400}'
+
+    DicStdLightHeavyW[ "pbrewHW" ]["zip"]   = "macbuild/Resources/script-bundle-H.zip"
+    DicStdLightHeavyW[ "pbrewHW" ]["src"]   = "script-bundle-H"
+    DicStdLightHeavyW[ "pbrewHW" ]["des"]   = "Homebrew-HUser-ReadMeFirst"
+    DicStdLightHeavyW[ "pbrewHW" ]["item3"] = 'set position of item "Homebrew-HUser-ReadMeFirst" to {700, 400}'
 
 #------------------------------------------------------------------------------
 ## To check the contents of the package directory
@@ -299,7 +313,7 @@ def CheckPkgDirectory():
 
         LatestOSHomebrew   = Platform == LatestOS
         LatestOSHomebrew  &= PackagePrefix == "LW"
-        LatestOSHomebrew  &= QtIdentification in [ "qt5Brew", "qt6Brew" ]
+        LatestOSHomebrew  &= QtIdentification in [ "qt5Brew", "qt6Brew", "qt5MP" ] # "qt5MP" is the alternative
         LatestOSHomebrew  &= RubyPythonID in [ "Rhb33Phb311", "Rhb33Phb39", "Rhb33Phbauto" ]
 
         LatestOSAnaconda3  = Platform == LatestOS
@@ -309,8 +323,8 @@ def CheckPkgDirectory():
 
         LatestOSHomebrewH  = Platform == LatestOS
         LatestOSHomebrewH &= PackagePrefix == "HW"
-        LatestOSHomebrewH &= QtIdentification in [ "qt5Brew", "qt6Brew" ]
-        LatestOSHomebrewH &= RubyPythonID in [ "RsysPhb311", "RsysPhb39", "RsysPhbauto" ] # Sys-Homebre hybrid
+        LatestOSHomebrewH &= QtIdentification in [ "qt5Brew", "qt6Brew", "qt5MP" ] # "qt5MP" is the alternative
+        LatestOSHomebrewH &= RubyPythonID in [ "RsysPhb311", "RsysPhb39", "RsysPhbauto" ] # Sys-Homebrew hybrid
 
         if LatestOSSys:
             mydic  = DicStdLightHeavyW["std"]
