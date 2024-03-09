@@ -1523,13 +1523,13 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         # <<< Do the remaining job in "MacOS/pymod/klayout/" >>>
         os.chdir(targetDirKly)
         #-------------------------------------------------------------------
-        # [A] Prepare regular expressions
+        # (A) Prepare regular expressions for the library name-matching
         #-------------------------------------------------------------------
         # (1) KLayout's self libraries
         patSelf = r'^(lib.+[.]dylib)'
         regSelf = re.compile(patSelf)
 
-        # (2) Auxiliary dependencies such as 'libgit2.1.7.dylib'
+        # (2) Auxiliary libraries such as 'libgit2.1.7.dylib'
         libAux_1 = "/opt/local/lib/"
         libAux_2 = "/usr/local/lib/"
         libAux_3 = "/opt/homebrew/lib/"
@@ -1545,15 +1545,15 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         patQt = r'(%s/)(Qt.+[.]framework.+)' % QtLibRoot
         regQt = re.compile(patQt)
 
-        # (4) Python frameworks (only for Homebrew) # for an Intel Mac
+        # (4) Python frameworks (only for Homebrew) # in the case of Intel Mac...
         libPy3_1 = "%s/" % HBPython311FrameworkPath # /usr/local/opt/python@3.11/Frameworks/Python.framework/
         libPy3_2 = "%s/" % HBPython39FrameworkPath  # /usr/local/opt/python@3.9/Frameworks/Python.framework/
         patPy3   = r'^(%s|%s)(.+)' % (libPy3_1, libPy3_2)
         regPy3   = re.compile(patPy3)
 
         #-------------------------------------------------------------------------------
-        # [B] Copy the contents of the pymod/klayout directory to a place next to
-        #     the application binary
+        # (B) Copy the contents of the pymod/klayout/ directory to the place next to
+        #     the main application executable
         #-------------------------------------------------------------------------------
         dynamicLinkLibs = glob.glob( os.path.join( targetDirM, sourceDirKly, "*.so" ) )
         for item in dynamicLinkLibs:
@@ -1580,7 +1580,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                 dicValIdx = list( range(0, len(dicVal)) )
 
                 #-------------------------------------------------------------------
-                # (E) KLayout's self libraries and auxiliary dependencies (always)
+                # (E) Dependencies on KLayout's self libraries (always)
                 #     Populate 'dependencyDic_2' and 'pathDic_2'
                 #-------------------------------------------------------------------
                 if True:
@@ -1603,7 +1603,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                             pathDic_2[libname] = "@executable_path/../Frameworks/" + dependLib_2[libname]
 
                 #-------------------------------------------------------------------
-                # (F) Dependencies on Qt (optional)
+                # (F) Dependencies on Qt and auxiliary libraries (optional)
                 #     Populate 'dependencyDic_3' and 'pathDic_3'
                 #-------------------------------------------------------------------
                 if EmbedQt:
@@ -1625,7 +1625,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                             pathDic_3[libname] = "@executable_path/../Frameworks/" + dependLib_3[libname]
 
                 #-------------------------------------------------------------------
-                # (G) Dependencies on Python (optional)
+                # (G) Dependencies on Python framework (optional)
                 #     Populate 'dependencyDic_4' and 'pathDic_4'
                 #-------------------------------------------------------------------
                 if EmbedPython3:
@@ -1693,7 +1693,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
                 print(msg)
                 return 1
 
-    print( " [6] Copying built executables and resource files ..." )
+    print( " [6] Copying the built executables and resource files ..." )
     #-------------------------------------------------------------
     # [6] Copy some known files in source directories to
     #     relevant target directories
@@ -1708,9 +1708,8 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     tmpfileM = ProjectDir + "/macbuild/Resources/Info.plist.template"
     keydicM  = { 'exe': 'klayout', 'icon': 'klayout.icns', 'bname': 'klayout', 'ver': Version }
     plistM   = GenerateInfoPlist( keydicM, tmpfileM )
-    file     = open( targetDir0 + "/Info.plist", "w" )
-    file.write(plistM)
-    file.close()
+    with open( targetDir0 + "/Info.plist", "w" ) as file:
+        file.write(plistM)
 
     shutil.copy2( sourceDir0 + "/PkgInfo",      targetDir0 ) # this file is not mandatory
     shutil.copy2( sourceDir1 + "/klayout",      targetDirM )
@@ -1759,7 +1758,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
             return 1
 
     if DeploymentF:
-        print( " [8] Finally, deploying Qt's Frameworks ..." )
+        print( " [8] Finally, deploying Qt's Frameworks and auxiliary libraries ..." )
         #-------------------------------------------------------------
         # [8] Deploy Qt Frameworks
         #-------------------------------------------------------------
@@ -2136,7 +2135,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
 
     else:
         print( " [8] Skipped deploying Qt's Frameworks and optional Python/Ruby Frameworks..." )
-    print( "##### Finished deploying libraries and executables for <klayout.app> #####" )
+    print( "##### Finished deploying the libraries and executables for <klayout.app> #####" )
     print("")
     os.chdir(ProjectDir)
     return 0
