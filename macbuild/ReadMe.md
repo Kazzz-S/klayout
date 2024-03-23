@@ -1,9 +1,9 @@
-Relevant KLayout version: 0.28.17<br>
+Relevant KLayout version: 0.29.0<br>
 Author: Kazzz-S<br>
-Last modified: 2024-03-18<br>
+Last modified: 2024-03-21<br>
 
 # 1. Introduction
-This directory **`macbuild`** contains various files required for building KLayout (http://www.klayout.de/) version 0.28.17 or later for different 64-bit macOS, including:
+This directory **`macbuild`** contains various files required for building KLayout (http://www.klayout.de/) version 0.29.0 or later for different 64-bit macOS, including:
 * Monterey    (12.x)    : the primary development environment
 * Ventura     (13.x)    : experimental
 * Sonoma      (14.x)    : -- ditto --
@@ -27,9 +27,9 @@ The default Qt framework is "Qt5" from **MacPorts** (https://www.macports.org/),
 /opt/local/libexec/qt5/
 ```
 
-If you prefer "Qt[5|6]" from **Homebrew** (https://brew.sh/), which is usually located under:
+If you prefer "Qt6" from **Homebrew** (https://brew.sh/), which is usually located under:
 ```
-/usr/local/opt/qt@[5|6]/
+/usr/local/opt/qt@6/
 ```
 
 You can also choose "Qt5" from Anaconda3 (https://www.anaconda.com/), which is usually located under:
@@ -42,7 +42,7 @@ If you have installed Anaconda3 under $HOME/opt/anaconda3/, make a symbolic link
 ```
 
 The migration work to "Qt6" is ongoing. You can try to use it; however, you will encounter some build and runtime errors.<br>
-If you use **Homebrew** to build KLayout newer than 0.28.17, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
+If you use **Homebrew** to build KLayout >= 0.29.0, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
 
 # 3. Script language support: Ruby and Python
 
@@ -66,7 +66,7 @@ The operating system type is detected automatically.
 ```
 ---------------------------------------------------------------------------------------------------------
 << Usage of 'build4mac.py' >>
-       for building KLayout 0.28.17 or later on different Apple macOS platforms.
+       for building KLayout 0.29.0 or later on different Apple macOS platforms.
 
 $ [python] ./build4mac.py
    option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)| default value
@@ -188,7 +188,7 @@ $ ./build4mac.py -q qt5macports -r mp33 -p mp311 -Y
 4. Copy/move the generated application bundle **`klayout.app`** to your **`/Applications`** directory for installation.
 
 ### 6C. Fully Homebrew-flavored build with Homebrew Ruby 3.3 and Homebrew Python 3.11
-Important: to build KLayout newer than 0.28.17, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
+Important: to build KLayout >= 0.29.0, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
 
 0. Install Homebrew, then install Qt6, Ruby 3.3, Python 3.11, and libgit2 by
 ```
@@ -221,7 +221,7 @@ $ ./build4mac.py -q qt6brew -r hb33 -p hb311 -Y
 4. Copy/move the generated application bundle **`klayout.app`** to your **`/Applications`** directory for installation.
 
 ### 6D. Partially Homebrew-flavored build with System Ruby and Homebrew Python 3.11
-Important: to build KLayout newer than 0.28.17, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
+Important: to build KLayout >= 0.29.0, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
 
 0. Install Homebrew, then install Qt6, Python 3.11, and libgit2 by
 ```
@@ -315,8 +315,8 @@ $ cd /where/'build.sh'/exists
 $ ./makeDMG4mac.py -p LW-qt5MP.pkg.macos-Monterey-release-Rmp33Pmp311 -m
 ```
 This command will generate the two files below:<br>
-* **`LW-klayout-0.28.17-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg`**      ---(1) the main DMG file
-* **`LW-klayout-0.28.17-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg.md5`**  ---(2) MD5-value text file
+* **`LW-klayout-0.29.0-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg`**      ---(1) the main DMG file
+* **`LW-klayout-0.29.0-macOS-Monterey-1-qt5MP-Rmp33Pmp311.dmg.md5`**  ---(2) MD5-value text file
 
 # Known issues
 Because we assume some specific versions of non-OS-standard Ruby and Python, updating Homebrew, MacPorts, or Anaconda3 may cause build- and link errors.<br>

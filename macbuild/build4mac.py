@@ -5,7 +5,7 @@
 # File: "macbuild/build4mac.py"
 #
 #  The top Python script for building KLayout (http://www.klayout.de/index.php)
-#  version 0.28.17 or later on different Apple Mac OSX platforms.
+#  version 0.29.0 or later on different Apple Mac OSX platforms.
 #===============================================================================
 import sys
 import os
@@ -45,7 +45,7 @@ def GenerateUsage(platform):
     usage  = "\n"
     usage += "---------------------------------------------------------------------------------------------------------\n"
     usage += "<< Usage of 'build4mac.py' >>\n"
-    usage += "       for building KLayout 0.28.17 or later on different Apple macOS platforms.\n"
+    usage += "       for building KLayout 0.29.0 or later on different Apple macOS platforms.\n"
     usage += "\n"
     usage += "$ [python] ./build4mac.py\n"
     usage += "   option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)| default value\n"
