@@ -30,6 +30,63 @@ def csort(s)
   s.split(/(?<=\));(?=\()/).sort.join(";")
 end
 
+class TriangleFilter < RBA::PolygonFilter
+
+  # Constructor
+  def initialize
+    self.is_isotropic_and_scale_invariant   # the triangle nature is not dependent on the scale or orientation
+  end
+  
+  # Select only triangles
+  def selected(polygon)
+    return polygon.holes == 0 && polygon.num_points == 3
+  end
+
+end
+
+class ShrinkToHalfOperator < RBA::PolygonOperator
+
+  # Constructor
+  def initialize
+    self.is_isotropic_and_scale_invariant   # scale or orientation do not matter
+  end
+  
+  # Shrink to half size
+  def process(polygon)
+    shift = polygon.bbox.center - RBA::Point::new   # shift vector
+    return [ (polygon.moved(-shift) * 0.5).moved(shift) ]
+  end
+
+end
+
+class SomePolygonToEdgePairOperator < RBA::PolygonToEdgePairOperator
+
+  # Constructor
+  def initialize
+    self.is_isotropic_and_scale_invariant   # scale or orientation do not matter
+  end
+  
+  def process(polygon)
+    box = polygon.bbox
+    return [ RBA::EdgePair::new([ box.left, box.bottom, box.left, box.top ], [ box.right, box.bottom, box.right, box.top ]) ]
+  end
+
+end
+
+class SomePolygonToEdgeOperator < RBA::PolygonToEdgeOperator
+
+  # Constructor
+  def initialize
+    self.is_isotropic_and_scale_invariant   # scale or orientation do not matter
+  end
+  
+  def process(polygon)
+    box = polygon.bbox
+    return [ RBA::Edge::new(box.p1, box.p2) ]
+  end
+
+end
+
 class DBRegion_TestClass < TestBase
 
   # Basics
@@ -1009,6 +1066,47 @@ class DBRegion_TestClass < TestBase
 
   end
 
+  # regions from Shapes
+  def test_regions_from_shapes
+
+    shapes = RBA::Shapes::new;
+
+    shapes.insert(RBA::Box::new(0, 0, 100, 200))
+    shapes.insert(RBA::Box::new(50, 50, 150, 250))
+
+    assert_equal(RBA::Region::new(shapes).area, 32500)
+    region = RBA::Region::new(shapes)
+    region.merged_semantics = false
+    assert_equal(region.area, 40000)
+
+    assert_equal(RBA::Region::new(shapes, RBA::ICplxTrans::new(0.5)).area, 8125)
+    region = RBA::Region::new(shapes, RBA::ICplxTrans::new(0.5))
+    region.merged_semantics = false
+    assert_equal(region.area, 10000)
+
+    #  for cross-checking: same for RecursiveShapeIterator
+
+    layout = RBA::Layout::new
+    l1 = layout.insert_layer(RBA::LayerInfo::new(1, 0))
+    top = layout.create_cell("TOP")
+
+    top.shapes(l1).insert (RBA::Box::new(0, 0, 100, 200))
+    top.shapes(l1).insert (RBA::Box::new(50, 50, 150, 250))
+
+    si = RBA::RecursiveShapeIterator::new(layout, top, l1)
+
+    assert_equal(RBA::Region::new(si).area, 32500)
+    region = RBA::Region::new(si)
+    region.merged_semantics = false
+    assert_equal(region.area, 40000)
+
+    assert_equal(RBA::Region::new(si, RBA::ICplxTrans::new(0.5)).area, 8125)
+    region = RBA::Region::new(si, RBA::ICplxTrans::new(0.5))
+    region.merged_semantics = false
+    assert_equal(region.area, 10000)
+
+  end
+
   # deep region tests
   def test_deep1
 
@@ -1223,6 +1321,104 @@ class DBRegion_TestClass < TestBase
     r.remove_properties
     rr.remove_properties
     assert_equal(csort(r.separation_check(rr, 100, false, RBA::Region::Projection, nil, nil, nil, false, RBA::Region::NoOppositeFilter, RBA::Region::NoRectFilter, false, RBA::Region::SamePropertiesConstraint).to_s), csort("(0,200;100,200)/(100,250;0,250);(200,200;300,200)/(300,250;200,250);(400,200;500,200)/(500,250;400,250)"))
+
+  end
+
+  # Generic filters
+  def test_generic_filters
+
+    # Some basic tests for the filter class
+
+    f = TriangleFilter::new
+    assert_equal(f.wants_variants?, true)
+    f.wants_variants = false
+    assert_equal(f.wants_variants?, false)
+    assert_equal(f.requires_raw_input, false)
+    f.requires_raw_input = true
+    assert_equal(f.requires_raw_input, true)
+
+    # Smoke test
+    f.is_isotropic
+    f.is_scale_invariant
+
+    # Some application
+
+    region = RBA::Region::new
+
+    region.insert(RBA::Polygon::new([[0,0], [100, 100], [100,0]]))
+    region.insert(RBA::Box::new(200, 0, 300, 100))
+
+    assert_equal(region.filtered(TriangleFilter::new).to_s, "(0,0;100,100;100,0)")
+    assert_equal(region.to_s, "(0,0;100,100;100,0);(200,0;200,100;300,100;300,0)")
+    region.filter(TriangleFilter::new)
+    assert_equal(region.to_s, "(0,0;100,100;100,0)")
+
+  end
+
+  # Generic processors
+  def test_generic_processors_pp
+
+    # Some basic tests for the processor class
+
+    f = ShrinkToHalfOperator::new
+    assert_equal(f.wants_variants?, true)
+    f.wants_variants = false
+    assert_equal(f.wants_variants?, false)
+    assert_equal(f.requires_raw_input, false)
+    f.requires_raw_input = true
+    assert_equal(f.requires_raw_input, true)
+    assert_equal(f.result_is_merged, false)
+    f.result_is_merged = true
+    assert_equal(f.result_is_merged, true)
+    assert_equal(f.result_must_not_be_merged, false)
+    f.result_must_not_be_merged = true
+    assert_equal(f.result_must_not_be_merged, true)
+
+    # Smoke test
+    f.is_isotropic
+    f.is_scale_invariant
+
+    # Some application
+
+    region = RBA::Region::new
+
+    region.insert(RBA::Polygon::new([[0,0], [100, 100], [100,0]]))
+    region.insert(RBA::Box::new(200, 0, 300, 100))
+
+    assert_equal(region.processed(ShrinkToHalfOperator::new).to_s, "(25,25;75,75;75,25);(225,25;225,75;275,75;275,25)")
+    assert_equal(region.to_s, "(0,0;100,100;100,0);(200,0;200,100;300,100;300,0)")
+    region.process(ShrinkToHalfOperator::new)
+    assert_equal(region.to_s, "(25,25;75,75;75,25);(225,25;225,75;275,75;275,25)")
+
+  end
+
+  # Generic processors
+  def test_generic_processors_pep
+
+    p = SomePolygonToEdgePairOperator::new
+
+    region = RBA::Region::new
+
+    region.insert(RBA::Polygon::new([[0,0], [100, 100], [100,0]]))
+    region.insert(RBA::Box::new(200, 0, 300, 100))
+
+    assert_equal(region.processed(p).to_s, "(0,0;0,100)/(100,0;100,100);(200,0;200,100)/(300,0;300,100)")
+    assert_equal(region.to_s, "(0,0;100,100;100,0);(200,0;200,100;300,100;300,0)")
+
+  end
+
+  # Generic processors
+  def test_generic_processors_pe
+
+    p = SomePolygonToEdgeOperator::new
+
+    region = RBA::Region::new
+
+    region.insert(RBA::Polygon::new([[0,0], [100, 100], [100,0]]))
+    region.insert(RBA::Box::new(200, 0, 300, 100))
+
+    assert_equal(region.processed(p).to_s, "(0,0;100,100);(200,0;300,100)")
+    assert_equal(region.to_s, "(0,0;100,100;100,0);(200,0;200,100;300,100;300,0)")
 
   end
 

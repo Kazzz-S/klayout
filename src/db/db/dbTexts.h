@@ -182,6 +182,14 @@ public:
   explicit Texts (const RecursiveShapeIterator &si, DeepShapeStore &dss, const db::ICplxTrans &trans);
 
   /**
+   *  @brief Writes the text collection to a file
+   *
+   *  This method is provided for debugging purposes. A flat image of the
+   *  region is written to a layout file with a single top cell on layer 0/0.
+   */
+  void write (const std::string &fn) const;
+
+  /**
    *  @brief Implementation of the ShapeCollection interface
    */
   ShapeCollectionDelegateBase *get_delegate () const
@@ -316,7 +324,25 @@ public:
   }
 
   /**
-   *  @brief Processes the edges into polygons
+   *  @brief Processes the edge pairs in-place
+   *
+   *  This method will run the processor over all texts and replace the collection by the results.
+   */
+  Texts &process (const TextProcessorBase &proc)
+  {
+    set_delegate (mp_delegate->process_in_place (proc));
+    return *this;
+  }
+
+  /**
+   *  @brief Processes the texts
+   *
+   *  This method will run the processor over all texts and return a new text collection with the results.
+   */
+  Texts processed (const TextProcessorBase &proc) const;
+
+  /**
+   *  @brief Processes the texts into polygons
    *
    *  This method will run the processor over all edges and return a region
    *  with the outputs of the processor.

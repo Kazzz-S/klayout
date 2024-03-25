@@ -186,6 +186,14 @@ public:
   explicit EdgePairs (const RecursiveShapeIterator &si, DeepShapeStore &dss, const db::ICplxTrans &trans);
 
   /**
+   *  @brief Writes the edge pair collection to a file
+   *
+   *  This method is provided for debugging purposes. A flat image of the
+   *  region is written to a layout file with a single top cell on layer 0/0.
+   */
+  void write (const std::string &fn) const;
+
+  /**
    *  @brief Implementation of the ShapeCollection interface
    */
   ShapeCollectionDelegateBase *get_delegate () const
@@ -329,12 +337,30 @@ public:
   }
 
   /**
+   *  @brief Processes the edge pairs in-place
+   *
+   *  This method will run the processor over all edge pairs and replace the collection by the results.
+   */
+  EdgePairs &process (const EdgePairProcessorBase &proc)
+  {
+    set_delegate (mp_delegate->process_in_place (proc));
+    return *this;
+  }
+
+  /**
+   *  @brief Processes the edge pairs
+   *
+   *  This method will run the processor over all edge pairs return a new edge pair collection with the results.
+   */
+  EdgePairs processed (const EdgePairProcessorBase &proc) const;
+
+  /**
    *  @brief Processes the edge pairs into polygons
    *
    *  This method will run the processor over all edge pairs and return a region
    *  with the outputs of the processor.
    */
-  void processed (Region &output, const EdgePairToPolygonProcessorBase &filter) const;
+  void processed (Region &output, const EdgePairToPolygonProcessorBase &proc) const;
 
   /**
    *  @brief Processes the edge pairs into edges
@@ -342,7 +368,7 @@ public:
    *  This method will run the processor over all edge pairs and return a edge collection
    *  with the outputs of the processor.
    */
-  void processed (Edges &output, const EdgePairToEdgeProcessorBase &filter) const;
+  void processed (Edges &output, const EdgePairToEdgeProcessorBase &proc) const;
 
   /**
    *  @brief Transforms the edge pair set

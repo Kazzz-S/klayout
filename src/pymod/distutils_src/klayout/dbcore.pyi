@@ -3948,6 +3948,10 @@ class CompoundRegionOperationNode:
             r"""
             @brief Compares an enum with an integer value
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -3957,6 +3961,10 @@ class CompoundRegionOperationNode:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: CompoundRegionOperationNode.GeometricalOp) -> bool:
@@ -3985,6 +3993,10 @@ class CompoundRegionOperationNode:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -4034,6 +4046,10 @@ class CompoundRegionOperationNode:
             r"""
             @brief Compares two enums
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -4043,6 +4059,10 @@ class CompoundRegionOperationNode:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: CompoundRegionOperationNode.LogicalOp) -> bool:
@@ -4071,6 +4091,10 @@ class CompoundRegionOperationNode:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -4132,6 +4156,10 @@ class CompoundRegionOperationNode:
             r"""
             @brief Compares two enums
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -4141,6 +4169,10 @@ class CompoundRegionOperationNode:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: CompoundRegionOperationNode.ParameterType) -> bool:
@@ -4155,12 +4187,12 @@ class CompoundRegionOperationNode:
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer for inequality
+            @brief Compares two enums for inequality
             """
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums for inequality
+            @brief Compares an enum with an integer for inequality
             """
         def __repr__(self) -> str:
             r"""
@@ -4169,6 +4201,10 @@ class CompoundRegionOperationNode:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -4222,6 +4258,10 @@ class CompoundRegionOperationNode:
             r"""
             @brief Compares two enums
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -4231,6 +4271,10 @@ class CompoundRegionOperationNode:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: CompoundRegionOperationNode.RatioParameterType) -> bool:
@@ -4245,12 +4289,12 @@ class CompoundRegionOperationNode:
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer for inequality
+            @brief Compares two enums for inequality
             """
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums for inequality
+            @brief Compares an enum with an integer for inequality
             """
         def __repr__(self) -> str:
             r"""
@@ -4259,6 +4303,10 @@ class CompoundRegionOperationNode:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -4312,6 +4360,10 @@ class CompoundRegionOperationNode:
             r"""
             @brief Compares two enums
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -4321,6 +4373,10 @@ class CompoundRegionOperationNode:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: CompoundRegionOperationNode.ResultType) -> bool:
@@ -4335,12 +4391,12 @@ class CompoundRegionOperationNode:
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer for inequality
+            @brief Compares two enums for inequality
             """
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums for inequality
+            @brief Compares an enum with an integer for inequality
             """
         def __repr__(self) -> str:
             r"""
@@ -4349,6 +4405,10 @@ class CompoundRegionOperationNode:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -4465,9 +4525,12 @@ class CompoundRegionOperationNode:
         @brief Creates a node delivering the second edge of each edges pair.
         """
     @classmethod
-    def new_edges(cls, input: CompoundRegionOperationNode) -> CompoundRegionOperationNode:
+    def new_edges(cls, input: CompoundRegionOperationNode, mode: Optional[EdgeMode] = ...) -> CompoundRegionOperationNode:
         r"""
         @brief Creates a node converting polygons into its edges.
+        The 'mode' argument allows selecting specific edges when generating edges from a polygon. See \EdgeMode for the various options. By default, all edges are generated from polygons.
+
+        The 'mode' argument has been added in version 0.29.
         """
     @classmethod
     def new_empty(cls, type: CompoundRegionOperationNode.ResultType) -> CompoundRegionOperationNode:
@@ -5069,11 +5132,12 @@ class CplxTrans:
     "mirroring" describes a reflection at the x-axis which is included in the transformation prior to rotation.@param m The new mirror flag
     """
     @classmethod
-    def from_dtrans(cls, trans: DCplxTrans) -> CplxTrans:
+    def from_dtrans(cls, trans: DCplxTrans, dbu: Optional[float] = ...) -> CplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @classmethod
     def from_s(cls, s: str) -> CplxTrans:
@@ -5091,7 +5155,7 @@ class CplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: CplxTrans, m: Optional[float] = ..., u: Optional[DVector] = ...) -> CplxTrans:
+    def new(cls, c: CplxTrans, mag: Optional[float] = ..., u: Optional[DVector] = ...) -> CplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -5104,7 +5168,7 @@ class CplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: CplxTrans, m: float, x: int, y: int) -> CplxTrans:
+    def new(cls, c: CplxTrans, mag: Optional[float] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> CplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -5118,15 +5182,7 @@ class CplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, m: float) -> CplxTrans:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, u: DVector) -> CplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[DVector] = ...) -> CplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -5140,7 +5196,7 @@ class CplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, x: float, y: float) -> CplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> CplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -5155,15 +5211,7 @@ class CplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, t: Trans) -> CplxTrans:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    @classmethod
-    def new(cls, t: Trans, m: float) -> CplxTrans:
+    def new(cls, t: Trans, mag: Optional[float] = ...) -> CplxTrans:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
@@ -5171,27 +5219,30 @@ class CplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, trans: DCplxTrans) -> CplxTrans:
+    def new(cls, trans: DCplxTrans, dbu: Optional[float] = ...) -> CplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: ICplxTrans) -> CplxTrans:
+    def new(cls, trans: ICplxTrans, dbu: Optional[float] = ...) -> CplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the output space from integer units to floating-point units. Formally, the CplxTrans transformation is initialized with 'from_dbu * trans' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: VCplxTrans) -> CplxTrans:
+    def new(cls, trans: VCplxTrans, dbu: Optional[float] = ...) -> CplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input and output space from integer units to floating-point units and vice versa. Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
@@ -5240,7 +5291,7 @@ class CplxTrans:
         @brief Creates a unit transformation
         """
     @overload
-    def __init__(self, c: CplxTrans, m: Optional[float] = ..., u: Optional[DVector] = ...) -> None:
+    def __init__(self, c: CplxTrans, mag: Optional[float] = ..., u: Optional[DVector] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -5252,7 +5303,7 @@ class CplxTrans:
         @param u The Additional displacement
         """
     @overload
-    def __init__(self, c: CplxTrans, m: float, x: int, y: int) -> None:
+    def __init__(self, c: CplxTrans, mag: Optional[float] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -5265,14 +5316,7 @@ class CplxTrans:
         @param y The Additional displacement (y)
         """
     @overload
-    def __init__(self, m: float) -> None:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, u: DVector) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[DVector] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -5285,7 +5329,7 @@ class CplxTrans:
         @param u The displacement
         """
     @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, x: float, y: float) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -5299,39 +5343,35 @@ class CplxTrans:
         @param y The y displacement
         """
     @overload
-    def __init__(self, t: Trans) -> None:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    def __init__(self, t: Trans, m: float) -> None:
+    def __init__(self, t: Trans, mag: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
         Creates a magnifying transformation from a simple transformation and a magnification.
         """
     @overload
-    def __init__(self, trans: DCplxTrans) -> None:
+    def __init__(self, trans: DCplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: ICplxTrans) -> None:
+    def __init__(self, trans: ICplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the output space from integer units to floating-point units. Formally, the CplxTrans transformation is initialized with 'from_dbu * trans' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: VCplxTrans) -> None:
+    def __init__(self, trans: VCplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer-to-floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input and output space from integer units to floating-point units and vice versa. Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     def __init__(self, u: DVector) -> None:
@@ -5769,9 +5809,13 @@ class CplxTrans:
         r"""
         @brief Converts the transformation to another transformation with integer input and output coordinates
 
-        The database unit can be specified to translate the floating-point coordinate displacement in micron units to an integer-coordinate displacement in database units. The displacement's' coordinates will be divided by the database unit.
+        This method is redundant with the conversion constructors. Instead of 'to_itrans' use the conversion constructor:
 
-        This method has been introduced in version 0.25.
+        @code
+        itrans = RBA::ICplxTrans::new(trans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     def to_s(self, lazy: Optional[bool] = ..., dbu: Optional[float] = ...) -> str:
         r"""
@@ -5781,19 +5825,29 @@ class CplxTrans:
 
         The lazy and DBU arguments have been added in version 0.27.6.
         """
-    def to_trans(self) -> DCplxTrans:
+    def to_trans(self, dbu: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Converts the transformation to another transformation with floating-point input coordinates
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors. Instead of 'to_trans' use the conversion constructor:
+
+        @code
+        dtrans = RBA::DCplxTrans::new(trans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     def to_vtrans(self, dbu: Optional[float] = ...) -> VCplxTrans:
         r"""
         @brief Converts the transformation to another transformation with integer output and floating-point input coordinates
 
-        The database unit can be specified to translate the floating-point coordinate displacement in micron units to an integer-coordinate displacement in database units. The displacement's' coordinates will be divided by the database unit.
+        This method is redundant with the conversion constructors. Instead of 'to_vtrans' use the conversion constructor:
 
-        This method has been introduced in version 0.25.
+        @code
+        vtrans = RBA::VCplxTrans::new(trans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     @overload
     def trans(self, box: Box) -> DBox:
@@ -7236,11 +7290,12 @@ class DCplxTrans:
     "mirroring" describes a reflection at the x-axis which is included in the transformation prior to rotation.@param m The new mirror flag
     """
     @classmethod
-    def from_itrans(cls, trans: CplxTrans) -> DCplxTrans:
+    def from_itrans(cls, trans: CplxTrans, dbu: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input space from integer units to floating-point units. Formally, the DCplxTrans transformation is initialized with 'trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_itrans'.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @classmethod
     def from_s(cls, s: str) -> DCplxTrans:
@@ -7258,7 +7313,7 @@ class DCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: DCplxTrans, m: Optional[float] = ..., u: Optional[DVector] = ...) -> DCplxTrans:
+    def new(cls, c: DCplxTrans, mag: Optional[float] = ..., u: Optional[DVector] = ...) -> DCplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -7271,7 +7326,7 @@ class DCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: DCplxTrans, m: float, x: float, y: float) -> DCplxTrans:
+    def new(cls, c: DCplxTrans, mag: Optional[float] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -7285,15 +7340,7 @@ class DCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, m: float) -> DCplxTrans:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, u: DVector) -> DCplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[DVector] = ...) -> DCplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -7307,7 +7354,7 @@ class DCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, x: float, y: float) -> DCplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -7322,15 +7369,7 @@ class DCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, t: DTrans) -> DCplxTrans:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    @classmethod
-    def new(cls, t: DTrans, m: float) -> DCplxTrans:
+    def new(cls, t: DTrans, mag: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
@@ -7338,27 +7377,30 @@ class DCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, trans: CplxTrans) -> DCplxTrans:
+    def new(cls, trans: CplxTrans, dbu: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input space from integer units to floating-point units. Formally, the DCplxTrans transformation is initialized with 'trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_itrans'.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: ICplxTrans) -> DCplxTrans:
+    def new(cls, trans: ICplxTrans, dbu: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input and output space from integer units to floating-point units and vice versa. Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'. 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: VCplxTrans) -> DCplxTrans:
+    def new(cls, trans: VCplxTrans, dbu: Optional[float] = ...) -> DCplxTrans:
         r"""
         @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the output space from integer units to floating-point units. Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
@@ -7407,7 +7449,7 @@ class DCplxTrans:
         @brief Creates a unit transformation
         """
     @overload
-    def __init__(self, c: DCplxTrans, m: Optional[float] = ..., u: Optional[DVector] = ...) -> None:
+    def __init__(self, c: DCplxTrans, mag: Optional[float] = ..., u: Optional[DVector] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -7419,7 +7461,7 @@ class DCplxTrans:
         @param u The Additional displacement
         """
     @overload
-    def __init__(self, c: DCplxTrans, m: float, x: float, y: float) -> None:
+    def __init__(self, c: DCplxTrans, mag: Optional[float] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -7432,14 +7474,7 @@ class DCplxTrans:
         @param y The Additional displacement (y)
         """
     @overload
-    def __init__(self, m: float) -> None:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, u: DVector) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[DVector] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -7452,7 +7487,7 @@ class DCplxTrans:
         @param u The displacement
         """
     @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, x: float, y: float) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -7466,39 +7501,35 @@ class DCplxTrans:
         @param y The y displacement
         """
     @overload
-    def __init__(self, t: DTrans) -> None:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    def __init__(self, t: DTrans, m: float) -> None:
+    def __init__(self, t: DTrans, mag: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
         Creates a magnifying transformation from a simple transformation and a magnification.
         """
     @overload
-    def __init__(self, trans: CplxTrans) -> None:
+    def __init__(self, trans: CplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
         @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input space from integer units to floating-point units. Formally, the DCplxTrans transformation is initialized with 'trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_itrans'.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: ICplxTrans) -> None:
+    def __init__(self, trans: ICplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
         @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the input and output space from integer units to floating-point units and vice versa. Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'. 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: VCplxTrans) -> None:
+    def __init__(self, trans: VCplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
         @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        The 'dbu' argument is used to transform the output space from integer units to floating-point units. Formally, the DCplxTrans transformation is initialized with 'from_dbu * trans' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
 
-        This constructor has been introduced in version 0.25.
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     def __init__(self, u: DVector) -> None:
@@ -7928,7 +7959,13 @@ class DCplxTrans:
 
         The database unit can be specified to translate the floating-point coordinate displacement in micron units to an integer-coordinate displacement in database units. The displacement's' coordinates will be divided by the database unit.
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors. Instead of 'to_itrans' use the conversion constructor:
+
+        @code
+        itrans = RBA::ICplxTrans::new(dtrans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     def to_s(self, lazy: Optional[bool] = ..., dbu: Optional[float] = ...) -> str:
         r"""
@@ -7938,11 +7975,17 @@ class DCplxTrans:
 
         The lazy and DBU arguments have been added in version 0.27.6.
         """
-    def to_trans(self) -> CplxTrans:
+    def to_trans(self, dbu: Optional[float] = ...) -> CplxTrans:
         r"""
         @brief Converts the transformation to another transformation with integer input coordinates
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors. Instead of 'to_trans' use the conversion constructor:
+
+        @code
+        trans = RBA::CplxTrans::new(dtrans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     def to_vtrans(self, dbu: Optional[float] = ...) -> VCplxTrans:
         r"""
@@ -7950,7 +7993,13 @@ class DCplxTrans:
 
         The database unit can be specified to translate the floating-point coordinate displacement in micron units to an integer-coordinate displacement in database units. The displacement's' coordinates will be divided by the database unit.
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors. Instead of 'to_vtrans' use the conversion constructor:
+
+        @code
+        vtrans = RBA::VCplxTrans::new(dtrans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     @overload
     def trans(self, box: DBox) -> DBox:
@@ -10241,6 +10290,17 @@ class DPolygon:
         @brief Returns the bounding box of the polygon
         The bounding box is the box enclosing all points of the polygon.
         """
+    def break_(self, max_vertex_count: int, max_area_ratio: float) -> List[DPolygon]:
+        r"""
+        @brief Splits the polygon into parts with a maximum vertex count and area ratio
+        The area ratio is the ratio between the bounding box area and the polygon area. Higher values mean more 'skinny' polygons.
+
+        This method will split the input polygon into pieces having a maximum of 'max_vertex_count' vertices and an area ratio less than 'max_area_ratio'. 'max_vertex_count' can be zero. In this case the limit is ignored. Also 'max_area_ratio' can be zero, in which case it is ignored as well.
+
+        The method of splitting is unspecified. The algorithm will apply 'split' recursively until the parts satisfy the limits.
+
+        This method has been introduced in version 0.29.
+        """
     def compress(self, remove_reflected: bool) -> None:
         r"""
         @brief Compresses the polygon.
@@ -10950,6 +11010,17 @@ class DSimplePolygon:
         r"""
         @brief Returns the bounding box of the simple polygon
         """
+    def break_(self, max_vertex_count: int, max_area_ratio: float) -> List[DSimplePolygon]:
+        r"""
+        @brief Splits the polygon into parts with a maximum vertex count and area ratio
+        The area ratio is the ratio between the bounding box area and the polygon area. Higher values mean more 'skinny' polygons.
+
+        This method will split the input polygon into pieces having a maximum of 'max_vertex_count' vertices and an area ratio less than 'max_area_ratio'. 'max_vertex_count' can be zero. In this case the limit is ignored. Also 'max_area_ratio' can be zero, in which case it is ignored as well.
+
+        The method of splitting is unspecified. The algorithm will apply 'split' recursively until the parts satisfy the limits.
+
+        This method has been introduced in version 0.29.
+        """
     def compress(self, remove_reflected: bool) -> None:
         r"""
         @brief Compressed the simple polygon.
@@ -11339,8 +11410,7 @@ class DText:
     Setter:
     @brief Sets the horizontal alignment
 
-    This property specifies how the text is aligned relative to the anchor point. 
-    This property has been introduced in version 0.22 and extended to enums in 0.28.
+    This is the version accepting integer values. It's provided for backward compatibility.
     """
     size: float
     r"""
@@ -11886,7 +11956,7 @@ class DTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: DTrans, x: float, y: float) -> DTrans:
+    def new(cls, c: DTrans, x: Optional[float] = ..., y: Optional[float] = ...) -> DTrans:
         r"""
         @brief Creates a transformation from another transformation plus a displacement
 
@@ -11900,7 +11970,7 @@ class DTrans:
         """
     @overload
     @classmethod
-    def new(cls, rot: int, mirr: Optional[bool] = ..., u: Optional[DVector] = ...) -> DTrans:
+    def new(cls, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., u: Optional[DVector] = ...) -> DTrans:
         r"""
         @brief Creates a transformation using angle and mirror flag
 
@@ -11913,7 +11983,7 @@ class DTrans:
         """
     @overload
     @classmethod
-    def new(cls, rot: int, mirr: bool, x: float, y: float) -> DTrans:
+    def new(cls, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> DTrans:
         r"""
         @brief Creates a transformation using angle and mirror flag and two coordinate values for displacement
 
@@ -11987,7 +12057,7 @@ class DTrans:
         @param u The Additional displacement
         """
     @overload
-    def __init__(self, c: DTrans, x: float, y: float) -> None:
+    def __init__(self, c: DTrans, x: Optional[float] = ..., y: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a displacement
 
@@ -12000,7 +12070,7 @@ class DTrans:
         @param y The Additional displacement (y)
         """
     @overload
-    def __init__(self, rot: int, mirr: Optional[bool] = ..., u: Optional[DVector] = ...) -> None:
+    def __init__(self, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., u: Optional[DVector] = ...) -> None:
         r"""
         @brief Creates a transformation using angle and mirror flag
 
@@ -12012,7 +12082,7 @@ class DTrans:
         @param u The displacement
         """
     @overload
-    def __init__(self, rot: int, mirr: bool, x: float, y: float) -> None:
+    def __init__(self, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., x: Optional[float] = ..., y: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation using angle and mirror flag and two coordinate values for displacement
 
@@ -16733,6 +16803,560 @@ class Edge:
         @return The transformed edge.
         """
 
+class EdgeFilter:
+    r"""
+    @brief A generic edge filter adaptor
+
+    Edge filters are an efficient way to filter edge from a Edges collection. To apply a filter, derive your own filter class and pass an instance to the \Edges#filter or \Edges#filtered method.
+
+    Conceptually, these methods take each edge from the collection and present it to the filter's 'selected' method.
+    Based on the result of this evaluation, the edge is kept or discarded.
+
+    The magic happens when deep mode edge collections are involved. In that case, the filter will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the filter behaves. You need to configure the filter by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using the filter.
+
+    You can skip this step, but the filter algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that filters edges parallel to a given one:
+    @code
+    class ParallelFilter < RBA::EdgeFilter
+
+      # Constructor
+      def initialize(ref_edge)
+        self.is_scale_invariant   # orientation matters, but scale does not
+        @ref_edge = ref_edge
+      end
+  
+      # Select only parallel ones
+      def selected(edge)
+        return edge.is_parallel?(@ref_edge)
+      end
+
+    end
+
+    edges = ... # some Edges object
+    ref_edge = ... # some Edge
+    parallel_only = edges.filtered(ParallelFilter::new(ref_edge))
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter needs raw (unmerged) input
+    This flag must be set before using this filter. It tells the filter implementation whether the filter wants to have raw input (unmerged). The default value is 'false', meaning that
+    the filter will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgeFilter:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) filters are area or perimeter filters. The area or perimeter of a polygon depends on the scale, but not on the orientation of the polygon.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) filter is the square selector. Whether a polygon is a square or not does not depend on the polygon's orientation nor scale.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) filter is the bounding box aspect ratio (height/width) filter. The definition of heigh and width depends on the orientation, but the ratio is independent on scale.
+        """
+
+class EdgeMode:
+    r"""
+    @brief This class represents the edge mode type for \Region#edges.
+
+    This enum has been introduced in version 0.29.
+    """
+    All: ClassVar[EdgeMode]
+    r"""
+    @brief Selects all edges
+    """
+    Concave: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only concave edges
+    """
+    Convex: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only convex edges
+    """
+    NotConcave: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not concave
+    """
+    NotConvex: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not convex
+    """
+    NotStep: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not steps
+    """
+    NotStepIn: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not steps leading inside
+    """
+    NotStepOut: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not steps leading outside
+    """
+    Step: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only step edges leading inside or outside
+    """
+    StepIn: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only step edges leading inside
+    """
+    StepOut: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only step edges leading outside
+    """
+    @overload
+    @classmethod
+    def new(cls, i: int) -> EdgeMode:
+        r"""
+        @brief Creates an enum from an integer value
+        """
+    @overload
+    @classmethod
+    def new(cls, s: str) -> EdgeMode:
+        r"""
+        @brief Creates an enum from a string value
+        """
+    def __copy__(self) -> EdgeMode:
+        r"""
+        @brief Creates a copy of self
+        """
+    def __deepcopy__(self) -> EdgeMode:
+        r"""
+        @brief Creates a copy of self
+        """
+    @overload
+    def __eq__(self, other: object) -> bool:
+        r"""
+        @brief Compares an enum with an integer value
+        """
+    @overload
+    def __eq__(self, other: object) -> bool:
+        r"""
+        @brief Compares two enums
+        """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
+    @overload
+    def __init__(self, i: int) -> None:
+        r"""
+        @brief Creates an enum from an integer value
+        """
+    @overload
+    def __init__(self, s: str) -> None:
+        r"""
+        @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
+        """
+    @overload
+    def __lt__(self, other: EdgeMode) -> bool:
+        r"""
+        @brief Returns true if the first enum is less (in the enum symbol order) than the second
+        """
+    @overload
+    def __lt__(self, other: int) -> bool:
+        r"""
+        @brief Returns true if the enum is less (in the enum symbol order) than the integer value
+        """
+    @overload
+    def __ne__(self, other: object) -> bool:
+        r"""
+        @brief Compares an enum with an integer for inequality
+        """
+    @overload
+    def __ne__(self, other: object) -> bool:
+        r"""
+        @brief Compares two enums for inequality
+        """
+    def __repr__(self) -> str:
+        r"""
+        @brief Converts an enum to a visual string
+        """
+    def __str__(self) -> str:
+        r"""
+        @brief Gets the symbolic string from an enum
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def assign(self, other: EdgeMode) -> None:
+        r"""
+        @brief Assigns another object to self
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def dup(self) -> EdgeMode:
+        r"""
+        @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
+    def inspect(self) -> str:
+        r"""
+        @brief Converts an enum to a visual string
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def to_i(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
+        """
+    def to_s(self) -> str:
+        r"""
+        @brief Gets the symbolic string from an enum
+        """
+
+class EdgeOperator:
+    r"""
+    @brief A generic edge-to-polygon operator
+
+    Edge processors are an efficient way to process edges from an edge collection. To apply a processor, derive your own operator class and pass an instance to the \Edges#processed method.
+
+    Conceptually, these methods take each edge from the edge collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output edges derived from the input edge.
+    The output edge collection is the sum over all these individual results.
+
+    The magic happens when deep mode edge collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that shrinks every edge to half of the size, but does not change the position.
+    In this example the 'position' is defined by the center of the edge:
+    @code
+    class ShrinkToHalf < RBA::EdgeOperator
+
+      # Constructor
+      def initialize
+        self.is_isotropic_and_scale_invariant   # scale or orientation do not matter
+      end
+  
+      # Shrink to half size
+      def process(edge)
+        shift = edge.bbox.center - RBA::Point::new   # shift vector
+        return [ (edge.moved(-shift) * 0.5).moved(shift) ]
+      end
+
+    end
+
+    edges = ... # some Edges collection
+    shrinked_to_half = edges.processed(ShrinkToHalf::new)
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor needs raw (unmerged) input
+    This flag must be set before using this processor. It tells the processor implementation whether the processor wants to have raw input (unmerged). The default value is 'false', meaning that
+    the processor will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    result_is_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor delivers merged output
+    See \result_is_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor delivers merged output
+    This flag must be set before using this processor. If the processor maintains the merged condition
+    by design (output is merged if input is), it is a good idea to set this predicate to 'true'.
+    This will avoid additional merge steps when the resulting collection is used in further operations
+    that need merged input
+    .
+    """
+    result_must_not_be_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor's output must not be merged
+    See \result_must_not_be_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor's output must not be merged
+    This flag must be set before using this processor. The processor can set this flag if it wants to
+    deliver shapes that must not be merged - e.g. point-like edges or strange or degenerated polygons.
+    .
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgeOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
 class EdgePair:
     r"""
     @brief An edge pair (a pair of two edges)
@@ -17068,6 +17692,541 @@ class EdgePair:
         @param t The transformation to apply.
 
         @return The transformed edge pair
+        """
+
+class EdgePairFilter:
+    r"""
+    @brief A generic edge pair filter adaptor
+
+    EdgePair filters are an efficient way to filter edge pairs from a EdgePairs collection. To apply a filter, derive your own filter class and pass an instance to \EdgePairs#filter or \EdgePairs#filtered method.
+
+    Conceptually, these methods take each edge pair from the collection and present it to the filter's 'selected' method.
+    Based on the result of this evaluation, the edge pair is kept or discarded.
+
+    The magic happens when deep mode edge pair collections are involved. In that case, the filter will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the filter behaves. You need to configure the filter by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using the filter.
+
+    You can skip this step, but the filter algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that filters edge pairs where the edges are perpendicular:
+    @code
+    class PerpendicularEdgesFilter < RBA::EdgePairFilter
+
+      # Constructor
+      def initialize
+        self.is_isotropic_and_scale_invariant   # orientation and scale do not matter
+      end
+  
+      # Select edge pairs where the edges are perpendicular
+      def selected(edge_pair)
+        return edge_pair.first.d.sprod_sign(edge_pair.second.d) == 0
+      end
+
+    end
+
+    edge_pairs = ... # some EdgePairs object
+    perpendicular_only = edge_pairs.filtered(PerpendicularEdgesFilter::new)
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgePairFilter:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) filters are area or perimeter filters. The area or perimeter of a polygon depends on the scale, but not on the orientation of the polygon.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) filter is the square selector. Whether a polygon is a square or not does not depend on the polygon's orientation nor scale.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) filter is the bounding box aspect ratio (height/width) filter. The definition of heigh and width depends on the orientation, but the ratio is independent on scale.
+        """
+
+class EdgePairOperator:
+    r"""
+    @brief A generic edge-pair operator
+
+    Edge pair processors are an efficient way to process edge pairs from an edge pair collection. To apply a processor, derive your own operator class and pass an instance to the \EdgePairs#processed or \EdgePairs#process method.
+
+    Conceptually, these methods take each edge pair from the edge pair collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output edge pairs derived from the input edge pair.
+    The output edge pair collection is the sum over all these individual results.
+
+    The magic happens when deep mode edge pair collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that flips the edge pairs (swaps first and second edge):
+    @code
+    class FlipEdgePairs < RBA::EdgePairOperator
+
+      # Constructor
+      def initialize
+        self.is_isotropic_and_scale_invariant   # orientation and scale do not matter
+      end
+  
+      # Flips the edge pair
+      def process(edge_pair)
+        return [ RBA::EdgePair::new(edge_pair.second, edge_pair.first) ]
+      end
+
+    end
+
+    edge_pairs = ... # some EdgePairs object
+    flipped = edge_pairs.processed(FlipEdgePairs::new)
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgePairOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
+class EdgePairToEdgeOperator:
+    r"""
+    @brief A generic edge-pair-to-edge operator
+
+    Edge processors are an efficient way to process edge pairs from an edge pair collection. To apply a processor, derive your own operator class and pass an instance to \EdgePairs#processed method.
+
+    Conceptually, these methods take each edge from the edge collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output edges derived from the input edge pair.
+    The output edge pair collection is the sum over all these individual results.
+
+    The magic happens when deep mode edge pair collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    For a basic example see the \EdgeToEdgePairOperator class, with the exception that this incarnation has to deliver edges and takes edge pairs.
+
+    This class has been introduced in version 0.29.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgePairToEdgeOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
+class EdgePairToPolygonOperator:
+    r"""
+    @brief A generic edge-pair-to-polygon operator
+
+    Edge pair processors are an efficient way to process edge pairs from an edge pair collection. To apply a processor, derive your own operator class and pass an instance to the \EdgePairs#processed method.
+
+    Conceptually, these methods take each edge pair from the edge pair collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output polygons derived from the input edge pair.
+    The output region is the sum over all these individual results.
+
+    The magic happens when deep mode edge pair collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    For a basic example see the \EdgeToPolygonOperator class, with the exception that this incarnation receives edge pairs.
+
+    This class has been introduced in version 0.29.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgePairToPolygonOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
         """
 
 class EdgePairs(ShapeCollection):
@@ -17515,6 +18674,13 @@ class EdgePairs(ShapeCollection):
         The enlargement is specified per edge, i.e the width will be increased by 2*dx.
         The boxes will not be merged, so it is possible to determine overlaps of these boxes for example.
         """
+    def filter(self, filter: EdgePairFilter) -> None:
+        r"""
+        @brief Applies a generic filter in place (replacing the edge pairs from the EdgePair collection)
+        See \EdgePairFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
     def filter_properties(self, keys: Sequence[Any]) -> None:
         r"""
         @brief Filters properties by certain keys.
@@ -17522,6 +18688,13 @@ class EdgePairs(ShapeCollection):
         As a side effect, this method enables properties on original layers.
 
         This method has been introduced in version 0.28.4.
+        """
+    def filtered(self, filtered: EdgePairFilter) -> EdgePairs:
+        r"""
+        @brief Applies a generic filter and returns a filtered copy
+        See \EdgePairFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
         """
     def first_edges(self) -> Edges:
         r"""
@@ -17696,6 +18869,37 @@ class EdgePairs(ShapeCollection):
         r"""
         @brief Converts the edge pairs to polygons
         This method creates polygons from the edge pairs. Each polygon will be a triangle or quadrangle which connects the start and end points of the edges forming the edge pair. This version allows one to specify an enlargement which is applied to the edges. The length of the edges is modified by applying the enlargement and the edges are shifted by the enlargement. By specifying an enlargement it is possible to give edge pairs an area which otherwise would not have one (coincident edges, two point-like edges).
+        """
+    def process(self, process: EdgePairOperator) -> None:
+        r"""
+        @brief Applies a generic edge pair processor in place (replacing the edge pairs from the EdgePairs collection)
+        See \EdgePairProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: EdgePairOperator) -> EdgePairs:
+        r"""
+        @brief Applies a generic edge pair processor and returns a processed copy
+        See \EdgePairProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: EdgePairToEdgeOperator) -> Edges:
+        r"""
+        @brief Applies a generic edge-pair-to-edge processor and returns an edge collection with the results
+        See \EdgePairToEdgeProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: EdgePairToPolygonOperator) -> Region:
+        r"""
+        @brief Applies a generic edge-pair-to-polygon processor and returns an Region with the results
+        See \EdgePairToPolygonProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
         """
     def remove_properties(self) -> None:
         r"""
@@ -18979,6 +20183,336 @@ class EdgeProcessor:
         @return The output polygons
         """
 
+class EdgeToEdgePairOperator:
+    r"""
+    @brief A generic edge-to-edge-pair operator
+
+    Edge processors are an efficient way to process edges from an edge collection. To apply a processor, derive your own operator class and pass an instance to the \Edges#processed method.
+
+    Conceptually, these methods take each edge from the edge collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output edge pairs derived from the input edge.
+    The output edge pair collection is the sum over all these individual results.
+
+    The magic happens when deep mode edge collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    For a basic example see the \EdgeOperator class, with the exception that this incarnation has to deliver edge pairs.
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor needs raw (unmerged) input
+    This flag must be set before using this processor. It tells the processor implementation whether the processor wants to have raw input (unmerged). The default value is 'false', meaning that
+    the processor will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    result_is_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor delivers merged output
+    See \result_is_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor delivers merged output
+    This flag must be set before using this processor. If the processor maintains the merged condition
+    by design (output is merged if input is), it is a good idea to set this predicate to 'true'.
+    This will avoid additional merge steps when the resulting collection is used in further operations
+    that need merged input
+    .
+    """
+    result_must_not_be_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor's output must not be merged
+    See \result_must_not_be_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor's output must not be merged
+    This flag must be set before using this processor. The processor can set this flag if it wants to
+    deliver shapes that must not be merged - e.g. point-like edges or strange or degenerated polygons.
+    .
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgeToEdgePairOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
+class EdgeToPolygonOperator:
+    r"""
+    @brief A generic edge-to-polygon operator
+
+    Edge processors are an efficient way to process edges from an edge collection. To apply a processor, derive your own operator class and pass an instance to the \Edges#processed method.
+
+    Conceptually, these methods take each edge from the edge collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output polygons derived from the input edge.
+    The output region is the sum over all these individual results.
+
+    The magic happens when deep mode edge collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    For a basic example see the \EdgeOperator class, with the exception that this incarnation has to deliver edges.
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor needs raw (unmerged) input
+    This flag must be set before using this processor. It tells the processor implementation whether the processor wants to have raw input (unmerged). The default value is 'false', meaning that
+    the processor will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    result_is_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor delivers merged output
+    See \result_is_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor delivers merged output
+    This flag must be set before using this processor. If the processor maintains the merged condition
+    by design (output is merged if input is), it is a good idea to set this predicate to 'true'.
+    This will avoid additional merge steps when the resulting collection is used in further operations
+    that need merged input
+    .
+    """
+    result_must_not_be_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor's output must not be merged
+    See \result_must_not_be_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor's output must not be merged
+    This flag must be set before using this processor. The processor can set this flag if it wants to
+    deliver shapes that must not be merged - e.g. point-like edges or strange or degenerated polygons.
+    .
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> EdgeToPolygonOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
 class Edges(ShapeCollection):
     r"""
     @brief A collection of edges (Not necessarily describing closed contours)
@@ -19031,12 +20565,16 @@ class Edges(ShapeCollection):
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums
+            @brief Compares an enum with an integer value
             """
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer value
+            @brief Compares two enums
+            """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         @overload
         def __init__(self, i: int) -> None:
@@ -19047,6 +20585,10 @@ class Edges(ShapeCollection):
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: Edges.EdgeType) -> bool:
@@ -19075,6 +20617,10 @@ class Edges(ShapeCollection):
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -19137,7 +20683,7 @@ class Edges(ShapeCollection):
     IncludeZeroDistanceWhenTouching: ClassVar[ZeroDistanceMode]
     r"""
     @brief Specifies that check functions should include edges when they touch
-    With this specification, the check functions will also check edges if they share at least one common point. This is the mode that includes checking the 'kissing corner' cases. This mode is default for version 0.29 and later. 
+    With this specification, the check functions will also check edges if they share at least one common point. This is the mode that includes checking the 'kissing corner' cases. This mode is default for version 0.28.16 and later. 
     """
     NeverIncludeZeroDistance: ClassVar[ZeroDistanceMode]
     r"""
@@ -20137,6 +21683,13 @@ class Edges(ShapeCollection):
         The enlargement is specified per edge, i.e the width will be increased by 2*dx.
         The boxes will not be merged, so it is possible to determine overlaps of these boxes for example.
         """
+    def filter(self, filter: EdgeFilter) -> None:
+        r"""
+        @brief Applies a generic filter in place (replacing the edges from the Edges collection)
+        See \EdgeFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
     def filter_properties(self, keys: Sequence[Any]) -> None:
         r"""
         @brief Filters properties by certain keys.
@@ -20144,6 +21697,13 @@ class Edges(ShapeCollection):
         As a side effect, this method enables properties on original layers.
 
         This method has been introduced in version 0.28.4.
+        """
+    def filtered(self, filtered: EdgeFilter) -> Edges:
+        r"""
+        @brief Applies a generic filter and returns a filtered copy
+        See \EdgeFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
         """
     def flatten(self) -> None:
         r"""
@@ -20357,18 +21917,26 @@ class Edges(ShapeCollection):
         This method has been introduced in version 0.24.
         """
     @overload
-    def interacting(self, other: Edges) -> Edges:
+    def interacting(self, other: Edges, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Returns the edges of this edge collection which overlap or touch edges from the other edge collection
 
         @return A new edge collection containing the edges overlapping or touching edges from the other edge collection
+
+        'min_count' and 'max_count' impose a constraint on the number of times an edge of this collection has to interact with (different) edges of the other collection to make the edge selected. An edge is selected by this method if the number of edges interacting with an edge of this collection is between min_count and max_count (including max_count).
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
-    def interacting(self, other: Region) -> Edges:
+    def interacting(self, other: Region, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Returns the edges from this edge collection which overlap or touch polygons from the region
 
         @return A new edge collection containing the edges overlapping or touching polygons from the region
+
+        'min_count' and 'max_count' impose a constraint on the number of times an edge of this collection has to interact with (different) polygons of the other region to make the edge selected. An edge is selected by this method if the number of polygons interacting with an edge of this collection is between min_count and max_count (including max_count).
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     def intersections(self, other: Edges) -> Edges:
         r"""
@@ -20572,18 +22140,26 @@ class Edges(ShapeCollection):
         This method has been introduced in version 0.28.
         """
     @overload
-    def not_interacting(self, other: Edges) -> Edges:
+    def not_interacting(self, other: Edges, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Returns the edges of this edge collection which do not overlap or touch edges from the other edge collection
 
         @return A new edge collection containing the edges not overlapping or touching edges from the other edge collection
+
+        'min_count' and 'max_count' impose a constraint on the number of times an edge of this collection has to interact with (different) edges of the other collection to make the edge selected. An edge is not selected by this method if the number of edges interacting with an edge of this collection is between min_count and max_count (including max_count).
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
-    def not_interacting(self, other: Region) -> Edges:
+    def not_interacting(self, other: Region, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Returns the edges from this edge collection which do not overlap or touch polygons from the region
 
         @return A new edge collection containing the edges not overlapping or touching polygons from the region
+
+        'min_count' and 'max_count' impose a constraint on the number of times an edge of this collection has to interact with (different) polygons of the other region to make the edge selected. An edge is not selected by this method if the number of polygons interacting with an edge of this collection is between min_count and max_count (including max_count).
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     def not_members_of(self, other: Edges) -> Edges:
         r"""
@@ -20712,6 +22288,37 @@ class Edges(ShapeCollection):
 
         'zero_distance_mode' has been added in version 0.29.
         """
+    def process(self, process: EdgeOperator) -> None:
+        r"""
+        @brief Applies a generic edge processor in place (replacing the edges from the Edges collection)
+        See \EdgeProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: EdgeOperator) -> Edges:
+        r"""
+        @brief Applies a generic edge processor and returns a processed copy
+        See \EdgeProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: EdgeToEdgePairOperator) -> EdgePairs:
+        r"""
+        @brief Applies a generic edge-to-edge-pair processor and returns an edge pair collection with the results
+        See \EdgeToEdgePairProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: EdgeToPolygonOperator) -> Region:
+        r"""
+        @brief Applies a generic edge-to-polygon processor and returns an edge collection with the results
+        See \EdgeToPolygonProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
     @overload
     def pull_interacting(self, other: Edges) -> Edges:
         r"""
@@ -20775,18 +22382,26 @@ class Edges(ShapeCollection):
         This method has been introduced in version 0.24.
         """
     @overload
-    def select_interacting(self, other: Edges) -> Edges:
+    def select_interacting(self, other: Edges, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Selects the edges from this edge collection which overlap or touch edges from the other edge collection
 
         @return The edge collection after the edges have been selected (self)
+
+        This is the in-place version of \interacting - i.e. self is modified rather than a new collection is returned.
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
-    def select_interacting(self, other: Region) -> Edges:
+    def select_interacting(self, other: Region, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Selects the edges from this edge collection which overlap or touch polygons from the region
 
         @return The edge collection after the edges have been selected (self)
+
+        This is the in-place version of \interacting - i.e. self is modified rather than a new collection is returned.
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
     def select_not_inside(self, other: Edges) -> Edges:
@@ -20807,18 +22422,26 @@ class Edges(ShapeCollection):
         This method has been introduced in version 0.28.
         """
     @overload
-    def select_not_interacting(self, other: Edges) -> Edges:
+    def select_not_interacting(self, other: Edges, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Selects the edges from this edge collection which do not overlap or touch edges from the other edge collection
 
         @return The edge collection after the edges have been selected (self)
+
+        This is the in-place version of \not_interacting - i.e. self is modified rather than a new collection is returned.
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
-    def select_not_interacting(self, other: Region) -> Edges:
+    def select_not_interacting(self, other: Region, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> Edges:
         r"""
         @brief Selects the edges from this edge collection which do not overlap or touch polygons from the region
 
         @return The edge collection after the edges have been selected (self)
+
+        This is the in-place version of \not_interacting - i.e. self is modified rather than a new collection is returned.
+
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
     def select_not_outside(self, other: Edges) -> Edges:
@@ -20944,22 +22567,24 @@ class Edges(ShapeCollection):
         This method provides a faster way to compute both inside and non-inside edges compared to using separate methods. It has been introduced in version 0.28.
         """
     @overload
-    def split_interacting(self, other: Edges) -> List[Edges]:
+    def split_interacting(self, other: Edges, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> List[Edges]:
         r"""
         @brief Selects the edges from this edge collection which do and do not interact with edges from the other collection
 
         @return A two-element list of edge collections (first: interacting, second: non-interacting)
 
         This method provides a faster way to compute both interacting and non-interacting edges compared to using separate methods. It has been introduced in version 0.28.
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
-    def split_interacting(self, other: Region) -> List[Edges]:
+    def split_interacting(self, other: Region, min_count: Optional[int] = ..., max_count: Optional[int] = ...) -> List[Edges]:
         r"""
         @brief Selects the edges from this edge collection which do and do not interact with polygons from the other region
 
         @return A two-element list of edge collections (first: interacting, second: non-interacting)
 
         This method provides a faster way to compute both interacting and non-interacting edges compared to using separate methods. It has been introduced in version 0.28.
+        'min_count' and 'max_count' have been introduced in version 0.29.
         """
     @overload
     def split_outside(self, other: Edges) -> List[Edges]:
@@ -21859,6 +23484,10 @@ class HAlign:
         r"""
         @brief Compares two enums
         """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
     @overload
     def __init__(self, i: int) -> None:
         r"""
@@ -21868,6 +23497,10 @@ class HAlign:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: HAlign) -> bool:
@@ -21882,12 +23515,12 @@ class HAlign:
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer for inequality
+        @brief Compares two enums for inequality
         """
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums for inequality
+        @brief Compares an enum with an integer for inequality
         """
     def __repr__(self) -> str:
         r"""
@@ -21958,6 +23591,10 @@ class HAlign:
     def dup(self) -> HAlign:
         r"""
         @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     def inspect(self) -> str:
         r"""
@@ -22090,11 +23727,13 @@ class ICplxTrans:
     "mirroring" describes a reflection at the x-axis which is included in the transformation prior to rotation.@param m The new mirror flag
     """
     @classmethod
-    def from_dtrans(cls, trans: DCplxTrans) -> ICplxTrans:
+    def from_dtrans(cls, trans: DCplxTrans, dbu: Optional[float] = ...) -> ICplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'.
+        The 'dbu' argument is used to transform the input space and output space from floating-point units to integer units and vice versa. Formally, the ICplxTrans transformation is initialized with 'to_dbu * trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)' and 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @classmethod
     def from_s(cls, s: str) -> ICplxTrans:
@@ -22105,11 +23744,13 @@ class ICplxTrans:
         This method has been added in version 0.23.
         """
     @classmethod
-    def from_trans(cls, trans: CplxTrans) -> ICplxTrans:
+    def from_trans(cls, trans: CplxTrans, dbu: Optional[float] = ...) -> ICplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_trans'.
+        The 'dbu' argument is used to transform the output space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'to_dbu * trans' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
@@ -22119,7 +23760,7 @@ class ICplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: ICplxTrans, m: Optional[float] = ..., u: Optional[Vector] = ...) -> ICplxTrans:
+    def new(cls, c: ICplxTrans, mag: Optional[float] = ..., u: Optional[Vector] = ...) -> ICplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -22132,7 +23773,7 @@ class ICplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: ICplxTrans, m: float, x: int, y: int) -> ICplxTrans:
+    def new(cls, c: ICplxTrans, mag: Optional[float] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> ICplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -22146,15 +23787,7 @@ class ICplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, m: float) -> ICplxTrans:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, u: Vector) -> ICplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[Vector] = ...) -> ICplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -22168,7 +23801,7 @@ class ICplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, x: int, y: int) -> ICplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> ICplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -22183,15 +23816,7 @@ class ICplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, t: Trans) -> ICplxTrans:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    @classmethod
-    def new(cls, t: Trans, m: float) -> ICplxTrans:
+    def new(cls, t: Trans, mag: Optional[float] = ...) -> ICplxTrans:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
@@ -22199,27 +23824,33 @@ class ICplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, trans: CplxTrans) -> ICplxTrans:
+    def new(cls, trans: CplxTrans, dbu: Optional[float] = ...) -> ICplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_trans'.
+        The 'dbu' argument is used to transform the output space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'to_dbu * trans' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: DCplxTrans) -> ICplxTrans:
+    def new(cls, trans: DCplxTrans, dbu: Optional[float] = ...) -> ICplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'.
+        The 'dbu' argument is used to transform the input space and output space from floating-point units to integer units and vice versa. Formally, the ICplxTrans transformation is initialized with 'to_dbu * trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)' and 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: VCplxTrans) -> ICplxTrans:
+    def new(cls, trans: VCplxTrans, dbu: Optional[float] = ...) -> ICplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25.
+        The 'dbu' argument is used to transform the input space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
@@ -22268,7 +23899,7 @@ class ICplxTrans:
         @brief Creates a unit transformation
         """
     @overload
-    def __init__(self, c: ICplxTrans, m: Optional[float] = ..., u: Optional[Vector] = ...) -> None:
+    def __init__(self, c: ICplxTrans, mag: Optional[float] = ..., u: Optional[Vector] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -22280,7 +23911,7 @@ class ICplxTrans:
         @param u The Additional displacement
         """
     @overload
-    def __init__(self, c: ICplxTrans, m: float, x: int, y: int) -> None:
+    def __init__(self, c: ICplxTrans, mag: Optional[float] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -22293,14 +23924,7 @@ class ICplxTrans:
         @param y The Additional displacement (y)
         """
     @overload
-    def __init__(self, m: float) -> None:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, u: Vector) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[Vector] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -22313,7 +23937,7 @@ class ICplxTrans:
         @param u The displacement
         """
     @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, x: int, y: int) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -22327,39 +23951,38 @@ class ICplxTrans:
         @param y The y displacement
         """
     @overload
-    def __init__(self, t: Trans) -> None:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    def __init__(self, t: Trans, m: float) -> None:
+    def __init__(self, t: Trans, mag: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
         Creates a magnifying transformation from a simple transformation and a magnification.
         """
     @overload
-    def __init__(self, trans: CplxTrans) -> None:
+    def __init__(self, trans: CplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_trans'.
+        The 'dbu' argument is used to transform the output space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'to_dbu * trans' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: DCplxTrans) -> None:
+    def __init__(self, trans: DCplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'.
+        The 'dbu' argument is used to transform the input space and output space from floating-point units to integer units and vice versa. Formally, the ICplxTrans transformation is initialized with 'to_dbu * trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)' and 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: VCplxTrans) -> None:
+    def __init__(self, trans: VCplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates an integer coordinate transformation from another coordinate flavour
 
-        This constructor has been introduced in version 0.25.
+        The 'dbu' argument is used to transform the input space from floating-point units to integer units. Formally, the CplxTrans transformation is initialized with 'trans * from_dbu' where 'from_dbu' is the transformation into micrometer space, or more precisely 'CplxTrans(mag=dbu)'.
+
+        This constructor has been introduced in version 0.25. The 'dbu' argument has been added in version 0.29.
         """
     @overload
     def __init__(self, u: Vector) -> None:
@@ -22789,7 +24412,13 @@ class ICplxTrans:
 
         The database unit can be specified to translate the integer coordinate displacement in database units to a floating-point displacement in micron units. The displacement's' coordinates will be multiplied with the database unit.
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors and is ill-named. Instead of 'to_itrans' use the conversion constructor:
+
+        @code
+        dtrans = RBA::DCplxTrans::new(itrans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     def to_s(self, lazy: Optional[bool] = ..., dbu: Optional[float] = ...) -> str:
         r"""
@@ -22799,11 +24428,17 @@ class ICplxTrans:
 
         The lazy and DBU arguments have been added in version 0.27.6.
         """
-    def to_trans(self) -> VCplxTrans:
+    def to_trans(self, dbu: Optional[float] = ...) -> VCplxTrans:
         r"""
         @brief Converts the transformation to another transformation with floating-point input coordinates
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors and is ill-named. Instead of 'to_trans' use the conversion constructor:
+
+        @code
+        vtrans = RBA::VCplxTrans::new(itrans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     def to_vtrans(self, dbu: Optional[float] = ...) -> CplxTrans:
         r"""
@@ -22811,7 +24446,13 @@ class ICplxTrans:
 
         The database unit can be specified to translate the integer coordinate displacement in database units to a floating-point displacement in micron units. The displacement's' coordinates will be multiplied with the database unit.
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors and is ill-named. Instead of 'to_vtrans' use the conversion constructor:
+
+        @code
+        trans = RBA::CplxTrans::new(itrans, dbu)
+        @/code
+
+        This method has been introduced in version 0.25 and was deprecated in version 0.29.
         """
     @overload
     def trans(self, box: Box) -> Box:
@@ -23917,11 +25558,11 @@ class Instance:
 
     Starting with version 0.25 the displacement is of vector type.
     Setter:
-    @brief Sets the displacement vector for the 'b' axis
+    @brief Sets the displacement vector for the 'b' axis in micrometer units
 
-    If the instance was not an array instance before it is made one.
+    Like \b= with an integer displacement, this method will set the displacement vector but it accepts a vector in micrometer units that is of \DVector type. The vector will be translated to database units internally.
 
-    This method has been introduced in version 0.23. Starting with version 0.25 the displacement is of vector type.
+    This method has been introduced in version 0.25.
     """
     cell: Cell
     r"""
@@ -24096,10 +25737,9 @@ class Instance:
     @brief Gets the transformation of the instance or the first instance in the array
     The transformation returned is only valid if the array does not represent a complex transformation array
     Setter:
-    @brief Sets the transformation of the instance or the first instance in the array (in micrometer units)
-    This method sets the transformation the same way as \cplx_trans=, but the displacement of this transformation is given in micrometer units. It is internally translated into database units.
+    @brief Sets the transformation of the instance or the first instance in the array
 
-    This method has been introduced in version 0.25.
+    This method has been introduced in version 0.23.
     """
     @classmethod
     def new(cls) -> Instance:
@@ -25906,7 +27546,7 @@ class LayerMap:
     The LayerMap class has been introduced in version 0.18. Target layer have been introduced in version 0.20. 1:n mapping and unmapping has been introduced in version 0.27.
     """
     @classmethod
-    def from_string(cls, arg0: str) -> LayerMap:
+    def from_string(cls, s: str) -> LayerMap:
         r"""
         @brief Creates a layer map from the given string
         The format of the string is that used in layer mapping files: one mapping entry per line, comments are allowed using '#' or '//'. The format of each line is that used in the 'map(string, index)' method.
@@ -29212,6 +30852,10 @@ class LayoutToNetlist:
             r"""
             @brief Compares an enum with an integer value
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -29221,6 +30865,10 @@ class LayoutToNetlist:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: LayoutToNetlist.BuildNetHierarchyMode) -> bool:
@@ -29249,6 +30897,10 @@ class LayoutToNetlist:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -30524,12 +32176,16 @@ class LoadLayoutOptions:
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums
+            @brief Compares an enum with an integer value
             """
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer value
+            @brief Compares two enums
+            """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         @overload
         def __init__(self, i: int) -> None:
@@ -30540,6 +32196,10 @@ class LoadLayoutOptions:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: LoadLayoutOptions.CellConflictResolution) -> bool:
@@ -30568,6 +32228,10 @@ class LoadLayoutOptions:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -32733,12 +34397,16 @@ class Metrics:
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums
+        @brief Compares an enum with an integer value
         """
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer value
+        @brief Compares two enums
+        """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     @overload
     def __init__(self, i: int) -> None:
@@ -32749,6 +34417,10 @@ class Metrics:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: Metrics) -> bool:
@@ -32763,12 +34435,12 @@ class Metrics:
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums for inequality
+        @brief Compares an enum with an integer for inequality
         """
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer for inequality
+        @brief Compares two enums for inequality
         """
     def __repr__(self) -> str:
         r"""
@@ -32839,6 +34511,10 @@ class Metrics:
     def dup(self) -> Metrics:
         r"""
         @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     def inspect(self) -> str:
         r"""
@@ -34288,22 +35964,16 @@ class Netlist:
     @overload
     def circuit_by_cell_index(self, cell_index: int) -> Circuit:
         r"""
-        @brief Gets the circuit object for a given cell index (const version).
-        If the cell index is not valid or no circuit is registered with this index, nil is returned.
-
-        This constness variant has been introduced in version 0.26.8.
-        """
-    @overload
-    def circuit_by_cell_index(self, cell_index: int) -> Circuit:
-        r"""
         @brief Gets the circuit object for a given cell index.
         If the cell index is not valid or no circuit is registered with this index, nil is returned.
         """
     @overload
-    def circuit_by_name(self, name: str) -> Circuit:
+    def circuit_by_cell_index(self, cell_index: int) -> Circuit:
         r"""
-        @brief Gets the circuit object for a given name.
-        If the name is not a valid circuit name, nil is returned.
+        @brief Gets the circuit object for a given cell index (const version).
+        If the cell index is not valid or no circuit is registered with this index, nil is returned.
+
+        This constness variant has been introduced in version 0.26.8.
         """
     @overload
     def circuit_by_name(self, name: str) -> Circuit:
@@ -34314,13 +35984,10 @@ class Netlist:
         This constness variant has been introduced in version 0.26.8.
         """
     @overload
-    def circuits_by_name(self, name_pattern: str) -> List[Circuit]:
+    def circuit_by_name(self, name: str) -> Circuit:
         r"""
-        @brief Gets the circuit objects for a given name filter (const version).
-        The name filter is a glob pattern. This method will return all \Circuit objects matching the glob pattern.
-
-
-        This constness variant has been introduced in version 0.26.8.
+        @brief Gets the circuit object for a given name.
+        If the name is not a valid circuit name, nil is returned.
         """
     @overload
     def circuits_by_name(self, name_pattern: str) -> List[Circuit]:
@@ -34329,6 +35996,15 @@ class Netlist:
         The name filter is a glob pattern. This method will return all \Circuit objects matching the glob pattern.
 
         This method has been introduced in version 0.26.4.
+        """
+    @overload
+    def circuits_by_name(self, name_pattern: str) -> List[Circuit]:
+        r"""
+        @brief Gets the circuit objects for a given name filter (const version).
+        The name filter is a glob pattern. This method will return all \Circuit objects matching the glob pattern.
+
+
+        This constness variant has been introduced in version 0.26.8.
         """
     def combine_devices(self) -> None:
         r"""
@@ -34400,16 +36076,16 @@ class Netlist:
     @overload
     def each_circuit_top_down(self) -> Iterator[Circuit]:
         r"""
-        @brief Iterates over the circuits top-down (const version)
+        @brief Iterates over the circuits top-down
         Iterating top-down means the parent circuits come before the child circuits. The first \top_circuit_count circuits are top circuits - i.e. those which are not referenced by other circuits.
-
-        This constness variant has been introduced in version 0.26.8.
         """
     @overload
     def each_circuit_top_down(self) -> Iterator[Circuit]:
         r"""
-        @brief Iterates over the circuits top-down
+        @brief Iterates over the circuits top-down (const version)
         Iterating top-down means the parent circuits come before the child circuits. The first \top_circuit_count circuits are top circuits - i.e. those which are not referenced by other circuits.
+
+        This constness variant has been introduced in version 0.26.8.
         """
     @overload
     def each_device_class(self) -> Iterator[DeviceClass]:
@@ -34440,7 +36116,7 @@ class Netlist:
         @brief Flattens circuits matching a certain pattern
         This method will substitute all instances (subcircuits) of all circuits with names matching the given name pattern. The name pattern is a glob expression. For example, 'flatten_circuit("np*")' will flatten all circuits with names starting with 'np'.
         """
-    def flatten_circuits(self, arg0: Sequence[Circuit]) -> None:
+    def flatten_circuits(self, circuits: Sequence[Circuit]) -> None:
         r"""
         @brief Flattens all given circuits of the netlist
         This method is equivalent to calling \flatten_circuit for all given circuits, but more efficient.
@@ -35084,6 +36760,10 @@ class NetlistCrossReference(NetlistCompareLogger):
             r"""
             @brief Compares two enums
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -35093,6 +36773,10 @@ class NetlistCrossReference(NetlistCompareLogger):
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: NetlistCrossReference.Status) -> bool:
@@ -35121,6 +36805,10 @@ class NetlistCrossReference(NetlistCompareLogger):
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -36013,7 +37701,7 @@ class NetlistSpiceWriter(NetlistWriter):
         """
     @overload
     @classmethod
-    def new(cls, arg0: NetlistSpiceWriterDelegate) -> NetlistSpiceWriter:
+    def new(cls, delegate: NetlistSpiceWriterDelegate) -> NetlistSpiceWriter:
         r"""
         @brief Creates a new writer with a delegate.
         """
@@ -36031,7 +37719,7 @@ class NetlistSpiceWriter(NetlistWriter):
         @brief Creates a new writer without delegate.
         """
     @overload
-    def __init__(self, arg0: NetlistSpiceWriterDelegate) -> None:
+    def __init__(self, delegate: NetlistSpiceWriterDelegate) -> None:
         r"""
         @brief Creates a new writer with a delegate.
         """
@@ -36597,6 +38285,46 @@ class PCellParameterDeclaration:
     Setter:
     @brief Makes the parameter hidden if this attribute is set to true
     """
+    max_value: Any
+    r"""
+    Getter:
+    @brief Gets the maximum value allowed
+    See \max_value= for a description of this attribute.
+
+    This attribute has been added in version 0.29.
+    Setter:
+    @brief Sets the maximum value allowed
+    The maximum value is a visual feature and limits the allowed values for numerical
+    entry boxes. This applies to parameters of type int or double. The maximum value
+    is not effective if choices are present.
+
+    The maximum value is not enforced - for example there is no restriction implemented
+    when setting values programmatically.
+
+    Setting this attribute to "nil" (the default) implies "no limit".
+
+    This attribute has been added in version 0.29.
+    """
+    min_value: Any
+    r"""
+    Getter:
+    @brief Gets the minimum value allowed
+    See \min_value= for a description of this attribute.
+
+    This attribute has been added in version 0.29.
+    Setter:
+    @brief Sets the minimum value allowed
+    The minimum value is a visual feature and limits the allowed values for numerical
+    entry boxes. This applies to parameters of type int or double. The minimum value
+    is not effective if choices are present.
+
+    The minimum value is not enforced - for example there is no restriction implemented
+    when setting values programmatically.
+
+    Setting this attribute to "nil" (the default) implies "no limit".
+
+    This attribute has been added in version 0.29.
+    """
     name: str
     r"""
     Getter:
@@ -36632,28 +38360,8 @@ class PCellParameterDeclaration:
     @brief Sets the unit string
     The unit string is shown right to the edit fields for numeric parameters.
     """
-    @overload
     @classmethod
-    def new(cls, name: str, type: int, description: str) -> PCellParameterDeclaration:
-        r"""
-        @brief Create a new parameter declaration with the given name and type
-        @param name The parameter name
-        @param type One of the Type... constants describing the type of the parameter
-        @param description The description text
-        """
-    @overload
-    @classmethod
-    def new(cls, name: str, type: int, description: str, default: Any) -> PCellParameterDeclaration:
-        r"""
-        @brief Create a new parameter declaration with the given name, type and default value
-        @param name The parameter name
-        @param type One of the Type... constants describing the type of the parameter
-        @param description The description text
-        @param default The default (initial) value
-        """
-    @overload
-    @classmethod
-    def new(cls, name: str, type: int, description: str, default: Any, unit: str) -> PCellParameterDeclaration:
+    def new(cls, name: str, type: int, description: str, default: Optional[Any] = ..., unit: Optional[str] = ...) -> PCellParameterDeclaration:
         r"""
         @brief Create a new parameter declaration with the given name, type, default value and unit string
         @param name The parameter name
@@ -36670,25 +38378,7 @@ class PCellParameterDeclaration:
         r"""
         @brief Creates a copy of self
         """
-    @overload
-    def __init__(self, name: str, type: int, description: str) -> None:
-        r"""
-        @brief Create a new parameter declaration with the given name and type
-        @param name The parameter name
-        @param type One of the Type... constants describing the type of the parameter
-        @param description The description text
-        """
-    @overload
-    def __init__(self, name: str, type: int, description: str, default: Any) -> None:
-        r"""
-        @brief Create a new parameter declaration with the given name, type and default value
-        @param name The parameter name
-        @param type One of the Type... constants describing the type of the parameter
-        @param description The description text
-        @param default The default (initial) value
-        """
-    @overload
-    def __init__(self, name: str, type: int, description: str, default: Any, unit: str) -> None:
+    def __init__(self, name: str, type: int, description: str, default: Optional[Any] = ..., unit: Optional[str] = ...) -> None:
         r"""
         @brief Create a new parameter declaration with the given name, type, default value and unit string
         @param name The parameter name
@@ -36830,12 +38520,16 @@ class PCellParameterState:
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer value
+            @brief Compares two enums
             """
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums
+            @brief Compares an enum with an integer value
+            """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         @overload
         def __init__(self, i: int) -> None:
@@ -36846,6 +38540,10 @@ class PCellParameterState:
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: PCellParameterState.ParameterStateIcon) -> bool:
@@ -36860,12 +38558,12 @@ class PCellParameterState:
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums for inequality
+            @brief Compares an enum with an integer for inequality
             """
         @overload
         def __ne__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer for inequality
+            @brief Compares two enums for inequality
             """
         def __repr__(self) -> str:
             r"""
@@ -36874,6 +38572,10 @@ class PCellParameterState:
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -38749,6 +40451,17 @@ class Polygon:
         @brief Returns the bounding box of the polygon
         The bounding box is the box enclosing all points of the polygon.
         """
+    def break_(self, max_vertex_count: int, max_area_ratio: float) -> List[Polygon]:
+        r"""
+        @brief Splits the polygon into parts with a maximum vertex count and area ratio
+        The area ratio is the ratio between the bounding box area and the polygon area. Higher values mean more 'skinny' polygons.
+
+        This method will split the input polygon into pieces having a maximum of 'max_vertex_count' vertices and an area ratio less than 'max_area_ratio'. 'max_vertex_count' can be zero. In this case the limit is ignored. Also 'max_area_ratio' can be zero, in which case it is ignored as well.
+
+        The method of splitting is unspecified. The algorithm will apply 'split' recursively until the parts satisfy the limits.
+
+        This method has been introduced in version 0.29.
+        """
     def compress(self, remove_reflected: bool) -> None:
         r"""
         @brief Compresses the polygon.
@@ -39403,6 +41116,677 @@ class Polygon:
         With version 0.25, the original 'transformed_cplx' method is deprecated and 'transformed' takes both simple and complex transformations.
         """
 
+class PolygonFilter:
+    r"""
+    @brief A generic polygon filter adaptor
+
+    Polygon filters are an efficient way to filter polygons from a Region. To apply a filter, derive your own filter class and pass an instance to the \Region#filter or \Region#filtered method.
+
+    Conceptually, these methods take each polygon from the region and present it to the filter's 'selected' method.
+    Based on the result of this evaluation, the polygon is kept or discarded.
+
+    The magic happens when deep mode regions are involved. In that case, the filter will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the filter behaves. You need to configure the filter by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using the filter.
+
+    You can skip this step, but the filter algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that filters triangles:
+    @code
+    class TriangleFilter < RBA::PolygonFilter
+
+      # Constructor
+      def initialize
+        self.is_isotropic_and_scale_invariant   # the triangle nature is not dependent on the scale or orientation
+      end
+  
+      # Select only triangles
+      def selected(polygon)
+        return polygon.holes == 0 && polygon.num_points == 3
+      end
+
+    end
+
+    region = ... # some Region
+    triangles_only = region.filtered(TriangleFilter::new)
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter needs raw (unmerged) input
+    This flag must be set before using this filter. It tells the filter implementation whether the filter wants to have raw input (unmerged). The default value is 'false', meaning that
+    the filter will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> PolygonFilter:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) filters are area or perimeter filters. The area or perimeter of a polygon depends on the scale, but not on the orientation of the polygon.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) filter is the square selector. Whether a polygon is a square or not does not depend on the polygon's orientation nor scale.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) filter is the bounding box aspect ratio (height/width) filter. The definition of heigh and width depends on the orientation, but the ratio is independent on scale.
+        """
+
+class PolygonOperator:
+    r"""
+    @brief A generic polygon operator
+
+    Polygon processors are an efficient way to process polygons from a Region. To apply a processor, derive your own operator class and pass an instance to the \Region#process or \Region#processed method.
+
+    Conceptually, these methods take each polygon from the region and present it to the operators' 'process' method.
+    The result of this call is a list of zero to many output polygons derived from the input polygon.
+    The output region is the sum over all these individual results.
+
+    The magic happens when deep mode regions are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that shrinks every polygon to half of the size but does not change the position.
+    In this example the 'position' is defined by the center of the bounding box:
+    @code
+    class ShrinkToHalf < RBA::PolygonOperator
+
+      # Constructor
+      def initialize
+        self.is_isotropic_and_scale_invariant   # scale or orientation do not matter
+      end
+  
+      # Shrink to half size
+      def process(polygon)
+        shift = polygon.bbox.center - RBA::Point::new   # shift vector
+        return [ (polygon.moved(-shift) * 0.5).moved(shift) ]
+      end
+
+    end
+
+    region = ... # some Region
+    shrinked_to_half = region.processed(ShrinkToHalf::new)
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor needs raw (unmerged) input
+    This flag must be set before using this processor. It tells the processor implementation whether the processor wants to have raw input (unmerged). The default value is 'false', meaning that
+    the processor will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    result_is_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor delivers merged output
+    See \result_is_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor delivers merged output
+    This flag must be set before using this processor. If the processor maintains the merged condition
+    by design (output is merged if input is), it is a good idea to set this predicate to 'true'.
+    This will avoid additional merge steps when the resulting collection is used in further operations
+    that need merged input
+    .
+    """
+    result_must_not_be_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor's output must not be merged
+    See \result_must_not_be_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor's output must not be merged
+    This flag must be set before using this processor. The processor can set this flag if it wants to
+    deliver shapes that must not be merged - e.g. point-like edges or strange or degenerated polygons.
+    .
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> PolygonOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
+class PolygonToEdgeOperator:
+    r"""
+    @brief A generic polygon-to-edge operator
+
+    Polygon processors are an efficient way to process polygons from a Region. To apply a processor, derive your own operator class and pass an instance to the \Region#processed method.
+
+    Conceptually, these methods take each polygon from the region and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output edges derived from the input polygon.
+    The output edge collection is the sum over all these individual results.
+
+    The magic happens when deep mode regions are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    For a basic example see the \PolygonOperator class, with the exception that this incarnation has to deliver edges.
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor needs raw (unmerged) input
+    This flag must be set before using this processor. It tells the processor implementation whether the processor wants to have raw input (unmerged). The default value is 'false', meaning that
+    the processor will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    result_is_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor delivers merged output
+    See \result_is_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor delivers merged output
+    This flag must be set before using this processor. If the processor maintains the merged condition
+    by design (output is merged if input is), it is a good idea to set this predicate to 'true'.
+    This will avoid additional merge steps when the resulting collection is used in further operations
+    that need merged input
+    .
+    """
+    result_must_not_be_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor's output must not be merged
+    See \result_must_not_be_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor's output must not be merged
+    This flag must be set before using this processor. The processor can set this flag if it wants to
+    deliver shapes that must not be merged - e.g. point-like edges or strange or degenerated polygons.
+    .
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> PolygonToEdgeOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
+class PolygonToEdgePairOperator:
+    r"""
+    @brief A generic polygon-to-edge-pair operator
+
+    Polygon processors are an efficient way to process polygons from a Region. To apply a processor, derive your own operator class and pass an instance to the \Region#processed method.
+
+    Conceptually, these methods take each polygon from the region and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output edge pairs derived from the input polygon.
+    The output edge pair collection is the sum over all these individual results.
+
+    The magic happens when deep mode regions are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    For a basic example see the \PolygonOperator class, with the exception that this incarnation has to deliver edge pairs.
+
+    This class has been introduced in version 0.29.
+    """
+    requires_raw_input: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor needs raw (unmerged) input
+    See \requires_raw_input= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor needs raw (unmerged) input
+    This flag must be set before using this processor. It tells the processor implementation whether the processor wants to have raw input (unmerged). The default value is 'false', meaning that
+    the processor will receive merged polygons ('merged semantics').
+
+    Setting this value to false potentially saves some CPU time needed for merging the polygons.
+    Also, raw input means that strange shapes such as dot-like edges, self-overlapping polygons, empty or degenerated polygons are preserved.
+    """
+    result_is_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor delivers merged output
+    See \result_is_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor delivers merged output
+    This flag must be set before using this processor. If the processor maintains the merged condition
+    by design (output is merged if input is), it is a good idea to set this predicate to 'true'.
+    This will avoid additional merge steps when the resulting collection is used in further operations
+    that need merged input
+    .
+    """
+    result_must_not_be_merged: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the processor's output must not be merged
+    See \result_must_not_be_merged= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the processor's output must not be merged
+    This flag must be set before using this processor. The processor can set this flag if it wants to
+    deliver shapes that must not be merged - e.g. point-like edges or strange or degenerated polygons.
+    .
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> PolygonToEdgePairOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
 class PreferredOrientation:
     r"""
     @brief This class represents the PreferredOrientation enum used within polygon decomposition
@@ -39459,6 +41843,10 @@ class PreferredOrientation:
         r"""
         @brief Compares an enum with an integer value
         """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
     @overload
     def __init__(self, i: int) -> None:
         r"""
@@ -39468,6 +41856,10 @@ class PreferredOrientation:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: PreferredOrientation) -> bool:
@@ -39559,6 +41951,10 @@ class PreferredOrientation:
         r"""
         @brief Creates a copy of self
         """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
     def inspect(self) -> str:
         r"""
         @brief Converts an enum to a visual string
@@ -39637,12 +42033,16 @@ class PropertyConstraint:
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums
+        @brief Compares an enum with an integer value
         """
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer value
+        @brief Compares two enums
+        """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     @overload
     def __init__(self, i: int) -> None:
@@ -39653,6 +42053,10 @@ class PropertyConstraint:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: PropertyConstraint) -> bool:
@@ -39667,12 +42071,12 @@ class PropertyConstraint:
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums for inequality
+        @brief Compares an enum with an integer for inequality
         """
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer for inequality
+        @brief Compares two enums for inequality
         """
     def __repr__(self) -> str:
         r"""
@@ -39743,6 +42147,10 @@ class PropertyConstraint:
     def dup(self) -> PropertyConstraint:
         r"""
         @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     def inspect(self) -> str:
         r"""
@@ -41112,6 +43520,10 @@ class Region(ShapeCollection):
             r"""
             @brief Compares two enums
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -41121,6 +43533,10 @@ class Region(ShapeCollection):
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: Region.OppositeFilter) -> bool:
@@ -41149,6 +43565,10 @@ class Region(ShapeCollection):
         def __str__(self) -> str:
             r"""
             @brief Gets the symbolic string from an enum
+            """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def inspect(self) -> str:
             r"""
@@ -41211,12 +43631,16 @@ class Region(ShapeCollection):
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer value
+            @brief Compares two enums
             """
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums
+            @brief Compares an enum with an integer value
+            """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         @overload
         def __init__(self, i: int) -> None:
@@ -41227,6 +43651,10 @@ class Region(ShapeCollection):
         def __init__(self, s: str) -> None:
             r"""
             @brief Creates an enum from a string value
+            """
+        def __int__(self) -> int:
+            r"""
+            @brief Gets the integer value from the enum
             """
         @overload
         def __lt__(self, other: Region.RectFilter) -> bool:
@@ -41256,6 +43684,10 @@ class Region(ShapeCollection):
             r"""
             @brief Gets the symbolic string from an enum
             """
+        def hash(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         def inspect(self) -> str:
             r"""
             @brief Converts an enum to a visual string
@@ -41268,11 +43700,23 @@ class Region(ShapeCollection):
             r"""
             @brief Gets the symbolic string from an enum
             """
+    All: ClassVar[EdgeMode]
+    r"""
+    @brief Selects all edges
+    """
     AlwaysIncludeZeroDistance: ClassVar[ZeroDistanceMode]
     r"""
     @hide
     @brief Specifies that check functions should always include edges with zero distance
     This mode has little practical value.
+    """
+    Concave: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only concave edges
+    """
+    Convex: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only convex edges
     """
     DifferentPropertiesConstraint: ClassVar[PropertyConstraint]
     r"""
@@ -41317,7 +43761,7 @@ class Region(ShapeCollection):
     IncludeZeroDistanceWhenTouching: ClassVar[ZeroDistanceMode]
     r"""
     @brief Specifies that check functions should include edges when they touch
-    With this specification, the check functions will also check edges if they share at least one common point. This is the mode that includes checking the 'kissing corner' cases. This mode is default for version 0.29 and later. 
+    With this specification, the check functions will also check edges if they share at least one common point. This is the mode that includes checking the 'kissing corner' cases. This mode is default for version 0.28.16 and later. 
     """
     NeverIncludeZeroDistance: ClassVar[ZeroDistanceMode]
     r"""
@@ -41337,9 +43781,29 @@ class Region(ShapeCollection):
     r"""
     @brief Specifies no filtering
     """
+    NotConcave: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not concave
+    """
+    NotConvex: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not convex
+    """
     NotOpposite: ClassVar[Region.OppositeFilter]
     r"""
     @brief Only errors NOT appearing on opposite sides of a figure will be reported
+    """
+    NotStep: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not steps
+    """
+    NotStepIn: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not steps leading inside
+    """
+    NotStepOut: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only edges which are not steps leading outside
     """
     OneSideAllowed: ClassVar[Region.RectFilter]
     r"""
@@ -41374,6 +43838,18 @@ class Region(ShapeCollection):
     @/code
 
     All points within a square with length 2*d around one point are considered to have a smaller distance than d in this metrics.
+    """
+    Step: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only step edges leading inside or outside
+    """
+    StepIn: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only step edges leading inside
+    """
+    StepOut: ClassVar[EdgeMode]
+    r"""
+    @brief Selects only step edges leading outside
     """
     ThreeSidesAllowed: ClassVar[Region.RectFilter]
     r"""
@@ -42142,6 +44618,32 @@ class Region(ShapeCollection):
 
         This method has been introduced in version 0.25.
         """
+    @overload
+    def delaunay(self) -> Region:
+        r"""
+        @brief Computes a constrained Delaunay triangulation from the given region
+
+        @return A new region holding the triangles of the constrained Delaunay triangulation.
+
+        Note that the result is a region in raw mode as otherwise the triangles are likely to get merged later on.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def delaunay(self, max_area: float, min_b: Optional[float] = ...) -> Region:
+        r"""
+        @brief Computes a refined, constrained Delaunay triangulation from the given region
+
+        @return A new region holding the triangles of the refined, constrained Delaunay triangulation.
+
+        Refinement is implemented by Chew's second algorithm. A maximum area can be given. Triangles larger than this area will be split. In addition 'skinny' triangles will be resolved where possible. 'skinny' is defined in terms of shortest edge to circumcircle radius ratio (b). A minimum number for b can be given. The default of 1.0 corresponds to a minimum angle of 30 degree and is usually a good choice. The algorithm is stable up to roughly 1.2 which corresponds to a minimum angle of abouth 37 degree.
+
+        The area value is given in terms of DBU units. Picking a value of 0.0 for area and min b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
+
+        Note that the result is a region in raw mode as otherwise the triangles are likely to get merged later on.
+
+        This method has been introduced in version 0.29.
+        """
     def destroy(self) -> None:
         r"""
         @brief Explicitly destroys the object
@@ -42175,14 +44677,18 @@ class Region(ShapeCollection):
 
         This returns the raw polygons if merged semantics is disabled or the merged ones if merged semantics is enabled.
         """
-    def edges(self) -> Edges:
+    def edges(self, mode: Optional[EdgeMode] = ...) -> Edges:
         r"""
         @brief Returns an edge collection representing all edges of the polygons in this region
         This method will decompose the polygons into the individual edges. Edges making up the hulls of the polygons are oriented clockwise while edges making up the holes are oriented counterclockwise.
 
-        The edge collection returned can be manipulated in various ways. See \Edges for a description of the possibilities of the edge collection.
+        The 'mode' parameter allows selecting specific edges, such as convex or concave ones. By default, all edges are selected.
+
+        The edge collection returned can be manipulated in various ways. See \Edges for a description of the features of the edge collection.
 
         Merged semantics applies for this method (see \merged_semantics= for a description of this concept)
+
+        The mode argument has been added in version 0.29.
         """
     def enable_progress(self, label: str) -> None:
         r"""
@@ -42340,6 +44846,13 @@ class Region(ShapeCollection):
 
         This method has been introduced in version 0.27.
         """
+    def filter(self, filter: PolygonFilter) -> None:
+        r"""
+        @brief Applies a generic filter in place (replacing the polygons from the Region)
+        See \PolygonFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
     def filter_properties(self, keys: Sequence[Any]) -> None:
         r"""
         @brief Filters properties by certain keys.
@@ -42347,6 +44860,13 @@ class Region(ShapeCollection):
         As a side effect, this method enables properties on original layers.
 
         This method has been introduced in version 0.28.4.
+        """
+    def filtered(self, filtered: PolygonFilter) -> Region:
+        r"""
+        @brief Applies a generic filter and returns a filtered copy
+        See \PolygonFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
         """
     def flatten(self) -> Region:
         r"""
@@ -43188,6 +45708,37 @@ class Region(ShapeCollection):
         Merged semantics applies for this method (see \merged_semantics= for a description of this concept)
         If merged semantics is not enabled, internal edges are counted as well.
         """
+    def process(self, process: PolygonOperator) -> None:
+        r"""
+        @brief Applies a generic polygon processor in place (replacing the polygons from the Region)
+        See \PolygonProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: PolygonOperator) -> Region:
+        r"""
+        @brief Applies a generic polygon processor and returns a processed copy
+        See \PolygonProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: PolygonToEdgeOperator) -> Edges:
+        r"""
+        @brief Applies a generic polygon-to-edge processor and returns an edge collection with the results
+        See \PolygonToEdgeProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: PolygonToEdgePairOperator) -> EdgePairs:
+        r"""
+        @brief Applies a generic polygon-to-edge-pair processor and returns an edge pair collection with the results
+        See \PolygonToEdgePairProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
     def pull_inside(self, other: Region) -> Region:
         r"""
         @brief Returns all polygons of "other" which are inside polygons of this region
@@ -43245,6 +45796,40 @@ class Region(ShapeCollection):
         Merged semantics applies for this method (see \merged_semantics= for a description of this concept)
 
         This method has been introduced in version 0.26.1
+        """
+    @overload
+    def rasterize(self, origin: Point, pixel_distance: Vector, pixel_size: Vector, nx: int, ny: int) -> List[List[float]]:
+        r"""
+        @brief A version of 'rasterize' that allows a pixel step distance which is larger than the pixel size
+        This version behaves like the first variant of 'rasterize', but the pixel distance (pixel-to-pixel step raster)
+        can be specified separately from the pixel size. Currently, the pixel size must be equal or smaller than the
+        pixel distance - i.e. the pixels must not overlap.
+
+        This method has been added in version 0.29.
+        """
+    @overload
+    def rasterize(self, origin: Point, pixel_size: Vector, nx: int, ny: int) -> List[List[float]]:
+        r"""
+        @brief A grayscale rasterizer delivering the area covered per pixel
+        @param origin The lower-left corner of the lowest-left pixel
+        @param pixel_size The dimension of each pixel (the x component gives the width, the y component the height)
+        @param nx The number of pixels in horizontal direction
+        @param ny The number of pixels in vertical direction
+        The method will create a grayscale, high-resolution density map of a rectangular region.
+        The scan region is defined by the origin, the pixel size and the number of pixels in horizontal (nx) and
+        vertical (ny) direction. The resulting array will contain the area covered by polygons from the region
+        in square database units.
+
+        For non-overlapping polygons, the maximum density value is px*py. Overlapping polygons are counted multiple
+        times, so the actual values may be larger. If you want overlaps removed, you have to
+        merge the region before. Merge semantics does not apply for the 'rasterize' method.
+
+        The resulting area values are precise within the limits of double-precision floating point arithmetics.
+
+        A second version exists that allows specifying an active pixel size which is smaller than the
+        pixel distance hence allowing pixels samples that do not cover the full area, but leave gaps between the pixels.
+
+        This method has been added in version 0.29.
         """
     def rectangles(self) -> Region:
         r"""
@@ -43955,7 +46540,7 @@ class Region(ShapeCollection):
         Merged semantics applies for the input of this method (see \merged_semantics= for a description of this concept)
 
         The 'shielded' and 'negative' options have been introduced in version 0.27. 'property_constraint' has been added in version 0.28.4.
-        'zero_distance_mode' has been added in version 0.29.
+        'zero_distance_mode' has been added in version 0.28.16.
         """
     @overload
     def with_angle(self, amin: float, amax: float, inverse: bool) -> EdgePairs:
@@ -44891,6 +47476,10 @@ class Severity:
         r"""
         @brief Compares two enums
         """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
     @overload
     def __init__(self, i: int) -> None:
         r"""
@@ -44900,6 +47489,10 @@ class Severity:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: Severity) -> bool:
@@ -44914,12 +47507,12 @@ class Severity:
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer for inequality
+        @brief Compares two enums for inequality
         """
     @overload
     def __ne__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums for inequality
+        @brief Compares an enum with an integer for inequality
         """
     def __repr__(self) -> str:
         r"""
@@ -44990,6 +47583,10 @@ class Severity:
     def dup(self) -> Severity:
         r"""
         @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     def inspect(self) -> str:
         r"""
@@ -45644,11 +48241,10 @@ class Shape:
 
     Starting with version 0.23, this method returns nil, if the shape does not represent a text.
     Setter:
-    @brief Replaces the shape by the given text object
-    This method replaces the shape by the given text object. This method can only be called for editable layouts. It does not change the user properties of the shape.
-    Calling this method will invalidate any iterators. It should not be called inside a loop iterating over shapes.
+    @brief Replaces the shape by the given text (in micrometer units)
+    This method replaces the shape by the given text, like \text= with a \Text argument does. This version translates the text from micrometer units to database units internally.
 
-    This method has been introduced in version 0.22.
+    This method has been introduced in version 0.25.
     """
     text_dpos: DVector
     r"""
@@ -48332,6 +50928,17 @@ class SimplePolygon:
         r"""
         @brief Returns the bounding box of the simple polygon
         """
+    def break_(self, max_vertex_count: int, max_area_ratio: float) -> List[SimplePolygon]:
+        r"""
+        @brief Splits the polygon into parts with a maximum vertex count and area ratio
+        The area ratio is the ratio between the bounding box area and the polygon area. Higher values mean more 'skinny' polygons.
+
+        This method will split the input polygon into pieces having a maximum of 'max_vertex_count' vertices and an area ratio less than 'max_area_ratio'. 'max_vertex_count' can be zero. In this case the limit is ignored. Also 'max_area_ratio' can be zero, in which case it is ignored as well.
+
+        The method of splitting is unspecified. The algorithm will apply 'split' recursively until the parts satisfy the limits.
+
+        This method has been introduced in version 0.29.
+        """
     def compress(self, remove_reflected: bool) -> None:
         r"""
         @brief Compressed the simple polygon.
@@ -48855,15 +51462,15 @@ class SubCircuit(NetlistObject):
     @overload
     def circuit_ref(self) -> Circuit:
         r"""
-        @brief Gets the circuit referenced by the subcircuit (non-const version).
-
-
-        This constness variant has been introduced in version 0.26.8
+        @brief Gets the circuit referenced by the subcircuit.
         """
     @overload
     def circuit_ref(self) -> Circuit:
         r"""
-        @brief Gets the circuit referenced by the subcircuit.
+        @brief Gets the circuit referenced by the subcircuit (non-const version).
+
+
+        This constness variant has been introduced in version 0.26.8
         """
     @overload
     def connect_pin(self, pin: Pin, net: Net) -> None:
@@ -48957,6 +51564,20 @@ class Technology:
 
     Setter:
     @hide
+    """
+    default_grids: List[float]
+    r"""
+    Getter:
+    @brief Gets the default grids
+
+    See \default_grids for details.
+
+    This property has been introduced in version 0.28.17.
+    Setter:
+    @brief Sets the default grids
+    If not empty, this list replaces the global grid list for this technology.
+
+    This property has been introduced in version 0.28.17.
     """
     description: str
     r"""
@@ -49805,6 +52426,149 @@ class Text:
         @return The transformed text
         """
 
+class TextFilter:
+    r"""
+    @brief A generic text filter adaptor
+
+    Text filters are an efficient way to filter texts from a Texts collection. To apply a filter, derive your own filter class and pass an instance to \Texts#filter or \Texts#filtered method.
+
+    Conceptually, these methods take each text from the collection and present it to the filter's 'selected' method.
+    Based on the result of this evaluation, the text is kept or discarded.
+
+    The magic happens when deep mode text collections are involved. In that case, the filter will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the filter behaves. You need to configure the filter by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using the filter.
+
+    You can skip this step, but the filter algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that filters texts with a given string length:
+    @code
+    class TextStringLengthFilter < RBA::TextFilter
+
+      # Constructor
+      def initialize(string_length)
+        self.is_isotropic_and_scale_invariant   # orientation and scale do not matter
+        @string_length = string_length
+      end
+  
+      # Select texts with given string length
+      def selected(text)
+        return text.string.size == @string_length
+      end
+
+    end
+
+    texts = ... # some Texts object
+    with_length_3 = edges.filtered(TextStringLengthFilter::new(3))
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> TextFilter:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) filters are area or perimeter filters. The area or perimeter of a polygon depends on the scale, but not on the orientation of the polygon.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) filter is the square selector. Whether a polygon is a square or not does not depend on the polygon's orientation nor scale.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) filter is the bounding box aspect ratio (height/width) filter. The definition of heigh and width depends on the orientation, but the ratio is independent on scale.
+        """
+
 class TextGenerator:
     r"""
     @brief A text generator class
@@ -49886,7 +52650,7 @@ class TextGenerator:
         @brief Creates a new object of this class
         """
     @classmethod
-    def set_font_paths(cls, arg0: Sequence[str]) -> None:
+    def set_font_paths(cls, paths: Sequence[str]) -> None:
         r"""
         @brief Sets the paths where to look for font files
         This function sets the paths where to look for font files. After setting such a path, each font found will render a specific generator. The generator can be found under the font file's name. As the text generator is also the basis for the Basic.TEXT PCell, using this function also allows configuring custom fonts for this library cell.
@@ -50064,6 +52828,276 @@ class TextGenerator:
         r"""
         @brief Gets the design height of the glyphs in the generator's database units
         The width is the width of the rectangle occupied by each character. A version that delivers this value in micrometer units is \dwidth.
+        """
+
+class TextOperator:
+    r"""
+    @brief A generic text operator
+
+    Text processors are an efficient way to process texts from an text collection. To apply a processor, derive your own operator class and pass an instance to the \Texts#processed or \Texts#process method.
+
+    Conceptually, these methods take each text from the edge pair collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output texts derived from the input text.
+    The output text collection is the sum over all these individual results.
+
+    The magic happens when deep mode text collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    Here is some example that replaces the text string:
+    @code
+    class ReplaceTextString < RBA::TextOperator
+
+      # Constructor
+      def initialize
+        self.is_isotropic_and_scale_invariant   # orientation and scale do not matter
+      end
+  
+      # Replaces the string by a number representing the string length
+      def process(text)
+        new_text = text.dup   # need a copy as we cannot modify the text passed
+        new_text.string = text.string.size.to_s
+        return [ new_text ]
+      end
+
+    end
+
+    texts = ... # some Texts object
+    modified = texts.processed(ReplaceTextString::new)
+    @/code
+
+    This class has been introduced in version 0.29.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> TextOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
+        """
+
+class TextToPolygonOperator:
+    r"""
+    @brief A generic text-to-polygon operator
+
+    Text processors are an efficient way to process texts from an text collection. To apply a processor, derive your own operator class and pass an instance to the \Texts#processed method.
+
+    Conceptually, these methods take each text from the text collection and present it to the operator's 'process' method.
+    The result of this call is a list of zero to many output polygons derived from the input text.
+    The output region is the sum over all these individual results.
+
+    The magic happens when deep mode text collections are involved. In that case, the processor will use as few calls as possible and exploit the hierarchical compression if possible. It needs to know however, how the operator behaves. You need to configure the operator by calling \is_isotropic, \is_scale_invariant or \is_isotropic_and_scale_invariant before using it.
+
+    You can skip this step, but the processor algorithm will assume the worst case then. This usually leads to cell variant formation which is not always desired and blows up the hierarchy.
+
+    For a basic example see the \TextOperator class, with the exception that this incarnation delivers polygons.
+
+    This class has been introduced in version 0.29.
+    """
+    wants_variants: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether the filter prefers cell variants
+    See \wants_variants= for details.
+
+    Setter:
+    @brief Sets a value indicating whether the filter prefers cell variants
+    This flag must be set before using this filter for hierarchical applications (deep mode). It tells the filter implementation whether cell variants should be created (true, the default) or shape propagation will be applied (false).
+
+    This decision needs to be made, if the filter indicates that it will deliver different results
+    for scaled or rotated versions of the shape (see \is_isotropic and the other hints). If a cell
+    is present with different qualities - as seen from the top cell - the respective instances
+    need to be differentiated. Cell variant formation is one way, shape propagation the other way.
+    Typically, cell variant formation is less expensive, but the hierarchy will be modified.
+    """
+    @classmethod
+    def new(cls) -> TextToPolygonOperator:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def __init__(self) -> None:
+        r"""
+        @brief Creates a new object of this class
+        """
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+    def is_isotropic(self) -> None:
+        r"""
+        @brief Indicates that the filter has isotropic properties
+        Call this method before using the filter to indicate that the selection is independent of the orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        Examples for isotropic (polygon) processors are size or shrink operators. Size or shrink is not dependent on orientation unless size or shrink needs to be different in x and y direction.
+        """
+    def is_isotropic_and_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is isotropic and scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale and orientation of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for such a (polygon) processor is the convex decomposition operator. The decomposition of a polygon into convex parts is an operation that is not depending on scale nor orientation.
+        """
+    def is_scale_invariant(self) -> None:
+        r"""
+        @brief Indicates that the filter is scale invariant
+        Call this method before using the filter to indicate that the selection is independent of the scale of the shape. This helps the filter algorithm optimizing the filter run, specifically in hierarchical mode.
+
+        An example for a scale invariant (polygon) processor is the rotation operator. Rotation is not depending on scale, but on the original orientation as mirrored versions need to be rotated differently.
         """
 
 class Texts(ShapeCollection):
@@ -50462,6 +53496,13 @@ class Texts(ShapeCollection):
         @brief Returns a region with the enlarged bounding boxes of the texts
         This method acts like the other version of \extents, but allows giving different enlargements for x and y direction.
         """
+    def filter(self, filter: TextFilter) -> None:
+        r"""
+        @brief Applies a generic filter in place (replacing the texts from the Texts collection)
+        See \TextFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
     def filter_properties(self, keys: Sequence[Any]) -> None:
         r"""
         @brief Filters properties by certain keys.
@@ -50469,6 +53510,13 @@ class Texts(ShapeCollection):
         As a side effect, this method enables properties on original layers.
 
         This method has been introduced in version 0.28.4.
+        """
+    def filtered(self, filtered: TextFilter) -> Texts:
+        r"""
+        @brief Applies a generic filter and returns a filtered copy
+        See \TextFilter for a description of this feature.
+
+        This method has been introduced in version 0.29.
         """
     def flatten(self) -> None:
         r"""
@@ -50614,6 +53662,29 @@ class Texts(ShapeCollection):
         r"""
         @brief Converts the edge pairs to polygons
         This method creates polygons from the texts. This is equivalent to calling \extents.
+        """
+    def process(self, process: TextOperator) -> None:
+        r"""
+        @brief Applies a generic text processor in place (replacing the texts from the text collection)
+        See \TextProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: TextOperator) -> Texts:
+        r"""
+        @brief Applies a generic text processor and returns a processed copy
+        See \TextProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
+        """
+    @overload
+    def processed(self, processed: TextToPolygonOperator) -> Region:
+        r"""
+        @brief Applies a generic text-to-polygon processor and returns a region with the results
+        See \TextToPolygonProcessor for a description of this feature.
+
+        This method has been introduced in version 0.29.
         """
     def pull_interacting(self, other: Region) -> Region:
         r"""
@@ -51267,6 +54338,14 @@ class TilingProcessor:
         @param edges The \Edges object to which the data is sent
         """
     @overload
+    def output(self, name: str, image: lay.BasicImage) -> None:
+        r"""
+        @brief Specifies output to an image
+        This method will establish an output channel which delivers float data to image data. The image is a monochrome image where each pixel corresponds to a single tile. This method for example is useful to collect density information into an image. The image is configured such that each pixel covers one tile.
+
+        The name is the name which must be used in the _output function of the scripts in order to address that channel.
+        """
+    @overload
     def output(self, name: str, layout: Layout, cell: int, layer_index: int) -> None:
         r"""
         @brief Specifies output to a layout layer
@@ -51291,6 +54370,14 @@ class TilingProcessor:
         @param layout The layout to which the data is sent
         @param cell The index of the cell to which the data is sent
         @param lp The layer specification where the output will be sent to
+        """
+    @overload
+    def output(self, name: str, rdb: rdb.ReportDatabase, cell_id: int, category_id: int) -> None:
+        r"""
+        @brief Specifies output to a report database
+        This method will establish an output channel for the processor. The output sent to that channel will be put into the report database given by the "rdb" parameter. "cell_id" specifies the cell and "category_id" the category to use.
+
+        The name is the name which must be used in the _output function of the scripts in order to address that channel.
         """
     @overload
     def output(self, name: str, rec: TileOutputReceiverBase) -> None:
@@ -51553,7 +54640,7 @@ class Trans:
         """
     @overload
     @classmethod
-    def new(cls, c: Trans, x: int, y: int) -> Trans:
+    def new(cls, c: Trans, x: Optional[int] = ..., y: Optional[int] = ...) -> Trans:
         r"""
         @brief Creates a transformation from another transformation plus a displacement
 
@@ -51575,7 +54662,7 @@ class Trans:
         """
     @overload
     @classmethod
-    def new(cls, rot: int, mirr: Optional[bool] = ..., u: Optional[Vector] = ...) -> Trans:
+    def new(cls, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., u: Optional[Vector] = ...) -> Trans:
         r"""
         @brief Creates a transformation using angle and mirror flag
 
@@ -51588,7 +54675,7 @@ class Trans:
         """
     @overload
     @classmethod
-    def new(cls, rot: int, mirr: bool, x: int, y: int) -> Trans:
+    def new(cls, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> Trans:
         r"""
         @brief Creates a transformation using angle and mirror flag and two coordinate values for displacement
 
@@ -51654,7 +54741,7 @@ class Trans:
         @param u The Additional displacement
         """
     @overload
-    def __init__(self, c: Trans, x: int, y: int) -> None:
+    def __init__(self, c: Trans, x: Optional[int] = ..., y: Optional[int] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a displacement
 
@@ -51674,7 +54761,7 @@ class Trans:
         This constructor has been introduced in version 0.25 and replaces the previous static method 'from_dtrans'.
         """
     @overload
-    def __init__(self, rot: int, mirr: Optional[bool] = ..., u: Optional[Vector] = ...) -> None:
+    def __init__(self, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., u: Optional[Vector] = ...) -> None:
         r"""
         @brief Creates a transformation using angle and mirror flag
 
@@ -51686,7 +54773,7 @@ class Trans:
         @param u The displacement
         """
     @overload
-    def __init__(self, rot: int, mirr: bool, x: int, y: int) -> None:
+    def __init__(self, rot: Optional[int] = ..., mirrx: Optional[bool] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> None:
         r"""
         @brief Creates a transformation using angle and mirror flag and two coordinate values for displacement
 
@@ -52202,12 +55289,16 @@ class TrapezoidDecompositionMode:
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer value
+        @brief Compares two enums
         """
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums
+        @brief Compares an enum with an integer value
+        """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     @overload
     def __init__(self, i: int) -> None:
@@ -52218,6 +55309,10 @@ class TrapezoidDecompositionMode:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: TrapezoidDecompositionMode) -> bool:
@@ -52308,6 +55403,10 @@ class TrapezoidDecompositionMode:
     def dup(self) -> TrapezoidDecompositionMode:
         r"""
         @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     def inspect(self) -> str:
         r"""
@@ -52518,6 +55617,10 @@ class VAlign:
         r"""
         @brief Compares an enum with an integer value
         """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
     @overload
     def __init__(self, i: int) -> None:
         r"""
@@ -52527,6 +55630,10 @@ class VAlign:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: VAlign) -> bool:
@@ -52617,6 +55724,10 @@ class VAlign:
     def dup(self) -> VAlign:
         r"""
         @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     def inspect(self) -> str:
         r"""
@@ -52766,7 +55877,7 @@ class VCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: VCplxTrans, m: Optional[float] = ..., u: Optional[Vector] = ...) -> VCplxTrans:
+    def new(cls, c: VCplxTrans, mag: Optional[float] = ..., u: Optional[Vector] = ...) -> VCplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -52779,7 +55890,7 @@ class VCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, c: VCplxTrans, m: float, x: float, y: float) -> VCplxTrans:
+    def new(cls, c: VCplxTrans, mag: Optional[float] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> VCplxTrans:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -52793,15 +55904,7 @@ class VCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, m: float) -> VCplxTrans:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, u: Vector) -> VCplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[Vector] = ...) -> VCplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -52815,7 +55918,7 @@ class VCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, mag: float, rot: float, mirrx: bool, x: int, y: int) -> VCplxTrans:
+    def new(cls, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> VCplxTrans:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -52830,15 +55933,7 @@ class VCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, t: DTrans) -> VCplxTrans:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    @classmethod
-    def new(cls, t: DTrans, m: float) -> VCplxTrans:
+    def new(cls, t: DTrans, mag: Optional[float] = ...) -> VCplxTrans:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
@@ -52846,21 +55941,33 @@ class VCplxTrans:
         """
     @overload
     @classmethod
-    def new(cls, trans: CplxTrans) -> VCplxTrans:
+    def new(cls, trans: CplxTrans, dbu: Optional[float] = ...) -> VCplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates a floating-point to integer coordinate transformation from another coordinate flavour
+
+        The 'dbu' argument is used to transform the input and output space from floating-point units to integer units and vice versa. Formally, the VCplxTrans transformation is initialized with 'to_dbu * trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: DCplxTrans) -> VCplxTrans:
+    def new(cls, trans: DCplxTrans, dbu: Optional[float] = ...) -> VCplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates a floating-point to integer coordinate transformation from another coordinate flavour
+
+        The 'dbu' argument is used to transform the output space from floating-point units to integer units. Formally, the VCplxTrans transformation is initialized with 'to_dbu * trans' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
-    def new(cls, trans: ICplxTrans) -> VCplxTrans:
+    def new(cls, trans: ICplxTrans, dbu: Optional[float] = ...) -> VCplxTrans:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates a floating-point to integer coordinate transformation from another coordinate flavour
+
+        The 'dbu' argument is used to transform the input and output space from floating-point units to integer units and vice versa. Formally, the VCplxTrans transformation is initialized with 'trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        The 'dbu' argument has been added in version 0.29.
         """
     @overload
     @classmethod
@@ -52909,7 +56016,7 @@ class VCplxTrans:
         @brief Creates a unit transformation
         """
     @overload
-    def __init__(self, c: VCplxTrans, m: Optional[float] = ..., u: Optional[Vector] = ...) -> None:
+    def __init__(self, c: VCplxTrans, mag: Optional[float] = ..., u: Optional[Vector] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -52921,7 +56028,7 @@ class VCplxTrans:
         @param u The Additional displacement
         """
     @overload
-    def __init__(self, c: VCplxTrans, m: float, x: float, y: float) -> None:
+    def __init__(self, c: VCplxTrans, mag: Optional[float] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> None:
         r"""
         @brief Creates a transformation from another transformation plus a magnification and displacement
 
@@ -52934,14 +56041,7 @@ class VCplxTrans:
         @param y The Additional displacement (y)
         """
     @overload
-    def __init__(self, m: float) -> None:
-        r"""
-        @brief Creates a transformation from a magnification
-
-        Creates a magnifying transformation without displacement and rotation given the magnification m.
-        """
-    @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, u: Vector) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., u: Optional[Vector] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -52954,7 +56054,7 @@ class VCplxTrans:
         @param u The displacement
         """
     @overload
-    def __init__(self, mag: float, rot: float, mirrx: bool, x: int, y: int) -> None:
+    def __init__(self, mag: Optional[float] = ..., rot: Optional[float] = ..., mirrx: Optional[bool] = ..., x: Optional[int] = ..., y: Optional[int] = ...) -> None:
         r"""
         @brief Creates a transformation using magnification, angle, mirror flag and displacement
 
@@ -52968,33 +56068,38 @@ class VCplxTrans:
         @param y The y displacement
         """
     @overload
-    def __init__(self, t: DTrans) -> None:
-        r"""
-        @brief Creates a transformation from a simple transformation alone
-
-        Creates a magnifying transformation from a simple transformation and a magnification of 1.0.
-        """
-    @overload
-    def __init__(self, t: DTrans, m: float) -> None:
+    def __init__(self, t: DTrans, mag: Optional[float] = ...) -> None:
         r"""
         @brief Creates a transformation from a simple transformation and a magnification
 
         Creates a magnifying transformation from a simple transformation and a magnification.
         """
     @overload
-    def __init__(self, trans: CplxTrans) -> None:
+    def __init__(self, trans: CplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates a floating-point to integer coordinate transformation from another coordinate flavour
+
+        The 'dbu' argument is used to transform the input and output space from floating-point units to integer units and vice versa. Formally, the VCplxTrans transformation is initialized with 'to_dbu * trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: DCplxTrans) -> None:
+    def __init__(self, trans: DCplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates a floating-point to integer coordinate transformation from another coordinate flavour
+
+        The 'dbu' argument is used to transform the output space from floating-point units to integer units. Formally, the VCplxTrans transformation is initialized with 'to_dbu * trans' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        The 'dbu' argument has been added in version 0.29.
         """
     @overload
-    def __init__(self, trans: ICplxTrans) -> None:
+    def __init__(self, trans: ICplxTrans, dbu: Optional[float] = ...) -> None:
         r"""
-        @brief Creates a floating-point coordinate transformation from another coordinate flavour
+        @brief Creates a floating-point to integer coordinate transformation from another coordinate flavour
+
+        The 'dbu' argument is used to transform the input and output space from floating-point units to integer units and vice versa. Formally, the VCplxTrans transformation is initialized with 'trans * to_dbu' where 'to_dbu' is the transformation into DBU space, or more precisely 'VCplxTrans(mag=1/dbu)'.
+
+        The 'dbu' argument has been added in version 0.29.
         """
     @overload
     def __init__(self, u: Vector) -> None:
@@ -53434,7 +56539,13 @@ class VCplxTrans:
 
         The database unit can be specified to translate the integer coordinate displacement in database units to a floating-point displacement in micron units. The displacement's' coordinates will be multiplied with the database unit.
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors and is ill-named. Instead of 'to_itrans' use the conversion constructor:
+
+        @code
+        dtrans = RBA::DCplxTrans::new(vtrans, dbu)
+        @/code
+
+        This method has been deprecated in version 0.29.
         """
     def to_s(self, lazy: Optional[bool] = ..., dbu: Optional[float] = ...) -> str:
         r"""
@@ -53444,11 +56555,17 @@ class VCplxTrans:
 
         The lazy and DBU arguments have been added in version 0.27.6.
         """
-    def to_trans(self) -> ICplxTrans:
+    def to_trans(self, arg0: float) -> ICplxTrans:
         r"""
         @brief Converts the transformation to another transformation with integer input coordinates
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors and is ill-named. Instead of 'to_trans' use the conversion constructor:
+
+        @code
+        itrans = RBA::ICplxTrans::new(vtrans, dbu)
+        @/code
+
+        This method has been deprecated in version 0.29.
         """
     def to_vtrans(self, dbu: Optional[float] = ...) -> CplxTrans:
         r"""
@@ -53456,7 +56573,13 @@ class VCplxTrans:
 
         The database unit can be specified to translate the integer coordinate displacement in database units to an floating-point displacement in micron units. The displacement's' coordinates will be multiplied with the database unit.
 
-        This method has been introduced in version 0.25.
+        This method is redundant with the conversion constructors and is ill-named. Instead of 'to_vtrans' use the conversion constructor:
+
+        @code
+        trans = RBA::CplxTrans::new(vtrans, dbu)
+        @/code
+
+        This method has been deprecated in version 0.29.
         """
     @overload
     def trans(self, box: DBox) -> Box:
@@ -53903,7 +57026,7 @@ class ZeroDistanceMode:
     r"""
     @brief This class represents the zero_distance_mode type for \Region#width and related checks.
     This mode determines how edges with zero distance are treated in the DRC checks. Formally these edges do neither represent a space other other relation as they do not face each other. There are three modes available to treat this boundary case: Ignore such edges (\NeverIncludeZeroDistance) or only include them if they share at least one common point (\IncludeZeroDistanceWhenTouching). The latter mode allows activating checks for the 'kissing corner' case and is the default mode in most checks.
-    This enum has been introduced in version 0.29.
+    This enum has been introduced in version 0.28.16.
     """
     AlwaysIncludeZeroDistance: ClassVar[ZeroDistanceMode]
     r"""
@@ -53924,7 +57047,7 @@ class ZeroDistanceMode:
     IncludeZeroDistanceWhenTouching: ClassVar[ZeroDistanceMode]
     r"""
     @brief Specifies that check functions should include edges when they touch
-    With this specification, the check functions will also check edges if they share at least one common point. This is the mode that includes checking the 'kissing corner' cases. This mode is default for version 0.29 and later. 
+    With this specification, the check functions will also check edges if they share at least one common point. This is the mode that includes checking the 'kissing corner' cases. This mode is default for version 0.28.16 and later. 
     """
     NeverIncludeZeroDistance: ClassVar[ZeroDistanceMode]
     r"""
@@ -53954,12 +57077,16 @@ class ZeroDistanceMode:
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares two enums
+        @brief Compares an enum with an integer value
         """
     @overload
     def __eq__(self, other: object) -> bool:
         r"""
-        @brief Compares an enum with an integer value
+        @brief Compares two enums
+        """
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     @overload
     def __init__(self, i: int) -> None:
@@ -53970,6 +57097,10 @@ class ZeroDistanceMode:
     def __init__(self, s: str) -> None:
         r"""
         @brief Creates an enum from a string value
+        """
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
         """
     @overload
     def __lt__(self, other: ZeroDistanceMode) -> bool:
@@ -54060,6 +57191,10 @@ class ZeroDistanceMode:
     def dup(self) -> ZeroDistanceMode:
         r"""
         @brief Creates a copy of self
+        """
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
         """
     def inspect(self) -> str:
         r"""
