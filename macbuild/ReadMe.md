@@ -1,6 +1,6 @@
 Relevant KLayout version: 0.29.0<br>
 Author: Kazzz-S<br>
-Last modified: 2024-03-21<br>
+Last modified: 2024-03-27<br>
 
 # 1. Introduction
 This directory **`macbuild`** contains various files required for building KLayout (http://www.klayout.de/) version 0.29.0 or later for different 64-bit macOS, including:
@@ -188,7 +188,8 @@ $ ./build4mac.py -q qt5macports -r mp33 -p mp311 -Y
 4. Copy/move the generated application bundle **`klayout.app`** to your **`/Applications`** directory for installation.
 
 ### 6C. Fully Homebrew-flavored build with Homebrew Ruby 3.3 and Homebrew Python 3.11
-Important: to build KLayout >= 0.29.0, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
+> [!IMPORTANT]
+> To build KLayout >= 0.29.0, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
 
 0. Install Homebrew, then install Qt6, Ruby 3.3, Python 3.11, and libgit2 by
 ```
@@ -221,7 +222,13 @@ $ ./build4mac.py -q qt6brew -r hb33 -p hb311 -Y
 4. Copy/move the generated application bundle **`klayout.app`** to your **`/Applications`** directory for installation.
 
 ### 6D. Partially Homebrew-flavored build with System Ruby and Homebrew Python 3.11
-Important: to build KLayout >= 0.29.0, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
+> [!IMPORTANT]
+> To build KLayout >= 0.29.0, you need "Qt6" to address [the compilation issue](https://github.com/KLayout/klayout/issues/1599).
+
+> [!CAUTION]
+> Homebrew Qt6.6.2 seems buggy. More precisely, it does not perfectly deploy the required Qt frameworks.
+> If you plan to distribute an HW*.dmg package, consider using Qt6.4.x from MacPorts.
+> That is, substitute  `qt6brew` with `qt6macports` in the following command lines.
 
 0. Install Homebrew, then install Qt6, Python 3.11, and libgit2 by
 ```
@@ -250,9 +257,9 @@ $ ./build4mac.py -q qt6brew -r sys -p hb311 -y
 * "qt6Brew"    means that Qt6 from Homebrew is used.
 * "RsysPhb311"  means that Ruby is OS-bundled; Python is 3.11 from Homebrew.
 4. Copy/move the generated application bundle **`klayout.app`** to your **`/Applications`** directory for installation.
-### Important
-So far, the deployment of Homebrew Ruby is not supported.<br>
-Therefore, if you intend to use the "-y" option for deployment, you need to use the "-r sys" option for building.
+> [!IMPORTANT]
+> So far, the deployment of Homebrew Ruby is not supported.<br>
+> Therefore, if you intend to use the "-y" option for deployment, you need to use the "-r sys" option for building.
 
 ### 6E. Fully Anaconda3-flavored build with Anaconda3 Ruby 3.2 and Anaconda3 Python 3.11
 0. Install Anaconda3 (Anaconda3-2023.09-0-MacOSX-x86_64.pkg), then install Ruby 3.2 and libgit2 by
