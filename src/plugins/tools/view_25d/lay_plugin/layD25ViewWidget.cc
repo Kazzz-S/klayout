@@ -934,7 +934,7 @@ D25ViewWidget::do_initialize_gl ()
 // by Kazzz-S
 // on 2024-03-29
 //---------------------------------------------------------------------------------
-#if defined(__APPLE__)
+#if !defined(__APPLE__)
   #define __WITH_OPENGL_3_2__   1
 #else
   #undef  __WITH_OPENGL_3_2__
