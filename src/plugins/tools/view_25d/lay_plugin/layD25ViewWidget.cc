@@ -922,6 +922,25 @@ D25ViewWidget::do_initialize_gl ()
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+//---------------------------------------------------------------------------------
+// Attempt to address the issue reported by:
+//   https://github.com/KLayout/klayout/issues/941
+//   https://github.com/KLayout/klayout/issues/1124
+//   https://www.klayout.de/forum/discussion/2481
+//
+// The version of macOS OpenGL is 2.1, which corresponds to '#version 120'.
+// In reverse, '#version 150' corresponds OpenGL 3.2.
+//
+// by Kazzz-S
+// on 2024-03-29
+//---------------------------------------------------------------------------------
+#if !defined(__APPLE__)
+  #define __WITH_OPENGL_3_2__   1
+#else
+  #undef  __WITH_OPENGL_3_2__
+#endif
+
+#if defined(__WITH_OPENGL_3_2__)
   static const char *shapes_vertex_shader_source =
       "#version 150\n"
       "\n"
@@ -930,7 +949,19 @@ D25ViewWidget::do_initialize_gl ()
       "void main() {\n"
       "   gl_Position = posAttr;\n"
       "}\n";
+#else
+  // [1/7] Re-written with the help of ChatGPT for OpenGL 2.1 => #version 120; OpenGL 3.2 => #version 150
+  static const char *shapes_vertex_shader_source =
+      "#version 120\n"
+      "\n"
+      "attribute vec4 posAttr;\n"
+      "\n"
+      "void main() {\n"
+      "   gl_Position = posAttr;\n"
+      "}\n";
+#endif
 
+#if defined(__WITH_OPENGL_3_2__)
   static const char *shapes_geometry_shader_source =
       "#version 150\n"
       "\n"
@@ -958,7 +989,36 @@ D25ViewWidget::do_initialize_gl ()
       "   EmitVertex();\n"
       "   EndPrimitive();\n"
       "}\n";
+#else
+  // [2/7] Re-written with the help of ChatGPT for OpenGL 2.1 => #version 120; OpenGL 3.2 => #version 150
+  static const char *shapes_geometry_shader_source =
+      "#version 120\n"
+      "\n"
+      "uniform vec4 color;\n"
+      "uniform vec4 ambient;\n"
+      "uniform vec3 illum;\n"
+      "uniform mat4 matrix;\n"
+      "varying vec4 vertexColor;\n"
+      "\n"
+      "void main() {\n"
+      "   vec4 p0 = gl_PositionIn[0];\n"
+      "   vec4 p1 = gl_PositionIn[1];\n"
+      "   vec4 p2 = gl_PositionIn[2];\n"
+      "   vec3 n = cross(p2.xyz - p0.xyz, p1.xyz - p0.xyz);\n"
+      "   float dp = dot(normalize(n), illum);\n"
+      "   vertexColor = color * (dp * 0.5 + 0.5) - (min(0.0, dp) * ambient);\n"
+      "   vertexColor.a = 1.0;\n"
+      "   gl_Position = matrix * p0;\n"
+      "   EmitVertex();\n"
+      "   gl_Position = matrix * p1;\n"
+      "   EmitVertex();\n"
+      "   gl_Position = matrix * p2;\n"
+      "   EmitVertex();\n"
+      "   EndPrimitive();\n"
+      "}\n";
+#endif
 
+#if defined(__WITH_OPENGL_3_2__)
   static const char *shapes_fragment_shader_source =
       "#version 150\n"
       "\n"
@@ -984,6 +1044,34 @@ D25ViewWidget::do_initialize_gl ()
       "void main() {\n"
       "   fragColor = color_by_z(vertexColor, gl_FragCoord.w);\n"
       "}\n";
+#else
+  // [3/7] Re-written with the help of ChatGPT for OpenGL 2.1 => #version 120; OpenGL 3.2 => #version 150
+  static const char *shapes_fragment_shader_source =
+      "#version 120\n"
+      "\n"
+      "varying vec4 vertexColor;\n"
+      "varying vec4 fragColor;\n"
+      "uniform float mist_factor;\n"
+      "uniform float mist_add;\n"
+      "\n"
+      "vec4 color_by_z(vec4 c, float z) {\n"
+      "    float mist_rgb = c.g * mist_factor + mist_add;\n"
+      "    vec4 mist_color = vec4(mist_rgb, mist_rgb, mist_rgb, 1.0);\n"
+      "    float d = 0.12;\n"
+      "    float dd = 0.06;\n"
+      "    float f = 1.0;\n"
+      "    if (z < d - dd) {\n"
+      "        f = 0.0;\n"
+      "    } else if (z < d + dd) {\n"
+      "        f = (z - (d - dd)) / (2.0 * dd);\n"
+      "    }\n"
+      "    return (1.0 - f) * mist_color + f * c;\n"
+      "}\n"
+      "\n"
+      "void main() {\n"
+      "   fragColor = color_by_z(vertexColor, gl_FragCoord.w);\n"
+      "}\n";
+#endif
 
   m_shapes_program = new QOpenGLShaderProgram (this);
   if (! m_shapes_program->addShaderFromSourceCode (QOpenGLShader::Vertex, shapes_vertex_shader_source)) {
@@ -999,6 +1087,7 @@ D25ViewWidget::do_initialize_gl ()
     throw tl::Exception (std::string ("Shapes shader program linking failed failed:\n") + tl::to_string (m_shapes_program->log ()));
   }
 
+#if defined(__WITH_OPENGL_3_2__)
   static const char *lines_vertex_shader_source =
       "#version 150\n"
       "\n"
@@ -1008,7 +1097,20 @@ D25ViewWidget::do_initialize_gl ()
       "void main() {\n"
       "   gl_Position = matrix * posAttr;\n"
       "}\n";
+#else
+  // [4/7] Re-written with the help of ChatGPT for OpenGL 2.1 => #version 120; OpenGL 3.2 => #version 150
+  static const char *lines_vertex_shader_source =
+      "#version 120\n"
+      "\n"
+      "attribute vec4 posAttr;\n"
+      "uniform mat4 matrix;\n"
+      "\n"
+      "void main() {\n"
+      "   gl_Position = matrix * posAttr;\n"
+      "}\n";
+#endif
 
+#if defined(__WITH_OPENGL_3_2__)
   static const char *lines_fragment_shader_source =
       "#version 150\n"
       "\n"
@@ -1034,6 +1136,34 @@ D25ViewWidget::do_initialize_gl ()
       "void main() {\n"
       "   fragColor = color_by_z(color, gl_FragCoord.w);\n"
       "}\n";
+#else
+  // [5/7] Re-written with the help of ChatGPT for OpenGL 2.1 => #version 120; OpenGL 3.2 => #version 150
+  static const char *lines_fragment_shader_source =
+      "#version 120\n"
+      "\n"
+      "uniform vec4 color;\n"
+      "varying vec4 fragColor;\n"
+      "uniform float mist_factor;\n"
+      "uniform float mist_add;\n"
+      "\n"
+      "vec4 color_by_z(vec4 c, float z) {\n"
+      "    float mist_rgb = c.g * mist_factor + mist_add;\n"
+      "    vec4 mist_color = vec4(mist_rgb, mist_rgb, mist_rgb, 1.0);\n"
+      "    float d = 0.12;\n"
+      "    float dd = 0.06;\n"
+      "    float f = 1.0;\n"
+      "    if (z < d - dd) {\n"
+      "        f = 0.0;\n"
+      "    } else if (z < d + dd) {\n"
+      "        f = (z - (d - dd)) / (2.0 * dd);\n"
+      "    }\n"
+      "    return (1.0 - f) * mist_color + f * c;\n"
+      "}\n"
+      "\n"
+      "void main() {\n"
+      "   fragColor = color_by_z(color, gl_FragCoord.w);\n"
+      "}\n";
+#endif
 
   m_lines_program = new QOpenGLShaderProgram (this);
   if (! m_lines_program->addShaderFromSourceCode (QOpenGLShader::Vertex, lines_vertex_shader_source)) {
@@ -1047,7 +1177,7 @@ D25ViewWidget::do_initialize_gl ()
   }
 
   //  grid plane shader source
-
+#if defined(__WITH_OPENGL_3_2__)
   static const char *gridplan_vertex_shader_source =
       "#version 150\n"
       "\n"
@@ -1057,7 +1187,20 @@ D25ViewWidget::do_initialize_gl ()
       "void main() {\n"
       "   gl_Position = matrix * posAttr;\n"
       "}\n";
+#else
+  // [6/7] Re-written with the help of ChatGPT for OpenGL 2.1 => #version 120; OpenGL 3.2 => #version 150
+  static const char *gridplan_vertex_shader_source =
+      "#version 120\n"
+      "\n"
+      "attribute vec4 posAttr;\n"
+      "uniform mat4 matrix;\n"
+      "\n"
+      "void main() {\n"
+      "   gl_Position = matrix * posAttr;\n"
+      "}\n";
+#endif
 
+#if defined(__WITH_OPENGL_3_2__)
   static const char *gridplan_fragment_shader_source =
       "#version 150\n"
       "\n"
@@ -1066,6 +1209,18 @@ D25ViewWidget::do_initialize_gl ()
       "void main() {\n"
       "   fragColor = color;\n"
       "}\n";
+#else
+  // [7/7] Re-written with the help of ChatGPT for OpenGL 2.1 => #version 120; OpenGL 3.2 => #version 150
+  static const char *gridplan_fragment_shader_source =
+      "#version 120\n"
+      "\n"
+      "uniform vec4 color;\n"
+      "varying vec4 fragColor;\n"
+      "\n"
+      "void main() {\n"
+      "   fragColor = color;\n"
+      "}\n";
+#endif
 
   m_gridplane_program = new QOpenGLShaderProgram (this);
   if (! m_gridplane_program->addShaderFromSourceCode (QOpenGLShader::Vertex, gridplan_vertex_shader_source)) {
