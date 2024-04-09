@@ -5005,10 +5005,6 @@ class LayoutViewBase:
             r"""
             @brief Gets the hash value from the enum
             """
-        def __hash__(self) -> int:
-            r"""
-            @brief Gets the hash value from the enum
-            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -7234,16 +7230,12 @@ class Macro:
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer value
+            @brief Compares two enums
             """
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums
-            """
-        def __hash__(self) -> int:
-            r"""
-            @brief Gets the hash value from the enum
+            @brief Compares an enum with an integer value
             """
         def __hash__(self) -> int:
             r"""
