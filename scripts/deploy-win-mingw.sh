@@ -30,6 +30,7 @@ enable32bit=1
 enable64bit=1
 args=""
 suffix=""
+qt="qt5"
 
 while [ "$1" != "" ]; do
   if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
@@ -43,6 +44,8 @@ while [ "$1" != "" ]; do
     echo "Options:"
     echo "  -32          Run 32 bit build only"
     echo "  -64          Run 64 bit build only"
+    echo "  -qt5         Builds on qt5 (default)"
+    echo "  -qt6         Builds on qt6"
     echo "  -s <suffix>  Binary suffix"
     echo ""
     echo "By default, both 32 and 64 bit builds are performed"
@@ -53,6 +56,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" = "-64" ]; then
     enable64bit=1
     enable32bit=0
+  elif [ "$1" = "-qt5" ]; then
+    qt="qt5"
+  elif [ "$1" = "-qt6" ]; then
+    qt="qt6"
+    args="$args -qmake qmake-qt6"
   elif [ "$1" = "-s" ]; then
     shift
     suffix="-$1"
@@ -73,6 +81,7 @@ if [ "$KLAYOUT_BUILD_IN_PROGRESS" == "" ]; then
   export KLAYOUT_BUILD_IN_PROGRESS=1
   export KLAYOUT_BUILD_ARGS="$args"
   export KLAYOUT_BUILD_SUFFIX="$suffix"
+  export KLAYOUT_BUILD_QT="$qt"
 
   # Run ourself in MINGW32 system for the win32 build
   if [ "$enable32bit" != "0" ]; then
@@ -105,6 +114,7 @@ target=$pwd/bin-release-$arch$KLAYOUT_BUILD_SUFFIX
 build=$pwd/build-release-$arch$KLAYOUT_BUILD_SUFFIX
 src=$pwd/src
 scripts=$pwd/scripts
+
 # Update in NSIS script too:
 plugins="audio generic iconengines imageformats platforms printsupport sqldrivers styles"
 
@@ -119,6 +129,7 @@ echo "  build      = $build"
 echo "  version    = $KLAYOUT_VERSION"
 echo "  build args = $KLAYOUT_BUILD_ARGS"
 echo "  suffix     = $KLAYOUT_BUILD_SUFFIX"
+echo "  qt         = $KLAYOUT_BUILD_QT"
 echo ""
 
 rm -rf $target
@@ -146,7 +157,8 @@ cp $mingw_inst/etc/ssl/cert.pem $target
 
 echo "Installing plugins .."
 for p in $plugins; do
-  cp -R $mingw_inst/share/qt5/plugins/$p $target
+  echo "  $mingw_inst/share/$KLAYOUT_BUILD_QT/plugins/$p .."
+  cp -R $mingw_inst/share/$KLAYOUT_BUILD_QT/plugins/$p $target
   # remove the debug versions - otherwise they pull in the debug Qt libs
   shopt -s nullglob
   rm -f $target/$p/*d.dll $target/$p/*.dll.debug
