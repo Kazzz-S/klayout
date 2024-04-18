@@ -14,7 +14,8 @@ ruby="ruby"
 
 # Specify the path to the NSIS compiler
 
-makensis=/c/Program\ Files\ \(x86\)/NSIS/makensis.exe
+#makensis=/c/Program\ Files\ \(x86\)/NSIS/makensis.exe
+makensis=/c/NSIS/makensis.exe
 
 # ---------------------------------------------------
 # General initialization
