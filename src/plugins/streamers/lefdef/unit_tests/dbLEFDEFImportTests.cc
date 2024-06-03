@@ -429,7 +429,7 @@ TEST(def16)
   //  (complete example)
   db::LEFDEFReaderOptions opt = default_options ();
   opt.set_macro_resolution_mode (1);
-  run_test (_this, "def16", "lef:a.lef+lef:tech.lef+def:a.def", "au_4.oas.gz", opt);
+  run_test (_this, "def16", "lef:a.lef+lef:tech.lef+def:a.def", "au_4b.oas.gz", opt);
 }
 
 TEST(100)
@@ -1048,5 +1048,32 @@ TEST(211_symlinks)
 TEST(212_widthtable)
 {
   run_test (_this, "issue-1528", "map:gds.map+lef:tech.lef+def:routed.def", "au.oas", default_options (), false);
+}
+
+//  issue-1724 (skip duplicate LEF)
+TEST(213_no_duplicate_LEF)
+{
+  db::Layout ly;
+
+  std::string fn_path (tl::testdata ());
+  fn_path += "/lefdef/issue-1724/";
+
+  db::LEFDEFReaderOptions lefdef_opt = default_options ();
+  lefdef_opt.set_map_file ("tech.map");
+  std::vector<std::string> lf;
+  lf.push_back ("d/tech.lef");
+  lf.push_back ("blocks.lef");
+  lefdef_opt.set_lef_files (lf);
+  lefdef_opt.set_read_lef_with_def (true);
+  db::LoadLayoutOptions opt;
+  opt.set_options (lefdef_opt);
+
+  {
+    tl::InputStream is (fn_path + "top.def");
+    db::Reader reader (is);
+    reader.read (ly, opt);
+  }
+
+  db::compare_layouts (_this, ly, fn_path + "au.oas", db::WriteOAS);
 }
 
