@@ -829,6 +829,32 @@ public:
   }
 
   /**
+   *  @brief Gets the shapes that make the subcircuit pin
+   *
+   *  This method looks up all shapes from the subcircuit that interact with the shapes of the net
+   *  the subcircuit pin lives in. It will return a map of layer index vs. Region with these
+   *  shapes, transformed into the coordinate space of the net.
+   *
+   *  Note that this method only considers top-down interactions between the shapes of the net
+   *  and subcircuits on any level below, but not between subcircuits.
+   *  It is useful only for certain topologies - i.e. digital nets connecting gate cells.
+   */
+  std::map<unsigned int, db::Region> shapes_of_pin (const db::NetSubcircuitPinRef &pin, const db::ICplxTrans &trans = db::ICplxTrans ()) const;
+
+  /**
+   *  @brief Gets the shapes that make the device terminal
+   *
+   *  This method looks up all shapes from the device terminals that interact with the shapes of the net
+   *  the device terminal lives in. It will return a map of layer index vs. Region with these
+   *  shapes, transformed into the coordinate space of the net.
+   *
+   *  Note that this method only considers top-down interactions between the shapes of the net
+   *  and subcircuits on any level below, but not between subcircuits and devices.
+   *  It is useful for flat-extracted netlists for example.
+   */
+  std::map<unsigned int, db::Region> shapes_of_terminal (const db::NetTerminalRef &terminal, const db::ICplxTrans &trans = db::ICplxTrans ()) const;
+
+  /**
    *  @brief Returns all shapes of a specific net and layer.
    *
    *  If "recursive" is true, the returned region will contain the shapes of
@@ -1099,6 +1125,7 @@ private:
   void ensure_layout () const;
   std::string make_new_name (const std::string &stem = std::string ());
   db::CellMapping make_cell_mapping_into (db::Layout &layout, db::Cell &cell, const std::vector<const db::Net *> *nets, bool with_device_cells);
+  void collect_shapes_of_pin (const local_cluster<db::NetShape> &c, const db::Net *other_net, const db::ICplxTrans &sc_trans, const db::ICplxTrans &trans, std::map<unsigned int, db::Region> &result) const;
   void connect_impl (const db::ShapeCollection &a, const db::ShapeCollection &b);
   size_t connect_global_impl (const db::ShapeCollection &l, const std::string &gn);
   void soft_connect_impl (const db::ShapeCollection &a, const db::ShapeCollection &b);
@@ -1109,8 +1136,8 @@ private:
   void do_soft_connections ();
   void join_nets_from_pattern (db::Circuit &c, const tl::GlobPattern &p);
   void join_nets_from_pattern (db::Circuit &c, const std::set<std::string> &p);
-  void check_must_connect (const db::Circuit &c, const db::Net &a, const db::Net &b);
-  void check_must_connect_impl (const db::Circuit &c, const db::Net &a, const db::Net &b, const db::Circuit &c_org, const db::Net &a_org, const db::Net &b_org, std::vector<const db::SubCircuit *> &path);
+  void check_must_connect (const db::Circuit &c, const std::vector<Net *> &nets);
+  void check_must_connect_impl (const db::Circuit &c, const std::vector<const Net *> &nets, const db::Circuit &c_org, const std::vector<const Net *> &nets_org, std::vector<const db::SubCircuit *> &path, bool same_names);
 
   //  for debugging and testing
   void place_soft_connection_diodes ();

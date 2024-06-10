@@ -5265,6 +5265,10 @@ class LayoutViewBase:
             r"""
             @brief Gets the hash value from the enum
             """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
+            """
         @overload
         def __init__(self, i: int) -> None:
             r"""
@@ -7490,12 +7494,16 @@ class Macro:
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares two enums
+            @brief Compares an enum with an integer value
             """
         @overload
         def __eq__(self, other: object) -> bool:
             r"""
-            @brief Compares an enum with an integer value
+            @brief Compares two enums
+            """
+        def __hash__(self) -> int:
+            r"""
+            @brief Gets the hash value from the enum
             """
         def __hash__(self) -> int:
             r"""
@@ -8806,7 +8814,7 @@ class ObjectInstPath:
     @brief Gets the cell index of the top cell the selection applies to
 
     The top cell is identical to the current cell provided by the cell view.
-    It is the cell from which is instantiation path originates and the container cell if not instantiation path is set.
+    It is the cell from which is instantiation path originates and the container cell if no instantiation path is set.
 
     This method has been introduced in version 0.24.
     Setter:

@@ -524,8 +524,8 @@ class DB_PUBLIC hnp_interaction_receiver
 public:
   typedef typename local_cluster<T>::box_type box_type;
 
-  hnp_interaction_receiver (const Connectivity &conn, const db::ICplxTrans &trans)
-    : mp_conn (&conn), m_any (false), m_soft_mode (0), m_trans (trans)
+  hnp_interaction_receiver (const Connectivity &conn, const db::ICplxTrans &trans, std::map<unsigned int, std::set<const T *> > *interacting_this, std::map<unsigned int, std::set<const T *> > *interacting_other)
+    : mp_conn (&conn), m_any (false), m_soft_mode (0), m_trans (trans), mp_interacting_this (interacting_this), mp_interacting_other (interacting_other)
   {
     //  .. nothing yet ..
   }
@@ -534,6 +534,12 @@ public:
   {
     int soft = 0;
     if (mp_conn->interacts (*s1, l1, *s2, l2, m_trans, soft)) {
+      if (mp_interacting_this) {
+        (*mp_interacting_this) [l1].insert (s1);
+      }
+      if (mp_interacting_other) {
+        (*mp_interacting_other) [l2].insert (s2);
+      }
       if (soft == 0 || (m_soft_mode != 0 && m_soft_mode != soft)) {
         m_soft_mode = 0;
         m_any = true;
@@ -543,9 +549,14 @@ public:
     }
   }
 
+  bool any () const
+  {
+    return m_any || m_soft_mode != 0;
+  }
+
   bool stop () const
   {
-    return m_any;
+    return m_any && ! mp_interacting_other && ! mp_interacting_this;
   }
 
   int soft_mode () const
@@ -558,6 +569,7 @@ private:
   bool m_any;
   int m_soft_mode;
   db::ICplxTrans m_trans;
+  std::map<unsigned int, std::set<const T *> > *mp_interacting_this, *mp_interacting_other;
 };
 
 template <class T, class Trans>
@@ -620,8 +632,30 @@ local_cluster<T>::interacts (const db::Cell &cell, const db::ICplxTrans &trans, 
 }
 
 template <class T>
+static
+void collect_interactions_in_original_order (const std::map<unsigned int, typename local_cluster<T>::tree_type> &shapes, const std::map<unsigned int, std::set<const T *> > &interacting, std::map<unsigned int, std::vector<const T *> > &interacting_out)
+{
+  for (typename std::map<unsigned int, std::set<const T *> >::const_iterator i = interacting.begin (); i != interacting.end (); ++i) {
+
+    std::vector<const T *> &t = interacting_out [i->first];
+    auto s = shapes.find (i->first);
+    if (s == shapes.end ()) {
+      continue;
+    }
+
+    t.reserve (t.size () + i->second.size ());
+    for (auto j = s->second.begin (); j != s->second.end (); ++j) {
+      if (i->second.find (j.operator-> ()) != i->second.end ()) {
+        t.push_back (j.operator-> ());
+      }
+    }
+
+  }
+}
+
+template <class T>
 bool
-local_cluster<T>::interacts (const local_cluster<T> &other, const db::ICplxTrans &trans, const Connectivity &conn, int &soft) const
+local_cluster<T>::interacts (const local_cluster<T> &other, const db::ICplxTrans &trans, const Connectivity &conn, int &soft, std::map<unsigned int, std::vector<const T *> > *interacting_this, std::map<unsigned int, std::vector<const T *> > *interacting_other) const
 {
   db::box_convert<T> bc;
 
@@ -679,11 +713,26 @@ local_cluster<T>::interacts (const local_cluster<T> &other, const db::ICplxTrans
     }
   }
 
-  hnp_interaction_receiver<T> rec (conn, trans);
+  std::map<unsigned int, std::set<const T *> > is_this, is_other;
+  std::map<unsigned int, std::set<const T *> > *p_is_this = interacting_this ? &is_this : 0;
+  std::map<unsigned int, std::set<const T *> > *p_is_other = interacting_other ? &is_other : 0;
 
-  if (! scanner.process (rec, 1 /*==touching*/, bc, bc_t) || rec.soft_mode () != 0) {
+  hnp_interaction_receiver<T> rec (conn, trans, p_is_this, p_is_other);
+  scanner.process (rec, 1 /*==touching*/, bc, bc_t);
+
+  if (rec.any ()) {
+
+    if (p_is_this) {
+      collect_interactions_in_original_order (m_shapes, *p_is_this, *interacting_this);
+    }
+    if (p_is_other) {
+      collect_interactions_in_original_order (other.m_shapes, *p_is_other, *interacting_other);
+    }
+
     soft = rec.soft_mode ();
+
     return true;
+
   } else {
     return false;
   }
@@ -2817,6 +2866,18 @@ private:
   std::map<size_t, entry_list::iterator> m_global_net_to_entries;
 };
 
+template <class T>
+struct is_for_nets
+{
+  static bool value () { return false; }
+};
+
+template <>
+struct is_for_nets<db::NetShape>
+{
+  static bool value () { return true; }
+};
+
 }
 
 template <class T>
@@ -2903,10 +2964,33 @@ hier_clusters<T>::build_hier_connections (cell_clusters_box_converter<T> &cbc, c
     }
 
     bs2.process (*rec, 1 /*touching*/, local_cluster_box_convert<T> (), cibc);
+
   }
 
   //  join local clusters which got connected by child clusters
   rec->finish_cluster_to_instance_interactions ();
+
+  if (is_for_nets<T>::value ()) {
+
+    //  remove empty or point-like clusters which do not make a downward connection - i.e. from stray texts.
+    //  This implies, we cannot connect from upward down to such nets too. In other words: to force a pin,
+    //  inside a cell we need more than a text.
+    //  (issue #1719, part 2)
+    std::vector<typename local_cluster<T>::id_type> to_delete;
+    for (typename connected_clusters<T>::const_iterator c = local.begin (); c != local.end (); ++c) {
+      box_type bbox = c->bbox ();
+      if ((bbox.empty () || (bbox.width () == 0 && bbox.height () == 0)) && c->get_global_nets ().empty () && local.connections_for_cluster (c->id ()).empty ()) {
+        to_delete.push_back (c->id ());
+      }
+    }
+    for (auto i = to_delete.begin (); i != to_delete.end (); ++i) {
+      local.remove_cluster (*i);
+    }
+    if (tl::verbosity () >= m_base_verbosity + 20) {
+      tl::info << "Removed " << to_delete.size () << " clusters because they are point-like or empty and do not have connections downward (stray texts)";
+    }
+
+  }
 
   if (tl::verbosity () >= m_base_verbosity + 20) {
     tl::info << "Cluster build cache statistics (instance to shape cache): size=" << rec->cluster_cache_size () << ", hits=" << rec->cluster_cache_hits () << ", misses=" << rec->cluster_cache_misses ();

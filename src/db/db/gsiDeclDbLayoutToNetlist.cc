@@ -98,6 +98,24 @@ static std::vector<std::string> l2n_layer_names (const db::LayoutToNetlist *l2n)
   return ln;
 }
 
+static std::vector<unsigned int> l2n_layer_indexes (const db::LayoutToNetlist *l2n)
+{
+  std::vector<unsigned int> li;
+  for (db::LayoutToNetlist::layer_iterator l = l2n->begin_layers (); l != l2n->end_layers (); ++l) {
+    li.push_back (l->first);
+  }
+  return li;
+}
+
+static db::LayerProperties l2n_layer_info (const db::LayoutToNetlist *l2n, unsigned int layer)
+{
+  if (! l2n->internal_layout () || ! l2n->internal_layout ()->is_valid_layer (layer)) {
+    return db::LayerProperties ();
+  } else {
+    return l2n->internal_layout ()->get_properties (layer);
+  }
+}
+
 static db::Region antenna_check3 (db::LayoutToNetlist *l2n, const db::Region &poly, double poly_area_factor, double poly_perimeter_factor, const db::Region &metal, double metal_area_factor, double metal_perimeter_factor, double ratio, const std::vector<tl::Variant> &diodes, db::Texts *texts)
 {
   std::vector<std::pair<const db::Region *, double> > diode_pairs;
@@ -331,7 +349,22 @@ Class<db::LayoutToNetlist> decl_dbLayoutToNetlist ("db", "LayoutToNetlist",
     "This method has been generalized in version 0.27.\n"
   ) +
   gsi::method_ext ("layer_names", &l2n_layer_names,
-    "@brief Returns a list of names of the layer kept inside the LayoutToNetlist object."
+    "@brief Returns a list of names of the layers kept inside the LayoutToNetlist object."
+  ) +
+  gsi::method_ext ("layer_indexes", &l2n_layer_indexes,
+    "@brief Returns a list of indexes of the layers kept inside the LayoutToNetlist object.\n"
+    "You can use \\layer_name to get the name from a layer index. You can use \\layer_info to get "
+    "the \\LayerInfo object attached to a layer - if the layer is an original layer.\n"
+    "\n"
+    "This method has been introduced in version 0.29.2.\n"
+  ) +
+  gsi::method_ext ("layer_info", &l2n_layer_info, gsi::arg ("index"),
+    "@brief Returns the LayerInfo object attached to a layer (by index).\n"
+    "If the layer is an original layer and not a derived one, this method will return the "
+    "stream layer information where the original layer was taken from. Otherwise an empty \\LayerInfo object "
+    "is returned.\n"
+    "\n"
+    "This method has been introduced in version 0.29.2.\n"
   ) +
   gsi::factory ("layer_by_name", &db::LayoutToNetlist::layer_by_name, gsi::arg ("name"),
     "@brief Gets a layer object for the given name.\n"
@@ -599,8 +632,10 @@ Class<db::LayoutToNetlist> decl_dbLayoutToNetlist ("db", "LayoutToNetlist",
   ) +
   gsi::method_ext ("internal_layout", &l2n_internal_layout,
     "@brief Gets the internal layout\n"
-    "Usually it should not be required to obtain the internal layout. If you need to do so, make sure not to modify the layout as\n"
-    "the functionality of the netlist extractor depends on it."
+    "The internal layout is where the LayoutToNetlist database stores the shapes for the nets. "
+    "Usually you do not need to access this object - you must use \\build_net or \\shapes_of_net to "
+    "retrieve the per-net shape information. If you access the internal layout, make sure you do not "
+    "modify it."
   ) +
   gsi::method_ext ("internal_top_cell", &l2n_internal_top_cell,
     "@brief Gets the internal top cell\n"
@@ -643,6 +678,44 @@ Class<db::LayoutToNetlist> decl_dbLayoutToNetlist ("db", "LayoutToNetlist",
   gsi::method ("netlist", &db::LayoutToNetlist::netlist,
     "@brief gets the netlist extracted (0 if no extraction happened yet)\n"
   ) +
+  gsi::method ("shapes_of_pin", &db::LayoutToNetlist::shapes_of_pin, gsi::arg ("pin"), gsi::arg ("trans", db::ICplxTrans (), "unity"),
+    "@brief Returns all shapes of the given subcircuit pin that make a connection to the net the pin lives in.\n"
+    "This will return all shapes from the subcircuit attached by the given pin that interact with the net the pin lives in.\n"
+    "This method returns a \\Region object with the shapes per layer where interactions are found.\n"
+    "The layers are given as layer indexes.\n"
+    "\n"
+    "The returned shapes are already transformed into the coordinate system of the net (see \\shapes_of_net for example).\n"
+    "An additional transformation can be applied using the optional \\trans argument.\n"
+    "\n"
+    "Note, that this method only considers interations between net shapes and subcircuits on every level below, "
+    "but not between subcircuits.\n"
+    "It can be used for example for digital nets connecting gate cells. In the general case however, nets may be formed\n"
+    "also by touching subcircuits. In that case, the nets do not have shapes of their own and this function cannot detect\n"
+    "the pin shapes.\n"
+    "\n"
+    "The call of this method may not be cheap, specificially if large nets are involved.\n"
+    "\n"
+    "This method has been introduced in version 0.29.2."
+  ) +
+  gsi::method ("shapes_of_terminal", &db::LayoutToNetlist::shapes_of_terminal, gsi::arg ("terminal"), gsi::arg ("trans", db::ICplxTrans (), "unity"),
+    "@brief Returns all shapes of the given device terminal that make a connection to the net the terminal lives in.\n"
+    "This will return all shapes from the device attached by the given terminal that interact with the net the terminal lives in.\n"
+    "This method returns a \\Region object with the shapes per layer where interactions are found.\n"
+    "The layers are given as layer indexes.\n"
+    "\n"
+    "The returned shapes are already transformed into the coordinate system of the net (see \\shapes_of_net for example).\n"
+    "An additional transformation can be applied using the optional \\trans argument.\n"
+    "\n"
+    "Note, that this method only considers interations between net shapes and the device connected by the terminal, "
+    "but not between subcircuits on the net and the device.\n"
+    "It can be used for example for flat-extracted, transistor-level netlists. In the general case however, nets may be formed\n"
+    "also by subcircuits touching devices. In that case, the nets do not have shapes of their own and this function cannot detect\n"
+    "the terminal shapes.\n"
+    "\n"
+    "The call of this method may not be cheap, specificially if large nets are involved.\n"
+    "\n"
+    "This method has been introduced in version 0.29.2."
+  ) +
   gsi::factory ("shapes_of_net", (db::Region *(db::LayoutToNetlist::*) (const db::Net &, const db::Region &, bool, const db::ICplxTrans &) const) &db::LayoutToNetlist::shapes_of_net, gsi::arg ("net"), gsi::arg ("of_layer"), gsi::arg ("recursive", true), gsi::arg ("trans", db::ICplxTrans (), "unity"),
     "@brief Returns all shapes of a specific net and layer.\n"
     "If 'recursive'' is true, the returned region will contain the shapes of\n"
@@ -664,8 +737,13 @@ Class<db::LayoutToNetlist> decl_dbLayoutToNetlist ("db", "LayoutToNetlist",
     "This method puts the shapes of a net into the given target cell using a variety of options\n"
     "to represent the net name and the hierarchy of the net.\n"
     "\n"
-    "If the netname_prop name is not nil, a property with the given name is created and assigned\n"
-    "the net name.\n"
+    "If 'netname_prop' is not nil, a property with the given name is created and attached to shapes. The value "
+    "of the property is the net name.\n"
+    "\n"
+    "'lmap' defines which layers are to be produced. It is map, where the keys are layer indexes in the "
+    "target layout and the values are Region objects indicating the layer where shapes are to be taken from. "
+    "Use \\layer_by_name or \\layer_by_index to get the Region object corresponding to a layer stored inside "
+    "the LayoutToNetlist database.\n"
     "\n"
     "Net hierarchy is covered in three ways:\n"
     "@ul\n"
@@ -695,6 +773,14 @@ Class<db::LayoutToNetlist> decl_dbLayoutToNetlist ("db", "LayoutToNetlist",
     "object to determine the target cell (create it with \"cell_mapping_into\" or \"const_cell_mapping_into\").\n"
     "If no mapping is provided for a specific circuit cell, the nets are copied into the next mapped parent as "
     "many times as the circuit cell appears there (circuit flattening).\n"
+    "\n"
+    "If 'netname_prop' is not nil, a property with the given name is created and attached to shapes. The value "
+    "of the property is the net name.\n"
+    "\n"
+    "'lmap' defines which layers are to be produced. It is map, where the keys are layer indexes in the "
+    "target layout and the values are Region objects indicating the layer where shapes are to be taken from. "
+    "Use \\layer_by_name or \\layer_by_index to get the Region object corresponding to a layer stored inside "
+    "the LayoutToNetlist database.\n"
     "\n"
     "The method has three net annotation modes:\n"
     "@ul\n"
@@ -909,6 +995,25 @@ Class<db::LayoutToNetlist> decl_dbLayoutToNetlist ("db", "LayoutToNetlist",
   "'LayoutToNetlist(topcell, dbu)' constructor. If you want to use it with "
   "hierarchical data and an existing DeepShapeStore object, use the "
   "'LayoutToNetlist(dss)' constructor.\n"
+  "\n"
+  "Once the extraction is done, you can persist the \\LayoutToNetlist object "
+  "using \\write and restore it using \\read. You can use the query API (see below) to "
+  "analyze the LayoutToNetlist database.\n"
+  "\n"
+  "The query API of the \\LayoutToNetlist object consists of the following parts:\n"
+  "\n"
+  "@ul\n"
+  "@li Net shape retrieval: \\build_all_nets, \\build_nets, \\build_net and \\shapes_per_net @/li\n"
+  "@li Layers: \\layer_by_index, \\layer_by_name, \\layer_indexes, \\layer_names, \\layer_info, \\layer_name @/li\n"
+  "@li Log entries: \\each_log_entry @/li\n"
+  "@li Probing (get net from position): \\probe_net @/li\n"
+  "@li Netlist: \\netlist @/li\n"
+  "@li Internal shape storage: \\internal_layout, \\internal_top_cell @/li\n"
+  "@li Helper functions: \\cell_mapping_into, \\const_cell_mapping_into @/li\n"
+  "@/ul\n"
+  "\n"
+  "The \\LayoutToNetlist object is also the entry point for connectivity-aware DRC checks, "
+  "such as antenna checks.\n"
   "\n"
   "This class has been introduced in version 0.26."
 );
