@@ -36,6 +36,7 @@ Writer::Writer (const db::SaveLayoutOptions &options)
   : mp_writer (0), m_options (options)
 {
   for (tl::Registrar<db::StreamFormatDeclaration>::iterator fmt = tl::Registrar<db::StreamFormatDeclaration>::begin (); fmt != tl::Registrar<db::StreamFormatDeclaration>::end () && ! mp_writer; ++fmt) {
+    std::cout << "!!! In hacked db::Writer::Writer() | " << m_options.format () << " : " << fmt->format_name () << std::endl;
     if (m_options.format () == fmt->format_name ()) {
       mp_writer = fmt->create_writer ();
     }
