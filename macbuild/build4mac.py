@@ -1007,6 +1007,7 @@ def Build_pymod_wheel(parameters):
 # @return 0 on success; non-zero (1), otherwise
 #------------------------------------------------------------------------------
 def Run_Build_Command(config, parameters):
+    DebugMode = config['DebugMode']
     ModuleQt  = config['ModuleQt']
     NoLibGit2 = config['NoLibGit2']
     ToolDebug = config['ToolDebug']
@@ -1015,8 +1016,22 @@ def Run_Build_Command(config, parameters):
     else:
         jump2pymod_wheel = True
 
+    #-----------------------------------------------------------------
+    # [1] Use the AddressSanitizer (ASan) in the debug build.
+    #     This environment variable is tested in ../src/klayout.pri.
+    #-----------------------------------------------------------------
+    try:
+        useAsan = os.environ['MAC_USE_ASAN']
+    except KeyError:
+        pass
+    else:
+        del os.environ['MAC_USE_ASAN']
+
+    if DebugMode:
+        os.environ['MAC_USE_ASAN'] = "1"
+
     #-----------------------------------------------------
-    # [1] Set two environment variables to use libgit2
+    # [2] Set two environment variables to use libgit2
     #-----------------------------------------------------
     if not NoLibGit2:
         # Using MacPorts
@@ -1048,7 +1063,7 @@ def Run_Build_Command(config, parameters):
 
     if not jump2pymod_wheel:
         #-----------------------------------------------------
-        # [2] Set parameters passed to the main Bash script
+        # [3] Set parameters passed to the main Bash script
         #-----------------------------------------------------
         cmd_args = ""
 
@@ -1106,7 +1121,7 @@ def Run_Build_Command(config, parameters):
             cmd_args += " \\\n  -nopython"
 
         #-----------------------------------------------------
-        # [3] Make the consolidated command line
+        # [4] Make the consolidated command line
         #-----------------------------------------------------
         command  = "time"
         command += " \\\n  %s" % parameters['build_cmd']
@@ -1119,7 +1134,7 @@ def Run_Build_Command(config, parameters):
             sys.exit(0)
 
         #-----------------------------------------------------
-        # [4] Invoke the main Bash script; takes time:-)
+        # [5] Invoke the main Bash script; takes time:-)
         #-----------------------------------------------------
         myscript = os.path.basename(__file__)
         ret = subprocess.call( command, shell=True )
@@ -1138,7 +1153,7 @@ def Run_Build_Command(config, parameters):
         print( "", file=sys.stderr )
 
         #------------------------------------------------------------------------
-        # [5] Prepare "*.macQAT/" directory for the QATest.
+        # [6] Prepare "*.macQAT/" directory for the QATest.
         #     Binaries under "*.macQAT/" such as *.dylib will be touched later.
         #------------------------------------------------------------------------
         print( "### Preparing <%s>" % MacBuildDirQAT )
@@ -1177,7 +1192,7 @@ def Run_Build_Command(config, parameters):
         print( "", file=sys.stderr )
 
     #------------------------------------------------------------------------
-    # [6] Build <pymod> for some predetermined environments on demand
+    # [7] Build <pymod> for some predetermined environments on demand
     #------------------------------------------------------------------------
     BuildPymodWhl = parameters['BuildPymodWhl']
     if BuildPymodWhl:
