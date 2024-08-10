@@ -1568,6 +1568,16 @@ TEST(70d_props)
   run_test (_this, "70", true);
 }
 
+TEST(71_netter)
+{
+  run_test (_this, "71", false);
+}
+
+TEST(71d_netter)
+{
+  run_test (_this, "71", true);
+}
+
 TEST(80_deep_with_mag_width)
 {
   run_test (_this, "80", true);
@@ -1952,4 +1962,14 @@ TEST(130_size_inside_outside)
 TEST(130d_size_inside_outside)
 {
   run_test (_this, "130", true);
+}
+
+TEST(131_edge_pair_interactions)
+{
+  run_test (_this, "131", false);
+}
+
+TEST(131d_edge_pair_interactions)
+{
+  run_test (_this, "131", true);
 }
