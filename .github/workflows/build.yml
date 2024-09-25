@@ -31,9 +31,10 @@ jobs:
             linux-arch: "x86_64"
           - os: "ubuntu-latest"
             cibuild: "*manylinux*"
-            linux-arch: "arm64"
+            linux-arch: "aarch64"
           - os: "ubuntu-latest"
             cibuild: "*musllinux*"
+            linux-arch: "x86_64"
     steps:
       - name: Free Disk Space (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
