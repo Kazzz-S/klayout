@@ -721,7 +721,9 @@ def MakeTargetDMGFile(msg=""):
     #      The folder will open on mount.
     #--------------------------------------------------------
     print( ">>> (10) Setting volume bootability and startup disk options..." )
-    command = "bless --folder %s --openfolder %s" % (MountDir, MountDir)
+    #command = "bless --folder %s --openfolder %s" % (MountDir, MountDir)
+    #bless: The 'openfolder' option is deprecated
+    command = "bless --folder %s" % MountDir
     os.system(command)
     sleep(2)
 
