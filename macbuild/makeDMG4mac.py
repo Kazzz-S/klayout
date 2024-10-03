@@ -279,7 +279,7 @@ def CheckPkgDirectory():
     #     * LW-qt6MP.pkg.macos-Sonoma-release-Rmp33Pmp312
     #-----------------------------------------------------------------------------------------------
     #                  0      1      2                      3                  4                    5         6        7
-    patQRP = u'(ST|LW|HW|EX)([-])([qt5|qt6][0-9A-Za-z]+)([.]pkg[.])([A-Za-z]+[-][A-Za-z]+[-])(release|debug)([-])([0-9A-Za-z]+)'
+    patQRP = r'(ST|LW|HW|EX)([-])([qt5|qt6][0-9A-Za-z]+)([.]pkg[.])([A-Za-z]+[-][A-Za-z]+[-])(release|debug)([-])([0-9A-Za-z]+)'
     regQRP = re.compile(patQRP)
     if not regQRP.match(PkgDir):
         print( "! Cannot identify (Qt, Ruby, Python) from the package directory name" )
