@@ -35,6 +35,9 @@ jobs:
       cp312-cp312-win_amd64.whl:
         python.version: '3.12'
         python.architecture: 'x64'
+      cp313-cp313-win_amd64.whl:
+        python.version: '3.13'
+        python.architecture: 'x64'
       cp36-cp36m-win32.whl:
         python.version: '3.6'
         python.architecture: 'x86'
@@ -55,6 +58,9 @@ jobs:
         python.architecture: 'x86'
       cp312-cp312-win32.whl:
         python.version: '3.12'
+        python.architecture: 'x86'
+      cp313-cp313-win32.whl:
+        python.version: '3.13'
         python.architecture: 'x86'
     maxParallel: 6
 
@@ -137,6 +143,11 @@ jobs:
   steps:
     - checkout: none #skip checking out the default repository resource
     - task: DownloadBuildArtifacts@0
+      displayName: 'Download Build Artifacts wheel-3.13.x64'
+      inputs:
+        artifactName: 'wheel-3.13.x64'
+        downloadPath: '$(System.DefaultWorkingDirectory)'
+    - task: DownloadBuildArtifacts@0
       displayName: 'Download Build Artifacts wheel-3.12.x64'
       inputs:
         artifactName: 'wheel-3.12.x64'
@@ -170,6 +181,11 @@ jobs:
       displayName: 'Download Build Artifacts wheel-3.6.x64'
       inputs:
         artifactName: 'wheel-3.6.x64'
+        downloadPath: '$(System.DefaultWorkingDirectory)'
+    - task: DownloadBuildArtifacts@0
+      displayName: 'Download Build Artifacts wheel-3.13.x86'
+      inputs:
+        artifactName: 'wheel-3.13.x86'
         downloadPath: '$(System.DefaultWorkingDirectory)'
     - task: DownloadBuildArtifacts@0
       displayName: 'Download Build Artifacts wheel-3.12.x86'
