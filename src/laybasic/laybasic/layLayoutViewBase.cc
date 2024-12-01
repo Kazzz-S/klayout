@@ -376,6 +376,11 @@ LayoutViewBase::init (db::Manager *mgr)
   m_marker_dither_pattern = 1;
   m_marker_line_style = 0;
   m_marker_halo = true;
+  m_transient_marker_line_width = 0;
+  m_transient_marker_vertex_size = 0;
+  m_transient_marker_dither_pattern = 1;
+  m_transient_marker_line_style = 0;
+  m_transient_marker_halo = true;
   m_transient_selection_mode = true;
   m_sel_inside_pcells = false;
   m_add_other_layers = false;
@@ -1295,6 +1300,84 @@ LayoutViewBase::configure (const std::string &name, const std::string &value)
 
     //  Change the vertex_size
     if (lay::test_and_set (m_marker_halo, halo)) {
+      mp_canvas->update_image ();
+    }
+
+    //  do not take - let others receive this configuration as well
+    return false;
+
+  } else if (name == cfg_transient_sel_color) {
+
+    tl::Color color;
+    lay::ColorConverter ().from_string (value, color);
+
+    //  Change the color
+    if (lay::test_and_set (m_transient_marker_color, color)) {
+      mp_canvas->update_image ();
+    }
+
+    //  do not take - let others receive this configuration as well
+    return false;
+
+  } else if (name == cfg_transient_sel_line_width) {
+
+    int lw = 0;
+    tl::from_string (value, lw);
+
+    //  Change the line width
+    if (lay::test_and_set (m_transient_marker_line_width, lw)) {
+      mp_canvas->update_image ();
+    }
+
+    //  do not take - let others receive this configuration as well
+    return false;
+
+  } else if (name == cfg_transient_sel_dither_pattern) {
+
+    int dp = 0;
+    tl::from_string (value, dp);
+
+    //  Change the vertex_size
+    if (lay::test_and_set (m_transient_marker_dither_pattern, dp)) {
+      mp_canvas->update_image ();
+    }
+
+    //  do not take - let others receive this configuration as well
+    return false;
+
+  } else if (name == cfg_transient_sel_line_style) {
+
+    int dp = 0;
+    tl::from_string (value, dp);
+
+    //  Change the vertex_size
+    if (lay::test_and_set (m_transient_marker_line_style, dp)) {
+      mp_canvas->update_image ();
+    }
+
+    //  do not take - let others receive this configuration as well
+    return false;
+
+  } else if (name == cfg_transient_sel_vertex_size) {
+
+    int vs = 0;
+    tl::from_string (value, vs);
+
+    //  Change the vertex_size
+    if (lay::test_and_set (m_transient_marker_vertex_size, vs)) {
+      mp_canvas->update_image ();
+    }
+
+    //  do not take - let others receive this configuration as well
+    return false;
+
+  } else if (name == cfg_transient_sel_halo) {
+
+    bool halo = 0;
+    tl::from_string (value, halo);
+
+    //  Change the vertex_size
+    if (lay::test_and_set (m_transient_marker_halo, halo)) {
       mp_canvas->update_image ();
     }
 
@@ -2522,7 +2605,7 @@ LayoutViewBase::signal_apply_technology (lay::LayoutHandle *layout_handle)
         lyp_file = tech->eff_layer_properties_file ();
       }
 
-      if (! lyp_file.empty ()) {
+      if (! lyp_file.empty () || tech->add_other_layers ()) {
 
         //  interpolate the layout properties file name
         tl::Eval expr;
@@ -3984,11 +4067,46 @@ LayoutViewBase::redraw ()
 }
 
 void
+LayoutViewBase::transform (const db::DCplxTrans &tr)
+{
+  //  NOTE: we call "finish_edits" rather than "cancel_edits" because
+  //  "move by" while "duplicate interactive" relies on keeping the
+  //  pasted shapes from the previous transaction. So we must not roll back.
+  finish_edits ();
+  lay::Editables::transform (tr);
+}
+
+void
 LayoutViewBase::cancel_edits ()
 {
+  //  clear any messages
+  message ();
+
+  //  the move service takes a special role here as it manages the
+  //  transaction for the collective move operation.
+  mp_move_service->cancel ();
+
   //  cancel all drag and pending edit operations such as move operations.
   mp_canvas->drag_cancel ();
   lay::Editables::cancel_edits ();
+
+  //  re-enable edit mode
+  enable_edits (true);
+}
+
+void
+LayoutViewBase::finish_edits ()
+{
+  //  the move service takes a special role here as it manages the
+  //  transaction for the collective move operation.
+  mp_move_service->finish ();
+
+  //  cancel all drag operations
+  mp_canvas->drag_cancel ();
+  lay::Editables::finish_edits ();
+
+  //  re-enable edit mode
+  enable_edits (true);
 }
 
 void
@@ -3996,8 +4114,6 @@ LayoutViewBase::cancel ()
 {
   //  cancel all drags and pending edit operations such as move operations.
   cancel_edits ();
-  //  re-enable edit mode
-  enable_edits (true);
   //  and clear the selection
   clear_selection ();
 }

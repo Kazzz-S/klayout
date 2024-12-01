@@ -235,6 +235,8 @@ Finder::do_find (const db::Cell &cell, int level, const db::DCplxTrans &vp, cons
 
         m_path.push_back (db::InstElement (*inst, p));
 
+        checkpoint ();
+
         do_find (mp_layout->cell (cell_inst.object ().cell_index ()), 
                  level + 1,
                  vp,
@@ -477,6 +479,9 @@ ShapeFinder::visit_cell (const db::Cell &cell, const db::Box &hit_box, const db:
 {
   checkpoint ();
 
+  //  Viewport in current cell coordinate space (DBU)
+  db::Box viewport_box = (vp * db::CplxTrans (layout ().dbu ()) * t).inverted () * db::DBox (0, 0, view ()->viewport ().width (), view ()->viewport ().height ());
+
   if (! m_context_layers.empty ()) {
 
     std::map<db::cell_index_type, bool>::const_iterator ctx = m_cells_with_context.find (cell.cell_index ());
@@ -515,7 +520,9 @@ ShapeFinder::visit_cell (const db::Cell &cell, const db::Box &hit_box, const db:
           checkpoint ();
 
           db::Box bbox;
-          if (text_info () && shape->is_text ()) {
+          if (! view ()->text_visible () && shape->is_text ()) {
+            //  ignore texts if the view does not show them
+          } else if (text_info () && shape->is_text ()) {
             db::CplxTrans t_dbu = db::CplxTrans (layout ().dbu ()) * t;
             db::Text text;
             shape->text (text);
@@ -567,32 +574,40 @@ ShapeFinder::visit_cell (const db::Cell &cell, const db::Box &hit_box, const db:
           bool match = false;
           double d = std::numeric_limits<double>::max ();
 
-          checkpoint ();
-
           db::Point point (hit_box.center ());
 
           //  in point mode, test the edges and use a "closest" criterion
           if (shape->is_polygon ()) {
 
+            bool any_valid_edge = false;
             for (db::Shape::polygon_edge_iterator e = shape->begin_edge (); ! e.at_end (); ++e) {
-              test_edge (t, *e, d, match);
+              if ((*e).clipped (viewport_box).first) {
+                any_valid_edge = true;
+                test_edge (t, *e, d, match);
+              }
             }
 
             //  test if inside the polygon
-            if (! match && inside_poly (shape->begin_edge (), point) >= 0) { 
+            if (! match && any_valid_edge && inside_poly (shape->begin_edge (), point) >= 0) {
               d = t.ctrans (poly_dist (shape->begin_edge (), point)); 
               match = true;
             }
 
           } else if (shape->is_path ()) {
 
+            bool any_valid_edge = false;
+
             //  test the "spine"
-            db::Shape::point_iterator pt = shape->begin_point (); 
+            db::Shape::point_iterator pt = shape->begin_point ();
             if (pt != shape->end_point ()) {
               db::Point p (*pt);
               ++pt;
               for (; pt != shape->end_point (); ++pt) {
-                test_edge (t, db::Edge (p, *pt), d, match);
+                db::Edge e (p, *pt);
+                if (e.clipped (viewport_box).first) {
+                  any_valid_edge = true;
+                  test_edge (t, e, d, match);
+                }
                 p = *pt;
               }
             }
@@ -601,16 +616,19 @@ ShapeFinder::visit_cell (const db::Cell &cell, const db::Box &hit_box, const db:
             db::Polygon poly;
             shape->polygon (poly);
             for (db::Polygon::polygon_edge_iterator e = poly.begin_edge (); ! e.at_end (); ++e) {
-              test_edge (t, *e, d, match);
+              if ((*e).clipped (viewport_box).first) {
+                any_valid_edge = true;
+                test_edge (t, *e, d, match);
+              }
             }
 
             //  test if inside the polygon
-            if (! match && inside_poly (poly.begin_edge (), point) >= 0) { 
+            if (! match && any_valid_edge && inside_poly (poly.begin_edge (), point) >= 0) {
               d = t.ctrans (poly_dist (poly.begin_edge (), point));
               match = true;
             }
 
-          } else if (shape->is_box () || shape->is_point () || shape->is_text ()) {
+          } else if (shape->is_box () || shape->is_point () || (shape->is_text () && view ()->text_visible ())) {
 
             db::Box box = shape->bbox ();
             if (text_info () && shape->is_text ()) {
@@ -626,13 +644,18 @@ ShapeFinder::visit_cell (const db::Cell &cell, const db::Box &hit_box, const db:
               match = true;
             } else {
 
+              bool any_valid_edge = false;
+
               //  convert to polygon and test those edges
               db::Polygon poly (box);
               for (db::Polygon::polygon_edge_iterator e = poly.begin_edge (); ! e.at_end (); ++e) {
-                test_edge (t, *e, d, match);
+                if ((*e).clipped (viewport_box).first) {
+                  any_valid_edge = true;
+                  test_edge (t, *e, d, match);
+                }
               }
 
-              if (! match && box.contains (hit_box.center ())) {
+              if (! match && any_valid_edge && box.contains (hit_box.center ())) {
                 d = t.ctrans (poly_dist (poly.begin_edge (), point));
                 match = true;
               }
@@ -772,9 +795,22 @@ InstFinder::find_internal (LayoutViewBase *view, unsigned int cv_index, const db
   return ! m_founds.empty ();
 }
 
-void 
-InstFinder::visit_cell (const db::Cell &cell, const db::Box &search_box, const db::Box & /*scan_box*/, const db::DCplxTrans & /*vp*/, const db::ICplxTrans &t, int level)
+void
+InstFinder::checkpoint ()
 {
+  if (--m_tries < 0) {
+    throw StopException ();
+  }
+}
+
+void 
+InstFinder::visit_cell (const db::Cell &cell, const db::Box &search_box, const db::Box & /*scan_box*/, const db::DCplxTrans &vp, const db::ICplxTrans &t, int level)
+{
+  checkpoint ();
+
+  //  Viewport in current cell coordinate space (DBU)
+  db::Box viewport_box = (vp * db::CplxTrans (layout ().dbu ()) * t).inverted () * db::DBox (0, 0, view ()->viewport ().width (), view ()->viewport ().height ());
+
   if (! point_mode ()) {
 
     ++*mp_progress;
@@ -854,17 +890,11 @@ InstFinder::visit_cell (const db::Cell &cell, const db::Box &search_box, const d
 
   } else {
 
-    if (--m_tries < 0) {
-      throw StopException ();
-    }
-
     //  look for instances to check here ..
     db::Cell::touching_iterator inst = cell.begin_touching (search_box); 
     while (! inst.at_end ()) {
 
-      if (--m_tries < 0) {
-        throw StopException ();
-      }
+      checkpoint ();
 
       const db::CellInstArray &cell_inst = inst->cell_inst ();
       const db::Cell &inst_cell = layout ().cell (cell_inst.object ().cell_index ());
@@ -877,9 +907,7 @@ InstFinder::visit_cell (const db::Cell &cell, const db::Box &search_box, const d
         db::box_convert <db::CellInst, false> bc (layout ());
         for (db::CellInstArray::iterator p = cell_inst.begin_touching (search_box, bc); ! p.at_end (); ++p) {
         
-          if (--m_tries < 0) {
-            throw StopException ();
-          }
+          checkpoint ();
 
           bool match = false;
           double d = std::numeric_limits<double>::max ();
@@ -905,11 +933,16 @@ InstFinder::visit_cell (const db::Cell &cell, const db::Box &search_box, const d
               //  convert to polygon and test those edges
               db::Polygon poly (cell_inst.complex_trans (*p) * db::Polygon (ibox));
 
+              bool any_valid_edge = false;
               for (db::Polygon::polygon_edge_iterator e = poly.begin_edge (); ! e.at_end (); ++e) {
-                test_edge (t, *e, d, match);
+                //  only consider edges that cut through the viewport
+                if ((*e).clipped (viewport_box).first) {
+                  any_valid_edge = true;
+                  test_edge (t, *e, d, match);
+                }
               }
 
-              if (! match && db::inside_poly (poly.begin_edge (), search_box.center ())) {
+              if (! match && any_valid_edge && db::inside_poly (poly.begin_edge (), search_box.center ())) {
                 d = t.ctrans (poly_dist (poly.begin_edge (), search_box.center ()));
                 match = true;
               }
