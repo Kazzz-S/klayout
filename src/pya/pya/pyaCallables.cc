@@ -1,7 +1,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2024 Matthias Koefferlein
+  Copyright (C) 2006-2025 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -1285,7 +1285,14 @@ property_setter_impl (int mid, PyObject *self, PyObject *value)
 
     meth->call (obj, arglist, retlist);
 
-    return get_return_value (p, retlist, meth, heap);
+    PyObject *ret = get_return_value (p, retlist, meth, heap);
+
+    if (ret == NULL) {
+      Py_INCREF (Py_None);
+      ret = Py_None;
+    }
+
+    return ret;
 
   }
 }

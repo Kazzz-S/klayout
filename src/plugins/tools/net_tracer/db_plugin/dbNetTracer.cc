@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2024 Matthias Koefferlein
+  Copyright (C) 2006-2025 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -1454,7 +1454,7 @@ NetTracer::determine_interactions (const db::Polygon &seed, const NetTracerShape
   db::Polygon::area_type poly_area = seed.area_upper_manhattan_bound ();
   db::Polygon::area_type box_area = seed.box ().area ();
 
-  if (poly_area == box_area && seed.vertices () == 4) {
+  if (seed.is_box ()) {
 
     //  The polygon is a box
     determine_interactions (seed.box (), shape, layers, delivery);

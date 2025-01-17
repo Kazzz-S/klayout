@@ -1,5 +1,5 @@
 # KLayout Layout Viewer
-# Copyright (C) 2006-2024 Matthias Koefferlein
+# Copyright (C) 2006-2025 Matthias Koefferlein
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -148,6 +148,15 @@ class PyGFactory(pya.GFactory):
 class BasicTest(unittest.TestCase):
 
   def test_00(self):
+
+    # does not work with all Python versions
+    # (debugging shows that Python calls the setter on the metaclass,
+    # not on the class itself at least on 3.12)
+    # # static (class) properties
+    # pya.A.sp_i = 17
+    # self.assertEqual(pya.A.sp_i, 18)
+    # pya.A.sp_i = -1
+    # self.assertEqual(pya.A.sp_i, 0)
 
     # all references of PA are released now:
     ic0 = pya.A.instance_count()

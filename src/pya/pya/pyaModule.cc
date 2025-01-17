@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2024 Matthias Koefferlein
+  Copyright (C) 2006-2025 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -426,7 +426,11 @@ public:
             doc += "\n\n";
           }
           doc += (*m)->doc ();
-          mp_module->add_python_doc (*m, tl::sprintf (tl::to_string (tr ("The object exposes a readable attribute '%s'. This is the getter")), name));
+          if (! is_static) {
+            mp_module->add_python_doc (*m, tl::sprintf (tl::to_string (tr ("The object exposes a readable attribute '%s'. This is the getter")), name));
+          } else {
+            mp_module->add_python_doc (*m, tl::sprintf (tl::to_string (tr ("The class exposes a readable attribute '%s'. This is the getter")), name));
+          }
         }
 
         for (MethodTableEntry::method_iterator m = begin_setters; m != end_setters; ++m) {
@@ -434,7 +438,11 @@ public:
             doc += "\n\n";
           }
           doc += (*m)->doc ();
-          mp_module->add_python_doc (*m, tl::sprintf (tl::to_string (tr ("The object exposes a writable attribute '%s'. This is the setter")), name));
+          if (! is_static) {
+            mp_module->add_python_doc (*m, tl::sprintf (tl::to_string (tr ("The object exposes a writable attribute '%s'. This is the setter")), name));
+          } else {
+            mp_module->add_python_doc (*m, tl::sprintf (tl::to_string (tr ("The class exposes a writable attribute '%s'. This setter may not be available in Python")), name));
+          }
         }
 
         PythonRef attr;

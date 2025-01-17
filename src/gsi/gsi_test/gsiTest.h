@@ -2,7 +2,7 @@
 /*
 
   KLayout Layout Viewer
-  Copyright (C) 2006-2024 Matthias Koefferlein
+  Copyright (C) 2006-2025 Matthias Koefferlein
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -414,6 +414,10 @@ struct A
   static A *a20_get ();
 
   std::string to_s () const;
+
+  //  static (class) properties
+  static int sp_i_get ();
+  static void sp_i_set (int v);
 
   //  members
   std::vector<double> m_d;
