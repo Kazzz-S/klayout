@@ -22,19 +22,18 @@ jobs:
         include:
           - os: "macos-13"  # intel runner
             cibuild: "*macosx*"
+            cibw_arch: "macos_x86_64"
             macos-arch: "x86_64"
           - os: "macos-14"  # M1 runner
             cibuild: "*macosx*"
+            cibw_arch: "macos_arm64"
             macos-arch: "arm64"
           - os: "ubuntu-latest"
             cibuild: "*manylinux*"
-            linux-arch: "x86_64"
-          - os: "ubuntu-latest"
-            cibuild: "*manylinux*"
-            linux-arch: "aarch64"
+            cibw_arch: "manylinux"
           - os: "ubuntu-latest"
             cibuild: "*musllinux*"
-            linux-arch: "x86_64"
+            cibw_arch: "musllinux"
     steps:
       - name: Free Disk Space (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
@@ -68,7 +67,6 @@ jobs:
         env:
           CIBW_BUILD: ${{ matrix.cibuild }}
           CIBW_ARCHS_MACOS: ${{ matrix.macos-arch }}
-          CIBW_ARCHS_LINUX: ${{ matrix.linux-arch }}
           CIBW_DEPENDENCY_VERSIONS_MACOS: cibw_constraints.txt
 
       - name: Download Cache from Docker (linux only)
