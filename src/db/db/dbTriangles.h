@@ -20,8 +20,6 @@
 
 */
 
-
-
 #ifndef HDR_dbTriangles
 #define HDR_dbTriangles
 
@@ -160,14 +158,17 @@ public:
   void triangulate (const db::Region &region, const TriangulateParameters &parameters, double dbu = 1.0);
 
   //  more versions
-  void triangulate (const db::Polygon &poly, const TriangulateParameters &parameters, double dbu = 1.0);
   void triangulate (const db::Region &region, const TriangulateParameters &parameters, const db::CplxTrans &trans = db::CplxTrans ());
+  void triangulate (const db::Polygon &poly, const TriangulateParameters &parameters, double dbu = 1.0);
+  void triangulate (const db::Polygon &poly, const std::vector<db::Point> &vertexes, const TriangulateParameters &parameters, double dbu = 1.0);
   void triangulate (const db::Polygon &poly, const TriangulateParameters &parameters, const db::CplxTrans &trans = db::CplxTrans ());
+  void triangulate (const db::Polygon &poly, const std::vector<db::Point> &vertexes, const TriangulateParameters &parameters, const db::CplxTrans &trans = db::CplxTrans ());
 
   /**
    *  @brief Triangulates a floating-point polygon
    */
-  void triangulate (const db::DPolygon &poly, const TriangulateParameters &parameters);
+  void triangulate (const db::DPolygon &poly, const TriangulateParameters &parameters, const db::DCplxTrans &trans = db::DCplxTrans ());
+  void triangulate (const db::DPolygon &poly, const std::vector<db::DPoint> &vertexes, const TriangulateParameters &parameters, const db::DCplxTrans &trans = db::DCplxTrans ());
 
   /**
    *  @brief Statistics: number of flips (fixing)
@@ -289,12 +290,12 @@ protected:
   /**
    *  @brief Creates a constrained Delaunay triangulation from the given Polygon
    */
-  void create_constrained_delaunay (const db::Polygon &poly, const db::CplxTrans &trans = db::CplxTrans ());
+  void create_constrained_delaunay (const db::Polygon &poly, const std::vector<db::Point> &vertexes, const db::CplxTrans &trans = db::CplxTrans ());
 
   /**
    *  @brief Creates a constrained Delaunay triangulation from the given DPolygon
    */
-  void create_constrained_delaunay (const db::DPolygon &poly);
+  void create_constrained_delaunay (const db::DPolygon &poly, const std::vector<DPoint> &vertexes, const DCplxTrans &trans);
 
   /**
    *  @brief Returns a value indicating whether the edge is "illegal" (violates the Delaunay criterion)
@@ -306,6 +307,15 @@ protected:
   std::vector<db::Vertex *> find_inside_circle (const db::DPoint &center, double radius) const;
 
 private:
+  struct TriangleBoxConvert
+  {
+    typedef db::DBox box_type;
+    box_type operator() (db::Triangle *t) const
+    {
+      return t ? t->bbox () : box_type ();
+    }
+  };
+
   tl::list<db::Triangle> mp_triangles;
   tl::stable_vector<db::TriangleEdge> m_edges_heap;
   std::vector<db::TriangleEdge *> m_returned_edges;
@@ -329,7 +339,7 @@ private:
   db::TriangleEdge *find_closest_edge (const db::DPoint &p, db::Vertex *vstart = 0, bool inside_only = false);
   db::Vertex *insert (db::Vertex *vertex, std::list<tl::weak_ptr<db::Triangle> > *new_triangles = 0);
   void split_triangle (db::Triangle *t, db::Vertex *vertex, std::list<tl::weak_ptr<db::Triangle> > *new_triangles_out);
-  void split_triangles_on_edge (const std::vector<db::Triangle *> &tris, db::Vertex *vertex, db::TriangleEdge *split_edge, std::list<tl::weak_ptr<db::Triangle> > *new_triangles_out);
+  void split_triangles_on_edge (db::Vertex *vertex, db::TriangleEdge *split_edge, std::list<tl::weak_ptr<db::Triangle> > *new_triangles_out);
   void add_more_triangles (std::vector<Triangle *> &new_triangles,
                                  db::TriangleEdge *incoming_edge,
                                  db::Vertex *from_vertex, db::Vertex *to_vertex,

@@ -26,8 +26,8 @@ load("test_prologue.rb")
 # normalizes a specification string for region, edges etc.
 # such that the order of the objects becomes irrelevant
 def csort(s)
-  # splits at ");(" without consuming the brackets
-  s.split(/(?<=\));(?=\()/).sort.join(";")
+  # splits at ");(" or "};(" without consuming the brackets
+  s.split(/(?<=[\)\}]);(?=\()/).sort.join(";")
 end
  
 class TextStringLengthFilter < RBA::TextFilter
@@ -246,6 +246,8 @@ class DBTexts_TestClass < TestBase
 
     assert_equal(r.is_deep?, true)
 
+    dss._destroy
+
   end
 
   def test_4
@@ -345,6 +347,8 @@ class DBTexts_TestClass < TestBase
     assert_equal(RBA::Region::new(target.cell("TOP").shapes(target_li)).to_s, "")
     assert_equal(RBA::Texts::new(target.cell("C2").shapes(target_li)).to_s, "('abc',r0 100,-200)")
     assert_equal(RBA::Region::new(target.cell("C2").shapes(target_li)).to_s, "")
+
+    dss._destroy
 
   end
 
@@ -446,6 +450,95 @@ class DBTexts_TestClass < TestBase
 
     assert_equal(texts.processed(p).to_s, "(-30,-30;-30,30;30,30;30,-30);(-110,-110;-110,110;110,110;110,-110)")
     assert_equal(texts.to_s, "('abc',r0 0,0);('a long text',m45 0,0)")
+
+  end
+
+  # properties
+  def test_props
+
+    r = RBA::Texts::new([ RBA::TextWithProperties::new(RBA::Text::new("abc", RBA::Trans::new), { 1 => "one" }) ])
+    assert_equal(r.to_s, "('abc',r0 0,0){1=>one}")
+
+    r = RBA::Texts::new([])
+    assert_equal(r.to_s, "")
+
+    r = RBA::Texts::new(RBA::TextWithProperties::new(RBA::Text::new("abc", RBA::Trans::new), { 1 => "one" }))
+    assert_equal(r.to_s, "('abc',r0 0,0){1=>one}")
+
+    r = RBA::Texts::new
+    r.insert(RBA::TextWithProperties::new(RBA::Text::new("abc", RBA::Trans::new), { 1 => "one" }))
+    assert_equal(r.to_s, "('abc',r0 0,0){1=>one}")
+
+    r = RBA::Texts::new
+    r.insert(RBA::TextWithProperties::new(RBA::Text::new("abc", RBA::Trans::new), { 1 => "one" }))
+    r.insert(RBA::Text::new("xuv", RBA::Trans::new))
+    s = r.each.collect(&:to_s).join(";")
+    assert_equal(s, "('xuv',r0 0,0) props={};('abc',r0 0,0) props={1=>one}")
+
+  end
+
+  # properties
+  def test_prop_filters
+
+    r = RBA::Texts::new
+    r.insert(RBA::TextWithProperties::new(RBA::Text::new("abc", RBA::Trans::R0), { "one" => -1 }))
+    r.insert(RBA::TextWithProperties::new(RBA::Text::new("uvw", RBA::Trans::R0), { "one" => 17 }))
+    r.insert(RBA::TextWithProperties::new(RBA::Text::new("xyz", RBA::Trans::R0), { "one" => 42 }))
+
+    assert_equal(r.filtered(RBA::TextFilter::property_filter("one", 11)).to_s, "")
+    assert_equal(r.filtered(RBA::TextFilter::property_filter("two", 17)).to_s, "")
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter("one", 17)).to_s), csort("('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter("one", 17, true)).to_s), csort("('abc',r0 0,0){one=>-1};('xyz',r0 0,0){one=>42}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", 17, nil)).to_s), csort("('xyz',r0 0,0){one=>42};('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", 17, 18)).to_s), csort("('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", 17, 18, true)).to_s), csort("('xyz',r0 0,0){one=>42};('abc',r0 0,0){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", nil, 18)).to_s), csort("('uvw',r0 0,0){one=>17};('abc',r0 0,0){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_glob("one", "1*")).to_s), csort("('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_glob("one", "1*", true)).to_s), csort("('xyz',r0 0,0){one=>42};('abc',r0 0,0){one=>-1}"))
+
+    ly = RBA::Layout::new
+    top = ly.create_cell("TOP")
+    l1 = ly.layer(1, 0)
+
+    s = top.shapes(l1)
+    s.insert(RBA::TextWithProperties::new(RBA::Text::new("abc", RBA::Trans::R0), { "one" => -1 }))
+    s.insert(RBA::TextWithProperties::new(RBA::Text::new("uvw", RBA::Trans::R0), { "one" => 17 }))
+    s.insert(RBA::TextWithProperties::new(RBA::Text::new("xyz", RBA::Trans::R0), { "one" => 42 }))
+
+    dss = RBA::DeepShapeStore::new
+    iter = top.begin_shapes_rec(l1)
+    iter.enable_properties()
+    r = RBA::Texts::new(iter, dss)
+
+    assert_equal(r.filtered(RBA::TextFilter::property_filter("one", 11)).to_s, "")
+    assert_equal(r.filtered(RBA::TextFilter::property_filter("two", 17)).to_s, "")
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter("one", 17)).to_s), csort("('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter("one", 17, true)).to_s), csort("('abc',r0 0,0){one=>-1};('xyz',r0 0,0){one=>42}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", 17, nil)).to_s), csort("('xyz',r0 0,0){one=>42};('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", 17, 18)).to_s), csort("('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", 17, 18, true)).to_s), csort("('xyz',r0 0,0){one=>42};('abc',r0 0,0){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_filter_bounded("one", nil, 18)).to_s), csort("('uvw',r0 0,0){one=>17};('abc',r0 0,0){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_glob("one", "1*")).to_s), csort("('uvw',r0 0,0){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::TextFilter::property_glob("one", "1*", true)).to_s), csort("('xyz',r0 0,0){one=>42};('abc',r0 0,0){one=>-1}"))
+
+    rr = r.dup
+    rr.filter(RBA::TextFilter::property_filter("one", 17))
+    assert_equal(csort(rr.to_s), csort("('uvw',r0 0,0){one=>17}"))
+
+    dss._destroy
+
+  end
+
+  # polygons
+  def test_polygons
+
+    r = RBA::Texts::new
+    r.insert(RBA::Text::new("abc", RBA::Trans::new(10, 20)))
+    r.insert(RBA::Text::new("uvw", RBA::Trans::new(-10, -20)))
+
+    assert_equal(r.polygons.to_s, "(9,19;9,21;11,21;11,19);(-11,-21;-11,-19;-9,-19;-9,-21)")
+    assert_equal(r.polygons(2).to_s, "(8,18;8,22;12,22;12,18);(-12,-22;-12,-18;-8,-18;-8,-22)")
+    assert_equal(r.polygons(1, 17).to_s, "(9,19;9,21;11,21;11,19){17=>abc};(-11,-21;-11,-19;-9,-19;-9,-21){17=>uvw}")
 
   end
 

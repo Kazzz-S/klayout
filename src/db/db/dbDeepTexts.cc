@@ -178,12 +178,16 @@ TextsDelegate *DeepTexts::clone () const
   return new DeepTexts (*this);
 }
 
-void DeepTexts::do_insert (const db::Text &text)
+void DeepTexts::do_insert (const db::Text &text, db::properties_id_type prop_id)
 {
   db::Layout &layout = deep_layer ().layout ();
   if (layout.begin_top_down () != layout.end_top_down ()) {
     db::Cell &top_cell = layout.cell (*layout.begin_top_down ());
-    top_cell.shapes (deep_layer ().layer ()).insert (db::TextRef (text, layout.shape_repository ()));
+    if (prop_id == 0) {
+      top_cell.shapes (deep_layer ().layer ()).insert (db::TextRef (text, layout.shape_repository ()));
+    } else {
+      top_cell.shapes (deep_layer ().layer ()).insert (db::TextRefWithProperties (db::TextRef (text, layout.shape_repository ()), prop_id));
+    }
   }
 
   invalidate_bbox ();
@@ -343,16 +347,6 @@ void DeepTexts::apply_property_translator (const db::PropertiesTranslator &pt)
   DeepShapeCollectionDelegateBase::apply_property_translator (pt);
 }
 
-db::PropertiesRepository *DeepTexts::properties_repository ()
-{
-  return &deep_layer ().layout ().properties_repository ();
-}
-
-const db::PropertiesRepository *DeepTexts::properties_repository () const
-{
-  return &deep_layer ().layout ().properties_repository ();
-}
-
 TextsDelegate *
 DeepTexts::add_in_place (const Texts &other)
 {
@@ -371,7 +365,11 @@ DeepTexts::add_in_place (const Texts &other)
 
     db::Shapes &shapes = deep_layer ().initial_cell ().shapes (deep_layer ().layer ());
     for (db::Texts::const_iterator p = other.begin (); ! p.at_end (); ++p) {
-      shapes.insert (*p);
+      if (p.prop_id () == 0) {
+        shapes.insert (*p);
+      } else {
+        shapes.insert (db::TextWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }
@@ -464,7 +462,7 @@ DeepTexts::apply_filter (const TextFilterBase &filter, bool with_true, bool with
         for (db::Shapes::shape_iterator si = s.begin (db::ShapeIterator::Texts); ! si.at_end (); ++si) {
           db::Text text;
           si->text (text);
-          if (filter.selected (text.transformed (tr))) {
+          if (filter.selected (text.transformed (tr), si->prop_id ())) {
             if (st_true) {
               st_true->insert (*si);
             }
@@ -485,7 +483,7 @@ DeepTexts::apply_filter (const TextFilterBase &filter, bool with_true, bool with
       for (db::Shapes::shape_iterator si = s.begin (db::ShapeIterator::Texts); ! si.at_end (); ++si) {
         db::Text text;
         si->text (text);
-        if (filter.selected (text)) {
+        if (filter.selected (text, si->prop_id ())) {
           if (with_true) {
             st_true->insert (*si);
           }
@@ -530,8 +528,15 @@ DeepTexts::processed_to_polygons (const TextToPolygonProcessorBase &filter) cons
   return shape_collection_processed_impl<db::Text, db::Polygon, db::DeepRegion> (deep_layer (), filter);
 }
 
-RegionDelegate *DeepTexts::polygons (db::Coord e) const
+RegionDelegate *DeepTexts::polygons (db::Coord e, const tl::Variant &text_prop) const
 {
+  db::property_names_id_type key_id = 0;
+  if (! text_prop.is_nil ()) {
+    key_id = db::property_names_id (text_prop);
+  }
+
+  std::map<std::string, db::properties_id_type> value_ids;
+
   db::DeepLayer new_layer = deep_layer ().derived ();
   db::Layout &layout = const_cast<db::Layout &> (deep_layer ().layout ());
 
@@ -541,7 +546,18 @@ RegionDelegate *DeepTexts::polygons (db::Coord e) const
       db::Box box = s->bbox ();
       box.enlarge (db::Vector (e, e));
       db::Polygon poly (box);
-      output.insert (db::PolygonRef (poly, layout.shape_repository ()));
+      if (key_id == 0) {
+        output.insert (db::PolygonRef (poly, layout.shape_repository ()));
+      } else {
+        std::string value (s->text_string ());
+        auto v = value_ids.find (value);
+        if (v == value_ids.end ()) {
+          db::PropertiesSet ps;
+          ps.insert_by_id (key_id, db::property_values_id (value));
+          v = value_ids.insert (std::make_pair (value, db::properties_id (ps))).first;
+        }
+        output.insert (db::PolygonRefWithProperties (db::PolygonRef (poly, layout.shape_repository ()), v->second));
+      }
     }
   }
 

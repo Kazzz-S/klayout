@@ -60,6 +60,14 @@ public:
     }
   }
 
+  void process(const EdgePairWithProperties &ep, std::vector<db::PolygonWithProperties> &res) const
+  {
+    db::Polygon poly = ep.normalized ().to_polygon (m_e);
+    if (poly.vertices () >= 3) {
+      res.push_back (db::PolygonWithProperties (poly, ep.properties_id ()));
+    }
+  }
+
 private:
   db::Coord m_e;
 };
@@ -76,6 +84,12 @@ public:
   {
     res.push_back (ep.first ());
     res.push_back (ep.second ());
+  }
+
+  void process(const EdgePairWithProperties &ep, std::vector<db::EdgeWithProperties> &res) const
+  {
+    res.push_back (db::EdgeWithProperties (ep.first (), ep.properties_id ()));
+    res.push_back (db::EdgeWithProperties (ep.second (), ep.properties_id ()));
   }
 };
 
@@ -94,6 +108,14 @@ public:
       res.push_back (ep.second ());
     }
   }
+
+  void process(const EdgePairWithProperties &ep, std::vector<db::EdgeWithProperties> &res) const
+  {
+    res.push_back (db::EdgeWithProperties (ep.first (), ep.properties_id ()));
+    if (ep.is_symmetric ()) {
+      res.push_back (db::EdgeWithProperties (ep.second (), ep.properties_id ()));
+    }
+  }
 };
 
 class DB_PUBLIC
@@ -110,6 +132,13 @@ public:
       res.push_back (ep.second ());
     }
   }
+
+  void process(const EdgePairWithProperties &ep, std::vector<db::EdgeWithProperties> &res) const
+  {
+    if (! ep.is_symmetric ()) {
+      res.push_back (db::EdgeWithProperties (ep.second (), ep.properties_id ()));
+    }
+  }
 };
 
 class DB_PUBLIC
@@ -124,6 +153,11 @@ public:
   {
     res.push_back (ep.lesser ());
   }
+
+  void process(const EdgePairWithProperties &ep, std::vector<db::EdgeWithProperties> &res) const
+  {
+    res.push_back (db::EdgeWithProperties (ep.lesser (), ep.properties_id ()));
+  }
 };
 
 class DB_PUBLIC
@@ -137,6 +171,11 @@ public:
   void process(const EdgePair &ep, std::vector<db::Edge> &res) const
   {
     res.push_back (ep.greater ());
+  }
+
+  void process(const EdgePairWithProperties &ep, std::vector<db::EdgeWithProperties> &res) const
+  {
+    res.push_back (db::EdgeWithProperties (ep.greater (), ep.properties_id ()));
   }
 };
 
@@ -238,8 +277,6 @@ public:
 
   virtual const db::RecursiveShapeIterator *iter () const = 0;
   virtual void apply_property_translator (const db::PropertiesTranslator &pt) = 0;
-  virtual db::PropertiesRepository *properties_repository () = 0;
-  virtual const db::PropertiesRepository *properties_repository () const = 0;
 
   virtual bool equals (const EdgePairs &other) const = 0;
   virtual bool less (const EdgePairs &other) const = 0;

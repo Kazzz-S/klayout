@@ -58,7 +58,7 @@ public:
   EdgePairFilterBase () { }
   virtual ~EdgePairFilterBase () { }
 
-  virtual bool selected (const db::EdgePair &edge_pair) const = 0;
+  virtual bool selected (const db::EdgePair &edge_pair, db::properties_id_type prop_id) const = 0;
   virtual const TransformationReducer *vars () const = 0;
   virtual bool wants_variants () const = 0;
 };
@@ -129,6 +129,17 @@ public:
   }
 
   /**
+   *  @brief Constructor from an object with properties
+   *
+   *  Creates an edge pair set representing a single instance of that object
+   */
+  explicit EdgePairs (const db::EdgePairWithProperties &s)
+    : mp_delegate (0)
+  {
+    insert (s);
+  }
+
+  /**
    *  @brief Constructor from an object
    *
    *  Creates an edge pair set representing a single instance of that object
@@ -184,6 +195,12 @@ public:
    *  @brief Constructor from a RecursiveShapeIterator providing a deep representation with transformation
    */
   explicit EdgePairs (const RecursiveShapeIterator &si, DeepShapeStore &dss, const db::ICplxTrans &trans);
+
+  /**
+   *  @brief Creates a new empty layer inside the dss
+   *  This method requires the DSS to be singular.
+   */
+  explicit EdgePairs (DeepShapeStore &dss);
 
   /**
    *  @brief Writes the edge pair collection to a file
@@ -706,20 +723,6 @@ public:
    *  This method is intended for users who know what they are doing
    */
   const db::RecursiveShapeIterator &iter () const;
-
-  /**
-   *  @brief Gets the property repository
-   *
-   *  Use this object to decode property IDs.
-   */
-  const db::PropertiesRepository &properties_repository () const;
-
-  /**
-   *  @brief Gets the property repository
-   *
-   *  Use this object to decode and encode property IDs.
-   */
-  db::PropertiesRepository &properties_repository ();
 
   /**
    *  @brief Equality

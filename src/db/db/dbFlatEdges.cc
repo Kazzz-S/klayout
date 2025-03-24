@@ -33,7 +33,7 @@ namespace db
 //  FlatEdges implementation
 
 FlatEdges::FlatEdges ()
-  : MutableEdges (), mp_edges (new db::Shapes (false)), mp_merged_edges (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableEdges (), mp_edges (new db::Shapes (false)), mp_merged_edges (new db::Shapes (false))
 {
   init ();
 }
@@ -44,7 +44,7 @@ FlatEdges::~FlatEdges ()
 }
 
 FlatEdges::FlatEdges (const FlatEdges &other)
-  : MutableEdges (other), mp_edges (other.mp_edges), mp_merged_edges (other.mp_merged_edges), mp_properties_repository (other.mp_properties_repository)
+  : MutableEdges (other), mp_edges (other.mp_edges), mp_merged_edges (other.mp_merged_edges)
 {
   init ();
 
@@ -53,7 +53,7 @@ FlatEdges::FlatEdges (const FlatEdges &other)
 }
 
 FlatEdges::FlatEdges (const db::Shapes &edges, bool is_merged)
-  : MutableEdges (), mp_edges (new db::Shapes (edges)), mp_merged_edges (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableEdges (), mp_edges (new db::Shapes (edges)), mp_merged_edges (new db::Shapes (false))
 {
   init ();
 
@@ -61,7 +61,7 @@ FlatEdges::FlatEdges (const db::Shapes &edges, bool is_merged)
 }
 
 FlatEdges::FlatEdges (bool is_merged)
-  : MutableEdges (), mp_edges (new db::Shapes (false)), mp_merged_edges (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableEdges (), mp_edges (new db::Shapes (false)), mp_merged_edges (new db::Shapes (false))
 {
   init ();
 
@@ -88,8 +88,7 @@ void FlatEdges::init ()
 
 void FlatEdges::insert_into (Layout *layout, db::cell_index_type into_cell, unsigned int into_layer) const
 {
-  db::PropertyMapper pm (&layout->properties_repository (), mp_properties_repository.get_const ());
-  layout->cell (into_cell).shapes (into_layer).insert (*mp_edges, pm);
+  layout->cell (into_cell).shapes (into_layer).insert (*mp_edges);
 }
 
 void FlatEdges::merged_semantics_changed ()
@@ -128,7 +127,7 @@ FlatEdges::ensure_merged_edges_valid () const
 
     if (! need_split_props) {
 
-      EdgeBooleanClusterCollectorToShapes cluster_collector (&tmp, EdgeOr);
+      EdgeBooleanClusterCollectorToShapes cluster_collector (&tmp, EdgeOr, prop_id);
 
       scanner.reserve (mp_edges->size ());
 
@@ -277,7 +276,7 @@ FlatEdges::filter_in_place (const EdgeFilterBase &filter)
   edge_iterator_wp_type pw_wp = e.get_layer<db::EdgeWithProperties, db::unstable_layer_tag> ().begin ();
 
   for (EdgesIterator p (begin_merged ()); ! p.at_end (); ++p) {
-    if (filter.selected (*p)) {
+    if (filter.selected (*p, p.prop_id ())) {
       if (p.prop_id () != 0) {
         if (pw_wp == e.get_layer<db::EdgeWithProperties, db::unstable_layer_tag> ().end ()) {
           e.get_layer<db::EdgeWithProperties, db::unstable_layer_tag> ().insert (db::EdgeWithProperties (*p, p.prop_id ()));
@@ -315,18 +314,16 @@ EdgesDelegate *FlatEdges::add (const Edges &other) const
   if (other_flat) {
 
     new_region->raw_edges ().insert (other_flat->raw_edges ().get_layer<db::Edge, db::unstable_layer_tag> ().begin (), other_flat->raw_edges ().get_layer<db::Edge, db::unstable_layer_tag> ().end ());
+    new_region->raw_edges ().insert (other_flat->raw_edges ().get_layer<db::EdgeWithProperties, db::unstable_layer_tag> ().begin (), other_flat->raw_edges ().get_layer<db::EdgeWithProperties, db::unstable_layer_tag> ().end ());
 
   } else {
 
-    size_t n = new_region->raw_edges ().size ();
     for (EdgesIterator p (other.begin ()); ! p.at_end (); ++p) {
-      ++n;
-    }
-
-    new_region->raw_edges ().reserve (db::Edge::tag (), n);
-
-    for (EdgesIterator p (other.begin ()); ! p.at_end (); ++p) {
-      new_region->raw_edges ().insert (*p);
+      if (p.prop_id () == 0) {
+        new_region->raw_edges ().insert (*p);
+      } else {
+        new_region->raw_edges ().insert (db::EdgeWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }
@@ -345,18 +342,16 @@ EdgesDelegate *FlatEdges::add_in_place (const Edges &other)
   if (other_flat) {
 
     e.insert (other_flat->raw_edges ().get_layer<db::Edge, db::unstable_layer_tag> ().begin (), other_flat->raw_edges ().get_layer<db::Edge, db::unstable_layer_tag> ().end ());
+    e.insert (other_flat->raw_edges ().get_layer<db::EdgeWithProperties, db::unstable_layer_tag> ().begin (), other_flat->raw_edges ().get_layer<db::EdgeWithProperties, db::unstable_layer_tag> ().end ());
 
   } else {
 
-    size_t n = e.size ();
     for (EdgesIterator p (other.begin ()); ! p.at_end (); ++p) {
-      ++n;
-    }
-
-    e.reserve (db::Edge::tag (), n);
-
-    for (EdgesIterator p (other.begin ()); ! p.at_end (); ++p) {
-      e.insert (*p);
+      if (p.prop_id () == 0) {
+        e.insert (*p);
+      } else {
+        e.insert (db::EdgeWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }
@@ -395,16 +390,6 @@ void FlatEdges::apply_property_translator (const db::PropertiesTranslator &pt)
     invalidate_cache ();
 
   }
-}
-
-db::PropertiesRepository *FlatEdges::properties_repository ()
-{
-  return mp_properties_repository.get_non_const ();
-}
-
-const db::PropertiesRepository *FlatEdges::properties_repository () const
-{
-  return mp_properties_repository.get_const ();
 }
 
 void

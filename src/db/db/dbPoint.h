@@ -139,9 +139,39 @@ public:
   }
 
   /**
+   *  @brief Move (equivalent to +=)
+   *  This alias is needed for compatibility with other shapes
+   */
+  point<C> &move (const vector<C> &v)
+  {
+    m_x += v.x ();
+    m_y += v.y ();
+    return *this;
+  }
+
+  /**
    *  @brief method version of operator+ (mainly for automation purposes)
    */
   point<C> add (const vector<C> &v) const
+  {
+    point<C> r (*this);
+    r += v;
+    return r;
+  }
+
+  /**
+   *  @brief Returns the scaled point
+   */
+  point<db::DCoord> scaled (double s) const
+  {
+    return point<db::DCoord> (m_x * s, m_y * s);
+  }
+
+  /**
+   *  @brief Moved point (equivalent to add)
+   *  This alias is needed for compatibility with other shapes
+   */
+  point<C> moved (const vector<C> &v) const
   {
     point<C> r (*this);
     r += v;

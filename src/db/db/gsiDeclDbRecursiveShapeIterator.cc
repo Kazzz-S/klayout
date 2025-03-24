@@ -206,15 +206,31 @@ static void filter_properties (db::RecursiveShapeIterator *c, const std::vector<
   if (c->layout ()) {
     std::set<tl::Variant> kf;
     kf.insert (keys.begin (), keys.end ());
-    c->apply_property_translator (db::PropertiesTranslator::make_filter (const_cast<db::Layout *> (c->layout ())->properties_repository (), kf));
+    c->apply_property_translator (db::PropertiesTranslator::make_filter (kf));
   }
 }
 
 static void map_properties (db::RecursiveShapeIterator *c, const std::map<tl::Variant, tl::Variant> &map)
 {
   if (c->layout ()) {
-    c->apply_property_translator (db::PropertiesTranslator::make_key_mapper (const_cast<db::Layout *> (c->layout ())->properties_repository (), map));
+    c->apply_property_translator (db::PropertiesTranslator::make_key_mapper (map));
   }
+}
+
+static tl::Variant get_property (const db::RecursiveShapeIterator *s, const tl::Variant &key)
+{
+  db::properties_id_type id = s->prop_id ();
+
+  const db::PropertiesSet &props = db::properties (id);
+  return props.value (key);
+}
+
+static tl::Variant get_properties (const db::RecursiveShapeIterator *s)
+{
+  db::properties_id_type id = s->prop_id ();
+
+  const db::PropertiesSet &props = db::properties (id);
+  return props.to_dict_var ();
 }
 
 Class<db::RecursiveShapeIterator> decl_RecursiveShapeIterator ("db", "RecursiveShapeIterator",
@@ -621,6 +637,21 @@ Class<db::RecursiveShapeIterator> decl_RecursiveShapeIterator ("db", "RecursiveS
     "details on this feature.\n"
     "\n"
     "This attribute has been introduced in version 0.28.4."
+  ) +
+  gsi::method_ext ("property", &get_property, gsi::arg ("key"),
+    "@brief Gets the effective user property with the given key\n"
+    "See \\prop_id for the definition of 'effective user property'.\n\n"
+    "This method is a convenience method that gets the effective property of the current shape with the given key. "
+    "If no property with that key exists, it will return nil.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
+  gsi::method_ext ("properties", &get_properties,
+    "@brief Gets the effective user properties\n"
+    "See \\prop_id for the definition of 'effective user properties'.\n\n"
+    "This method is a convenience method that gets the effective properties of the current shape as a single hash.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
   ) +
   gsi::method ("shape", &db::RecursiveShapeIterator::shape,
     "@brief Gets the current shape\n"

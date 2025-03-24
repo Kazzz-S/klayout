@@ -863,7 +863,7 @@ public:
 
       //  expand arrays in editable mode
       if (! arr.begin ().at_end ()) {
-        insert_array_typeof (*arr.begin () * Obj () /*for typeof*/, arr);
+        insert_array_typeof (Obj ().transformed (*arr.begin ()) /*for typeof*/, arr);
       }
 
       return shape_type ();
@@ -981,6 +981,23 @@ public:
 
   /**
    *  @brief Insert an element from the shape reference with a transformation
+   *
+   *  Given a shape reference, the corresponding shape is inserted.
+   *
+   *  @param shape The reference of the shape to insert
+   *  @param trans The transformation to apply before the shape is inserted
+   *  @return The reference to the new shape
+   */
+  template <class Trans>
+  shape_type insert_transformed (const shape_type &shape, const Trans &trans)
+  {
+    tl::ident_map<db::properties_id_type> pm;
+    tl::func_delegate <tl::ident_map<db::properties_id_type>, db::properties_id_type> pm_delegate (pm);
+    return do_insert (shape, trans, pm_delegate);
+  }
+
+  /**
+   *  @brief Insert an element from the shape reference with a transformation and property mapping
    *
    *  Given a shape reference, the corresponding shape is inserted.
    *
@@ -1532,6 +1549,7 @@ private:
   db::Cell *mp_cell;  //  HINT: contains "dirty" in bit 0 and "editable" in bit 1
 
   void invalidate_state ();
+  void invalidate_prop_ids ();
   void do_insert (const Shapes &d, unsigned int flags = db::ShapeIterator::All);
   void check_is_editable_for_undo_redo () const;
 

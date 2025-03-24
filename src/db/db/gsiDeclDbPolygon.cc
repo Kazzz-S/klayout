@@ -22,14 +22,129 @@
 
 
 #include "gsiDecl.h"
+#include "gsiDeclDbPropertiesSupport.h"
 #include "dbPoint.h"
 #include "dbPolygon.h"
 #include "dbPolygonTools.h"
 #include "dbPolygonGenerators.h"
 #include "dbHash.h"
+#include "dbTriangles.h"
 
 namespace gsi
 {
+
+template <class T>
+static db::Region region_from_triangles (const db::Triangles &tri, const T &trans)
+{
+  db::Region result;
+
+  db::Point pts [3];
+
+  for (auto t = tri.begin (); t != tri.end (); ++t) {
+    for (int i = 0; i < 3; ++i) {
+      pts [i] = trans * *t->vertex (i);
+    }
+    db::SimplePolygon poly;
+    poly.assign_hull (pts + 0, pts + 3);
+    result.insert (poly);
+  }
+
+  return result;
+}
+
+template <class P, class T>
+static std::vector<P> polygons_from_triangles (const db::Triangles &tri, const T &trans)
+{
+  std::vector<P> result;
+  result.reserve (tri.num_triangles ());
+
+  typename P::point_type pts [3];
+
+  for (auto t = tri.begin (); t != tri.end (); ++t) {
+    for (int i = 0; i < 3; ++i) {
+      pts [i] = trans * *t->vertex (i);
+    }
+    P poly;
+    poly.assign_hull (pts + 0, pts + 3);
+    result.push_back (poly);
+  }
+
+  return result;
+}
+
+template <class C>
+static db::polygon<C> to_polygon (const db::simple_polygon<C> &sp)
+{
+  db::polygon<C> p;
+  p.assign_hull (sp.begin_hull (), sp.end_hull ());
+  return p;
+}
+
+template <class C>
+static db::polygon<C> to_polygon (const db::polygon<C> &p)
+{
+  return p;
+}
+
+template <class P>
+static db::Region triangulate_ipolygon (const P *p, double max_area = 0.0, double min_b = 0.0, double dbu = 0.001)
+{
+  db::Triangles tris;
+  db::Triangles::TriangulateParameters param;
+  param.min_b = min_b;
+  param.max_area = max_area * dbu * dbu;
+
+  db::CplxTrans trans = db::CplxTrans (dbu) * db::ICplxTrans (db::Trans (db::Point () - p->box ().center ()));
+
+  tris.triangulate (to_polygon (*p), param, trans);
+
+  return region_from_triangles (tris, trans.inverted ());
+}
+
+template <class P>
+static db::Region triangulate_ipolygon_v (const P *p, const std::vector<db::Point> &vertexes, double max_area = 0.0, double min_b = 0.0, double dbu = 0.001)
+{
+  db::Triangles tris;
+  db::Triangles::TriangulateParameters param;
+  param.min_b = min_b;
+  param.max_area = max_area * dbu * dbu;
+
+  db::CplxTrans trans = db::CplxTrans (dbu) * db::ICplxTrans (db::Trans (db::Point () - p->box ().center ()));
+
+  tris.triangulate (to_polygon (*p), vertexes, param, trans);
+
+  return region_from_triangles (tris, trans.inverted ());
+}
+
+template <class P>
+static std::vector<P> triangulate_dpolygon (const P *p, double max_area = 0.0, double min_b = 0.0)
+{
+  db::Triangles tris;
+  db::Triangles::TriangulateParameters param;
+  param.min_b = min_b;
+  param.max_area = max_area;
+
+  db::DCplxTrans trans = db::DCplxTrans (db::DTrans (db::DPoint () - p->box ().center ()));
+
+  tris.triangulate (to_polygon (*p), param, trans);
+
+  return polygons_from_triangles<P, db::DCplxTrans> (tris, trans.inverted ());
+}
+
+template <class P>
+static std::vector<P> triangulate_dpolygon_v (const P *p, const std::vector<db::DPoint> &vertexes, double max_area = 0.0, double min_b = 0.0)
+{
+  db::Triangles tris;
+  db::Triangles::TriangulateParameters param;
+  param.min_b = min_b;
+  param.max_area = max_area;
+
+  db::DCplxTrans trans = db::DCplxTrans (db::DTrans (db::DPoint () - p->box ().center ()));
+
+  tris.triangulate (to_polygon (*p), vertexes, param, trans);
+
+  return polygons_from_triangles<P, db::DCplxTrans> (tris, trans.inverted ());
+}
 
 template <class C>
 static std::vector<C> split_poly (const C *p)
@@ -182,7 +297,7 @@ struct simple_polygon_defs
 
   static C scale (const C *p, double s)
   {
-    return C (p->transformed (icomplex_trans_type (s), false /*don't compress*/));
+    return C (p->transformed_ext (icomplex_trans_type (s), false /*don't compress*/));
   }
 
   static C *transform (C *poly, const simple_trans_type &t)
@@ -193,12 +308,12 @@ struct simple_polygon_defs
 
   static C transformed (const C *poly, const simple_trans_type &t)
   {
-    return poly->transformed (t, false /*don't compress*/);
+    return poly->transformed_ext (t, false /*don't compress*/);
   }
 
   static db::simple_polygon<double> transformed_cplx (const C *poly, const complex_trans_type &t)
   {
-    return poly->transformed (t, false /*don't compress*/);
+    return poly->transformed_ext (t, false /*don't compress*/);
   }
 
 #if defined(HAVE_64BIT_COORD)
@@ -274,7 +389,7 @@ struct simple_polygon_defs
 
   static size_t hash_value (const C *p)
   {
-    return std::hfunc (*p);
+    return tl::hfunc (*p);
   }
 
   static bool touches_box (const C *p, const db::box<coord_type> &box)
@@ -676,7 +791,7 @@ static db::SimplePolygon *transform_icplx_sp (db::SimplePolygon *p, const db::IC
 
 static db::SimplePolygon transformed_icplx_sp (const db::SimplePolygon *p, const db::ICplxTrans &t)
 {
-  return p->transformed (t, false /*no compression*/);
+  return p->transformed_ext (t, false /*no compression*/);
 }
 
 static db::SimplePolygon *spolygon_from_dspolygon (const db::DSimplePolygon &p)
@@ -765,6 +880,37 @@ Class<db::SimplePolygon> decl_SimplePolygon ("db", "SimplePolygon",
     "\n"
     "This method has been introduced in version 0.18.\n"
   ) +
+  method_ext ("delaunay", &triangulate_ipolygon<db::SimplePolygon>, gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0), gsi::arg ("dbu", 0.001),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "@return A \\Region holding the triangles of the refined, constrained Delaunay triangulation.\n"
+    "\n"
+    "Refinement is implemented by Chew's second algorithm. A maximum area can be given. Triangles "
+    "larger than this area will be split. In addition 'skinny' triangles will be resolved where "
+    "possible. 'skinny' is defined in terms of shortest edge to circumcircle radius ratio (b). "
+    "A minimum number for b can be given. A value of 1.0 corresponds to a minimum angle of 30 degree "
+    "and is usually a good choice. The algorithm is stable up to roughly 1.2 which corresponds to "
+    "a minimum angle of abouth 37 degree.\n"
+    "\n"
+    "The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.\n"
+    "\n"
+    "The area value is given in terms of DBU units. Picking a value of 0.0 for area and min b will "
+    "make the implementation skip the refinement step. In that case, the results are identical to "
+    "the standard constrained Delaunay triangulation.\n"
+    "\n"
+    "The 'dbu' parameter a numerical scaling parameter. It should be choosen in a way that the polygon dimensions "
+    "are \"in the order of 1\" (very roughly) after multiplication with the dbu parameter. A value of 0.001 is suitable "
+    "for polygons with typical dimensions in the order to 1000 DBU. Usually the default value is good enough.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
+  method_ext ("delaunay", &triangulate_ipolygon_v<db::SimplePolygon>, gsi::arg ("vertexes"), gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0), gsi::arg ("dbu", 0.001),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "This variant of the triangulation function accepts an array of additional vertexes for the triangulation.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
   simple_polygon_defs<db::SimplePolygon>::methods (),
   "@brief A simple polygon class\n"
   "\n"
@@ -785,6 +931,33 @@ Class<db::SimplePolygon> decl_SimplePolygon ("db", "SimplePolygon",
   "database objects."
 );
 
+static db::SimplePolygonWithProperties *new_simple_polygon_with_properties (const db::SimplePolygon &poly, db::properties_id_type pid)
+{
+  return new db::SimplePolygonWithProperties (poly, pid);
+}
+
+static db::SimplePolygonWithProperties *new_simple_polygon_with_properties2 (const db::SimplePolygon &poly, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::SimplePolygonWithProperties (poly, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::SimplePolygonWithProperties> decl_SimplePolygonWithProperties (decl_SimplePolygon, "db", "SimplePolygonWithProperties",
+  gsi::properties_support_methods<db::SimplePolygonWithProperties> () +
+  constructor ("new", &new_simple_polygon_with_properties, gsi::arg ("polygon"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_simple_polygon_with_properties2, gsi::arg ("polygon"), gsi::arg ("properties"),
+    "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A SimplePolygon object with properties attached.\n"
+  "This class represents a combination of a SimplePolygon object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
+);
+
 static db::DSimplePolygon *dspolygon_from_ispolygon (const db::SimplePolygon &p)
 {
   return new db::DSimplePolygon (p, false);
@@ -797,7 +970,7 @@ static db::SimplePolygon dspolygon_to_spolygon (const db::DSimplePolygon *p, dou
 
 static db::SimplePolygon transformed_vplx_sp (const db::DSimplePolygon *p, const db::VCplxTrans &t)
 {
-  return p->transformed (t, false /*no compression*/);
+  return p->transformed_ext (t, false /*no compression*/);
 }
 
 Class<db::DSimplePolygon> decl_DSimplePolygon ("db", "DSimplePolygon",
@@ -833,6 +1006,33 @@ Class<db::DSimplePolygon> decl_DSimplePolygon ("db", "DSimplePolygon",
     "\n"
     "This method has been introduced in version 0.25.\n"
   ) +
+  method_ext ("delaunay", &triangulate_dpolygon<db::DSimplePolygon>, gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "@return An array of triangular polygons of the refined, constrained Delaunay triangulation.\n"
+    "\n"
+    "Refinement is implemented by Chew's second algorithm. A maximum area can be given. Triangles "
+    "larger than this area will be split. In addition 'skinny' triangles will be resolved where "
+    "possible. 'skinny' is defined in terms of shortest edge to circumcircle radius ratio (b). "
+    "A minimum number for b can be given. A value of 1.0 corresponds to a minimum angle of 30 degree "
+    "and is usually a good choice. The algorithm is stable up to roughly 1.2 which corresponds to "
+    "a minimum angle of abouth 37 degree.\n"
+    "\n"
+    "The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.\n"
+    "\n"
+    "Picking a value of 0.0 for max area and min b will "
+    "make the implementation skip the refinement step. In that case, the results are identical to "
+    "the standard constrained Delaunay triangulation.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
+  method_ext ("delaunay", &triangulate_dpolygon_v<db::DSimplePolygon>, gsi::arg ("vertexes"), gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "This variant of the triangulation function accepts an array of additional vertexes for the triangulation.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
   simple_polygon_defs<db::DSimplePolygon>::methods (),
   "@brief A simple polygon class\n"
   "\n"
@@ -851,6 +1051,33 @@ Class<db::DSimplePolygon> decl_DSimplePolygon ("db", "DSimplePolygon",
   "\n"
   "See @<a href=\"/programming/database_api.xml\">The Database API@</a> for more details about the "
   "database objects."
+);
+
+static db::DSimplePolygonWithProperties *new_dsimple_polygon_with_properties (const db::DSimplePolygon &poly, db::properties_id_type pid)
+{
+  return new db::DSimplePolygonWithProperties (poly, pid);
+}
+
+static db::DSimplePolygonWithProperties *new_dsimple_polygon_with_properties2 (const db::DSimplePolygon &poly, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::DSimplePolygonWithProperties (poly, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::DSimplePolygonWithProperties> decl_DSimplePolygonWithProperties (decl_DSimplePolygon, "db", "DSimplePolygonWithProperties",
+  gsi::properties_support_methods<db::DSimplePolygonWithProperties> () +
+  constructor ("new", &new_dsimple_polygon_with_properties, gsi::arg ("polygon"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_dsimple_polygon_with_properties2, gsi::arg ("polygon"), gsi::arg ("properties"),
+    "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A DSimplePolygon object with properties attached.\n"
+  "This class represents a combination of a DSimplePolygon object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
 );
 
 // ---------------------------------------------------------------
@@ -1072,7 +1299,7 @@ struct polygon_defs
 
   static C scale (const C *p, double s)
   {
-    return C (p->transformed (icomplex_trans_type (s), false /*no compression*/));
+    return C (p->transformed_ext (icomplex_trans_type (s), false /*no compression*/));
   }
 
   static void compress (C *poly, bool remove_reflected)
@@ -1088,12 +1315,12 @@ struct polygon_defs
 
   static C transformed (const C *poly, const simple_trans_type &t)
   {
-    return poly->transformed (t, false /*no compression*/);
+    return poly->transformed_ext (t, false /*no compression*/);
   }
 
   static db::polygon<double> transformed_cplx (const C *poly, const complex_trans_type &t)
   {
-    return poly->transformed (t, false /*no compression*/);
+    return poly->transformed_ext (t, false /*no compression*/);
   }
 
 #if defined(HAVE_64BIT_COORD)
@@ -1160,7 +1387,7 @@ struct polygon_defs
 
   static size_t hash_value (const C *p)
   {
-    return std::hfunc (*p);
+    return tl::hfunc (*p);
   }
 
   static bool touches_box (const C *p, const db::box<coord_type> &box)
@@ -1712,7 +1939,7 @@ static db::Polygon *transform_icplx_dp (db::Polygon *p, const db::ICplxTrans &t)
 
 static db::Polygon transformed_icplx_dp (const db::Polygon *p, const db::ICplxTrans &t)
 {
-  return p->transformed (t, false /*don't compress*/);
+  return p->transformed_ext (t, false /*don't compress*/);
 }
 
 static db::Polygon smooth (const db::Polygon *p, db::Coord d, bool keep_hv)
@@ -1980,6 +2207,37 @@ Class<db::Polygon> decl_Polygon ("db", "Polygon",
     "\n"
     "This method was introduced in version 0.18.\n"
   ) +
+  method_ext ("delaunay", &triangulate_ipolygon<db::Polygon>, gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0), gsi::arg ("dbu", 0.001),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "@return A \\Region holding the triangles of the refined, constrained Delaunay triangulation.\n"
+    "\n"
+    "Refinement is implemented by Chew's second algorithm. A maximum area can be given. Triangles "
+    "larger than this area will be split. In addition 'skinny' triangles will be resolved where "
+    "possible. 'skinny' is defined in terms of shortest edge to circumcircle radius ratio (b). "
+    "A minimum number for b can be given. A value of 1.0 corresponds to a minimum angle of 30 degree "
+    "and is usually a good choice. The algorithm is stable up to roughly 1.2 which corresponds to "
+    "a minimum angle of abouth 37 degree.\n"
+    "\n"
+    "The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.\n"
+    "\n"
+    "The area value is given in terms of DBU units. Picking a value of 0.0 for area and min b will "
+    "make the implementation skip the refinement step. In that case, the results are identical to "
+    "the standard constrained Delaunay triangulation.\n"
+    "\n"
+    "The 'dbu' parameter a numerical scaling parameter. It should be choosen in a way that the polygon dimensions "
+    "are \"in the order of 1\" (very roughly) after multiplication with the dbu parameter. A value of 0.001 is suitable "
+    "for polygons with typical dimensions in the order to 1000 DBU. Usually the default value is good enough.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
+  method_ext ("delaunay", &triangulate_ipolygon_v<db::Polygon>, gsi::arg ("vertexes"), gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0), gsi::arg ("dbu", 0.001),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "This variant of the triangulation function accepts an array of additional vertexes for the triangulation.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
   polygon_defs<db::Polygon>::methods (),
   "@brief A polygon class\n"
   "\n"
@@ -2026,6 +2284,33 @@ Class<db::Polygon> decl_Polygon ("db", "Polygon",
   "database objects."
 );
 
+static db::PolygonWithProperties *new_polygon_with_properties (const db::Polygon &poly, db::properties_id_type pid)
+{
+  return new db::PolygonWithProperties (poly, pid);
+}
+
+static db::PolygonWithProperties *new_polygon_with_properties2 (const db::Polygon &poly, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::PolygonWithProperties (poly, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::PolygonWithProperties> decl_PolygonWithProperties (decl_Polygon, "db", "PolygonWithProperties",
+  gsi::properties_support_methods<db::PolygonWithProperties> () +
+  constructor ("new", &new_polygon_with_properties, gsi::arg ("polygon"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_polygon_with_properties2, gsi::arg ("polygon"), gsi::arg ("properties"),
+    "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A Polygon object with properties attached.\n"
+  "This class represents a combination of a Polygon object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
+);
+
 static db::DPolygon *dpolygon_from_ipolygon (const db::Polygon &p)
 {
   return new db::DPolygon (p, false);
@@ -2038,7 +2323,7 @@ static db::Polygon dpolygon_to_polygon (const db::DPolygon *p, double dbu)
 
 static db::Polygon transformed_vcplx_dp (const db::DPolygon *p, const db::VCplxTrans &t)
 {
-  return p->transformed (t, false /*don't compress*/);
+  return p->transformed_ext (t, false /*don't compress*/);
 }
 
 Class<db::DPolygon> decl_DPolygon ("db", "DPolygon",
@@ -2074,6 +2359,33 @@ Class<db::DPolygon> decl_DPolygon ("db", "DPolygon",
     "@return The transformed polygon (in this case an integer coordinate polygon)\n"
     "\n"
     "This method has been introduced in version 0.25.\n"
+  ) +
+  method_ext ("delaunay", &triangulate_dpolygon<db::DPolygon>, gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "@return An array of triangular polygons of the refined, constrained Delaunay triangulation.\n"
+    "\n"
+    "Refinement is implemented by Chew's second algorithm. A maximum area can be given. Triangles "
+    "larger than this area will be split. In addition 'skinny' triangles will be resolved where "
+    "possible. 'skinny' is defined in terms of shortest edge to circumcircle radius ratio (b). "
+    "A minimum number for b can be given. A value of 1.0 corresponds to a minimum angle of 30 degree "
+    "and is usually a good choice. The algorithm is stable up to roughly 1.2 which corresponds to "
+    "a minimum angle of abouth 37 degree.\n"
+    "\n"
+    "The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.\n"
+    "\n"
+    "Picking a value of 0.0 for max area and min b will "
+    "make the implementation skip the refinement step. In that case, the results are identical to "
+    "the standard constrained Delaunay triangulation.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
+  method_ext ("delaunay", &triangulate_dpolygon_v<db::DPolygon>, gsi::arg ("vertexes"), gsi::arg ("max_area", 0.0), gsi::arg ("min_b", 0.0),
+    "@brief Performs a Delaunay triangulation of the polygon.\n"
+    "\n"
+    "This variant of the triangulation function accepts an array of additional vertexes for the triangulation.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
   ) +
   polygon_defs<db::DPolygon>::methods (),
   "@brief A polygon class\n"
@@ -2119,6 +2431,33 @@ Class<db::DPolygon> decl_DPolygon ("db", "DPolygon",
   "\n"
   "See @<a href=\"/programming/database_api.xml\">The Database API@</a> for more details about the "
   "database objects."
+);
+
+static db::DPolygonWithProperties *new_dpolygon_with_properties (const db::DPolygon &poly, db::properties_id_type pid)
+{
+  return new db::DPolygonWithProperties (poly, pid);
+}
+
+static db::DPolygonWithProperties *new_dpolygon_with_properties2 (const db::DPolygon &poly, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::DPolygonWithProperties (poly, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::DPolygonWithProperties> decl_DPolygonWithProperties (decl_DPolygon, "db", "DPolygonWithProperties",
+  gsi::properties_support_methods<db::DPolygonWithProperties> () +
+  constructor ("new", &new_dpolygon_with_properties, gsi::arg ("polygon"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_dpolygon_with_properties2, gsi::arg ("polygon"), gsi::arg ("properties"),
+    "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A DPolygon object with properties attached.\n"
+  "This class represents a combination of a DPolygon object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
 );
 
 }

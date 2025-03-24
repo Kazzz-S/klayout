@@ -50,19 +50,15 @@ static void remove_properties (Container *c)
 template <class Container>
 static void filter_properties (Container *c, const std::vector<tl::Variant> &keys)
 {
-  if (c->has_properties_repository ()) {
-    std::set<tl::Variant> kf;
-    kf.insert (keys.begin (), keys.end ());
-    c->apply_property_translator (db::PropertiesTranslator::make_filter (c->properties_repository (), kf));
-  }
+  std::set<tl::Variant> kf;
+  kf.insert (keys.begin (), keys.end ());
+  c->apply_property_translator (db::PropertiesTranslator::make_filter (kf));
 }
 
 template <class Container>
 static void map_properties (Container *c, const std::map<tl::Variant, tl::Variant> &map)
 {
-  if (c->has_properties_repository ()) {
-    c->apply_property_translator (db::PropertiesTranslator::make_key_mapper (c->properties_repository (), map));
-  }
+  c->apply_property_translator (db::PropertiesTranslator::make_key_mapper (map));
 }
 
 template <class Container>
@@ -328,9 +324,19 @@ public:
     res = do_process (shape);
   }
 
+  virtual void process (const db::object_with_properties<shape_type> &shape, std::vector<db::object_with_properties<result_type> > &res) const
+  {
+    res = do_process (shape);
+  }
+
   std::vector<result_type> issue_do_process (const shape_type &) const
   {
     return std::vector<result_type> ();
+  }
+
+  std::vector<db::object_with_properties<result_type> > issue_do_process_wp (const db::object_with_properties<shape_type> &) const
+  {
+    return std::vector<db::object_with_properties<result_type> > ();
   }
 
   std::vector<result_type> do_process (const shape_type &shape) const
@@ -342,7 +348,24 @@ public:
     }
   }
 
+  std::vector<db::object_with_properties<result_type> > do_process (const db::object_with_properties<shape_type> &shape) const
+  {
+    if (f_process_wp.can_issue ()) {
+      return f_process.issue<shape_processor_impl, std::vector<db::object_with_properties<result_type> >, const db::object_with_properties<shape_type> &> (&shape_processor_impl::issue_do_process_wp, shape);
+    } else if (f_process.can_issue ()) {
+      auto tmp_result = f_process.issue<shape_processor_impl, std::vector<result_type>, const shape_type &> (&shape_processor_impl::issue_do_process, shape);
+      std::vector<db::object_with_properties<result_type> > result;
+      for (auto i = tmp_result.begin (); i != tmp_result.end (); ++i) {
+        result.push_back (db::object_with_properties<result_type> (*i, shape.properties_id ()));
+      }
+      return result;
+    } else {
+      return issue_do_process_wp (shape);
+    }
+  }
+
   gsi::Callback f_process;
+  gsi::Callback f_process_wp;
 
   static gsi::Methods method_decls (bool with_merged_options)
   {
@@ -353,6 +376,13 @@ public:
         "If needs to process the input shape and deliver a list of output shapes.\n"
         "The output list may be empty to entirely discard the input shape. It may also contain more than a single shape.\n"
         "In that case, the number of total shapes may grow during application of the processor.\n"
+      ) +
+      callback ("process_with_properties", &shape_processor_impl::issue_do_process_wp, &shape_processor_impl::f_process_wp, gsi::arg ("shape"),
+        "@brief Processes a shape with properties\n"
+        "In scenarios with shapes with properties, this method is called to process the shapes. If the method is not implemented, "
+        "the property-less 'process' method is called and the properties are copied from the input to the output.\n"
+        "\n"
+        "This flavor has been introduced in version 0.30."
       );
 
     if (with_merged_options) {

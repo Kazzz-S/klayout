@@ -96,6 +96,13 @@ EdgePairs::EdgePairs (const RecursiveShapeIterator &si, DeepShapeStore &dss, con
   mp_delegate = new DeepEdgePairs (si, dss, trans);
 }
 
+EdgePairs::EdgePairs (DeepShapeStore &dss)
+{
+  tl_assert (dss.is_singular ());
+  unsigned int layout_index = 0; // singular layout index
+  mp_delegate = new DeepEdgePairs (DeepLayer (&dss, layout_index, dss.layout (layout_index).insert_layer ()));
+}
+
 void
 EdgePairs::write (const std::string &fn) const
 {
@@ -120,6 +127,7 @@ void EdgePairs::insert (const Sh &shape)
 }
 
 template DB_PUBLIC void EdgePairs::insert (const db::EdgePair &);
+template DB_PUBLIC void EdgePairs::insert (const db::EdgePairWithProperties &);
 
 void EdgePairs::insert (const db::Shape &shape)
 {
@@ -171,22 +179,6 @@ EdgePairs::iter () const
   static db::RecursiveShapeIterator def_iter;
   const db::RecursiveShapeIterator *i = mp_delegate ? mp_delegate->iter () : 0;
   return *(i ? i : &def_iter);
-}
-
-const db::PropertiesRepository &
-EdgePairs::properties_repository () const
-{
-  static db::PropertiesRepository empty_prop_repo;
-  const db::PropertiesRepository *r = delegate () ? delegate ()->properties_repository () : 0;
-  return *(r ? r : &empty_prop_repo);
-}
-
-db::PropertiesRepository &
-EdgePairs::properties_repository ()
-{
-  db::PropertiesRepository *r = delegate () ? delegate ()->properties_repository () : 0;
-  tl_assert (r != 0);
-  return *r;
 }
 
 EdgePairs EdgePairs::processed (const EdgePairProcessorBase &proc) const

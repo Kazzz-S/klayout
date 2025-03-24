@@ -1752,19 +1752,22 @@ class DBLayoutTests1_TestClass < TestBase
 
     ly = RBA::Layout::new
 
+    pid1 = ly.properties_id({ "x" => 1 })
+    pid2 = ly.properties_id({ "x" => 17 })
+
     cell = ly.create_cell("X")
 
     assert_equal(cell.prop_id, 0)
-    cell.prop_id = 1
-    assert_equal(cell.prop_id, 1)
+    cell.prop_id = pid1
+    assert_equal(cell.prop_id, pid1)
     cell.prop_id = 0
     assert_equal(cell.prop_id, 0)
 
     cell.set_property("x", 1)
-    assert_equal(cell.prop_id, 1)
+    assert_equal(cell.prop_id, pid1)
     assert_equal(cell.property("x"), 1)
     cell.set_property("x", 17)
-    assert_equal(cell.prop_id, 2)
+    assert_equal(cell.prop_id, pid2)
     assert_equal(cell.property("x"), 17)
     assert_equal(cell.property("y"), nil)
 
@@ -2328,6 +2331,38 @@ class DBLayoutTests1_TestClass < TestBase
       assert_equal(true, false)
     rescue => ex
     end
+
+  end
+
+  # Properties IDs
+  def test_issue1549
+
+    ly = RBA::Layout::new
+
+    ps1 = { 1 => "one", "key" => 17 }
+    ps2 = [ [ 2, "two" ], [ "key", 42 ] ]
+
+    pid1 = RBA::Layout::properties_id(ps1)
+    # deprecated, for backward compatibility:
+    assert_equal(ly.properties_array(pid1).inspect, "[[1, \"one\"], [\"key\", 17]]")
+    assert_equal(ly.properties_hash(pid1).inspect, "{1=>\"one\", \"key\"=>17}")
+    assert_equal(pid1, ly.properties_id(ps1))
+    # static method versions
+    assert_equal(RBA::Layout::properties_array(pid1).inspect, "[[1, \"one\"], [\"key\", 17]]")
+    assert_equal(RBA::Layout::properties_hash(pid1).inspect, "{1=>\"one\", \"key\"=>17}")
+    assert_equal(RBA::Layout::property(pid1, 42).inspect, "nil")
+    assert_equal(RBA::Layout::property(pid1, 1).inspect, "\"one\"")
+
+    pid2 = RBA::Layout::properties_id(ps2)
+    # deprecated, for backward compatibility:
+    assert_equal(pid2, ly.properties_id(ps2))
+    assert_equal(ly.properties_array(pid2).inspect, "[[2, \"two\"], [\"key\", 42]]")
+    assert_equal(ly.properties_hash(pid2).inspect, "{2=>\"two\", \"key\"=>42}")
+    # static method versions
+    assert_equal(RBA::Layout::properties_array(pid2).inspect, "[[2, \"two\"], [\"key\", 42]]")
+    assert_equal(RBA::Layout::properties_hash(pid2).inspect, "{2=>\"two\", \"key\"=>42}")
+    assert_equal(RBA::Layout::property(pid2, 42).inspect, "nil")
+    assert_equal(RBA::Layout::property(pid2, 2).inspect, "\"two\"")
 
   end
 

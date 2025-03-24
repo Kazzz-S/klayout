@@ -32,7 +32,7 @@ namespace db
 //  FlatTexts implementation
 
 FlatTexts::FlatTexts ()
-  : MutableTexts (), mp_texts (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableTexts (), mp_texts (new db::Shapes (false))
 {
   //  .. nothing yet ..
 }
@@ -43,13 +43,13 @@ FlatTexts::~FlatTexts ()
 }
 
 FlatTexts::FlatTexts (const FlatTexts &other)
-  : MutableTexts (other), mp_texts (other.mp_texts), mp_properties_repository (other.mp_properties_repository)
+  : MutableTexts (other), mp_texts (other.mp_texts)
 {
   //  .. nothing yet ..
 }
 
 FlatTexts::FlatTexts (const db::Shapes &texts)
-  : MutableTexts (), mp_texts (new db::Shapes (texts)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableTexts (), mp_texts (new db::Shapes (texts))
 {
   //  .. nothing yet ..
 }
@@ -101,7 +101,7 @@ FlatTexts::filter_in_place (const TextFilterBase &filter)
 
   text_iterator_type pw = texts.get_layer<db::Text, db::unstable_layer_tag> ().begin ();
   for (TextsIterator p (begin ()); ! p.at_end (); ++p) {
-    if (filter.selected (*p)) {
+    if (filter.selected (*p, p.prop_id ())) {
       if (pw == texts.get_layer<db::Text, db::unstable_layer_tag> ().end ()) {
         texts.get_layer<db::Text, db::unstable_layer_tag> ().insert (*p);
         pw = texts.get_layer<db::Text, db::unstable_layer_tag> ().end ();
@@ -125,18 +125,16 @@ TextsDelegate *FlatTexts::add (const Texts &other) const
   if (other_flat) {
 
     new_texts->raw_texts ().insert (other_flat->raw_texts ().get_layer<db::Text, db::unstable_layer_tag> ().begin (), other_flat->raw_texts ().get_layer<db::Text, db::unstable_layer_tag> ().end ());
+    new_texts->raw_texts ().insert (other_flat->raw_texts ().get_layer<db::TextWithProperties, db::unstable_layer_tag> ().begin (), other_flat->raw_texts ().get_layer<db::TextWithProperties, db::unstable_layer_tag> ().end ());
 
   } else {
 
-    size_t n = new_texts->raw_texts ().size ();
     for (TextsIterator p (other.begin ()); ! p.at_end (); ++p) {
-      ++n;
-    }
-
-    new_texts->raw_texts ().reserve (db::Text::tag (), n);
-
-    for (TextsIterator p (other.begin ()); ! p.at_end (); ++p) {
-      new_texts->raw_texts ().insert (*p);
+      if (p.prop_id () == 0) {
+        new_texts->raw_texts ().insert (*p);
+      } else {
+        new_texts->raw_texts ().insert (db::TextWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }
@@ -154,18 +152,16 @@ TextsDelegate *FlatTexts::add_in_place (const Texts &other)
   if (other_flat) {
 
     texts.insert (other_flat->raw_texts ().get_layer<db::Text, db::unstable_layer_tag> ().begin (), other_flat->raw_texts ().get_layer<db::Text, db::unstable_layer_tag> ().end ());
+    texts.insert (other_flat->raw_texts ().get_layer<db::TextWithProperties, db::unstable_layer_tag> ().begin (), other_flat->raw_texts ().get_layer<db::TextWithProperties, db::unstable_layer_tag> ().end ());
 
   } else {
 
-    size_t n = texts.size ();
     for (TextsIterator p (other.begin ()); ! p.at_end (); ++p) {
-      ++n;
-    }
-
-    texts.reserve (db::Text::tag (), n);
-
-    for (TextsIterator p (other.begin ()); ! p.at_end (); ++p) {
-      texts.insert (*p);
+      if (p.prop_id () == 0) {
+        texts.insert (*p);
+      } else {
+        texts.insert (db::TextWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }
@@ -201,16 +197,6 @@ void FlatTexts::apply_property_translator (const db::PropertiesTranslator &pt)
   }
 }
 
-db::PropertiesRepository *FlatTexts::properties_repository ()
-{
-  return mp_properties_repository.get_non_const ();
-}
-
-const db::PropertiesRepository *FlatTexts::properties_repository () const
-{
-  return mp_properties_repository.get_const ();
-}
-
 void
 FlatTexts::insert_into_as_polygons (Layout *layout, db::cell_index_type into_cell, unsigned int into_layer, db::Coord enl) const
 {
@@ -229,9 +215,13 @@ FlatTexts::insert_into (Layout *layout, db::cell_index_type into_cell, unsigned 
 }
 
 void
-FlatTexts::do_insert (const db::Text &t)
+FlatTexts::do_insert (const db::Text &t, db::properties_id_type prop_id)
 {
-  mp_texts->insert (t);
+  if (prop_id != 0) {
+    mp_texts->insert (db::TextWithProperties (t, prop_id));
+  } else {
+    mp_texts->insert (t);
+  }
   invalidate_cache ();
 }
 

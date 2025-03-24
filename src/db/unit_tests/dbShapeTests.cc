@@ -768,12 +768,14 @@ TEST(8)
 {
   db::Manager m (true);
   db::Shapes s (&m, 0, db::default_editable_mode ());
-  db::PropertiesRepository proprep;
 
-  db::PropertiesRepository::properties_set set1;
-  set1.insert (std::make_pair (0, tl::Variant (15l)));
-  db::PropertiesRepository rep;
-  size_t id1 = rep.properties_id (set1);
+  db::PropertiesSet set0;
+  set0.insert (tl::Variant (0), tl::Variant (0));
+  size_t id0 = db::properties_id (set0);
+
+  db::PropertiesSet set1;
+  set1.insert (tl::Variant (0), tl::Variant (15l));
+  size_t id1 = db::properties_id (set1);
 
   db::BoxWithProperties bx2 = db::BoxWithProperties (db::Box (db::Point (0, 1000), db::Point (100, 2000)), id1);
   s.insert (bx2);
@@ -795,7 +797,7 @@ TEST(8)
 
   EXPECT_EQ (si.at_end (), true); 
 
-  prop_sel.insert (22);
+  prop_sel.insert (id0);
   si = db::ShapeIterator (s.begin (db::ShapeIterator::Polygons | db::ShapeIterator::Boxes, &prop_sel, false));
 
   EXPECT_EQ (si.at_end (), true); 
@@ -905,20 +907,31 @@ TEST(9)
   EXPECT_EQ (si.at_end (), true);
 
 
+  db::PropertiesSet props;
+  props.insert (tl::Variant (1), "a");
+  db::properties_id_type pid1 = db::properties_id (props);
+
+  props.insert (tl::Variant (2), "b");
+  db::properties_id_type pid2 = db::properties_id (props);
+
+  props.clear ();
+  props.insert (tl::Variant (3), "x");
+  db::properties_id_type pid3 = db::properties_id (props);
+
   s.clear ();
-  s.insert (db::PointWithProperties (db::Point (100, 200), 1));
-  s.insert (db::EdgeWithProperties (db::Edge (db::Point (100, 200), db::Point (200, 400)), 2));
-  s.insert (db::EdgePairWithProperties (db::EdgePair (db::Edge (db::Point (100, 200), db::Point (200, 400)), db::Edge (db::Point (0, 300), db::Point (100, 500))), 3));
+  s.insert (db::PointWithProperties (db::Point (100, 200), pid1));
+  s.insert (db::EdgeWithProperties (db::Edge (db::Point (100, 200), db::Point (200, 400)), pid2));
+  s.insert (db::EdgePairWithProperties (db::EdgePair (db::Edge (db::Point (100, 200), db::Point (200, 400)), db::Edge (db::Point (0, 300), db::Point (100, 500))), pid3));
 
   si = s.begin (db::ShapeIterator::All);
 
   EXPECT_EQ (si.at_end (), false);
   EXPECT_EQ (si->is_edge (), true);
-  EXPECT_EQ (si->prop_id (), db::properties_id_type (2));
+  EXPECT_EQ (si->prop_id (), pid2);
   EXPECT_EQ (si->is_edge_pair (), false);
   EXPECT_EQ (si->is_point (), false);
 
-  EXPECT_EQ (si->to_string (), "edge (100,200;200,400) prop_id=2");
+  EXPECT_EQ (si->to_string (), "edge (100,200;200,400) props={1=>a,2=>b}");
   EXPECT_EQ (si->edge ().to_string (), "(100,200;200,400)");
 
   ++si;
@@ -926,10 +939,10 @@ TEST(9)
   EXPECT_EQ (si.at_end (), false);
   EXPECT_EQ (si->is_edge (), false);
   EXPECT_EQ (si->is_edge_pair (), true);
-  EXPECT_EQ (si->prop_id (), db::properties_id_type (3));
+  EXPECT_EQ (si->prop_id (), pid3);
   EXPECT_EQ (si->is_point (), false);
 
-  EXPECT_EQ (si->to_string (), "edge_pair (100,200;200,400)/(0,300;100,500) prop_id=3");
+  EXPECT_EQ (si->to_string (), "edge_pair (100,200;200,400)/(0,300;100,500) props={3=>x}");
   EXPECT_EQ (si->edge_pair ().to_string (), "(100,200;200,400)/(0,300;100,500)");
 
   ++si;
@@ -938,9 +951,9 @@ TEST(9)
   EXPECT_EQ (si->is_edge (), false);
   EXPECT_EQ (si->is_edge_pair (), false);
   EXPECT_EQ (si->is_point (), true);
-  EXPECT_EQ (si->prop_id (), db::properties_id_type (1));
+  EXPECT_EQ (si->prop_id (), pid1);
 
-  EXPECT_EQ (si->to_string (), "point 100,200 prop_id=1");
+  EXPECT_EQ (si->to_string (), "point 100,200 props={1=>a}");
   EXPECT_EQ (si->point ().to_string (), "100,200");
 
   ++si;

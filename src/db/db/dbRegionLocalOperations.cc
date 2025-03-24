@@ -40,9 +40,21 @@ static inline const db::Polygon *push_polygon_to_heap (db::Layout *, const db::P
   return &p;
 }
 
+static inline const db::PolygonWithProperties *push_polygon_to_heap (db::Layout *, const db::PolygonWithProperties &p, std::list<db::PolygonWithProperties> &)
+{
+  return &p;
+}
+
 static inline const db::PolygonRef *push_polygon_to_heap (db::Layout *layout, const db::PolygonRef &p, std::list<db::PolygonRef> &heap)
 {
   db::PolygonRef ref = db::PolygonRef (p, layout->shape_repository ());
+  heap.push_back (ref);
+  return &heap.back ();
+}
+
+static inline const db::PolygonRefWithProperties *push_polygon_to_heap (db::Layout *layout, const db::PolygonRefWithProperties &p, std::list<db::PolygonRefWithProperties> &heap)
+{
+  db::PolygonRefWithProperties ref = db::PolygonRefWithProperties (db::PolygonRef (p, layout->shape_repository ()), p.properties_id ());
   heap.push_back (ref);
   return &heap.back ();
 }
@@ -718,6 +730,20 @@ check_local_operation<TS, TI>::do_compute_local (db::Layout *layout, db::Cell *s
   results.front ().insert (result.begin (), result.end ());
 }
 
+template <class TS, class TI>
+void
+check_local_operation<TS, TI>::do_compute_local (db::Layout *layout, db::Cell *subject_cell, const shape_interactions<TS, TI> &interactions, std::vector<std::unordered_set<db::EdgePairWithProperties> > &results, const db::LocalProcessorBase *proc) const
+{
+  std::vector<std::unordered_set<db::EdgePair> > tmp_results;
+  tmp_results.push_back (std::unordered_set<db::EdgePair> ());
+
+  do_compute_local (layout, subject_cell, interactions, tmp_results, proc);
+
+  //  NOTE: there is no specific property support currently, so we just set to "no properties"
+  for (auto i = tmp_results.front ().begin (); i != tmp_results.front ().end (); ++i) {
+    results.front ().insert (db::EdgePairWithProperties (*i, db::properties_id_type (0)));
+  }
+}
 
 template <class TS, class TI>
 db::Coord
@@ -744,12 +770,14 @@ check_local_operation<TS, TI>::description () const
 //  explicit instantiations
 template class DB_PUBLIC check_local_operation<db::PolygonRef, db::PolygonRef>;
 template class DB_PUBLIC check_local_operation<db::Polygon, db::Polygon>;
+template class DB_PUBLIC check_local_operation<db::PolygonRefWithProperties, db::PolygonRefWithProperties>;
+template class DB_PUBLIC check_local_operation<db::PolygonWithProperties, db::PolygonWithProperties>;
 
 // ---------------------------------------------------------------------------------------------------------------
 
 template <class TS, class TI>
-check_local_operation_with_properties<TS, TI>::check_local_operation_with_properties (const EdgeRelationFilter &check, bool different_polygons, bool is_merged, bool has_other, bool other_is_merged, const db::RegionCheckOptions &options, db::PropertiesRepository *target_pr, const db::PropertiesRepository *subject_pr, const db::PropertiesRepository *intruder_pr)
-  : check_local_operation_base<TS, TI> (check, different_polygons, is_merged, has_other, other_is_merged, options), m_pms (target_pr, subject_pr), m_pmi (target_pr, intruder_pr)
+check_local_operation_with_properties<TS, TI>::check_local_operation_with_properties (const EdgeRelationFilter &check, bool different_polygons, bool is_merged, bool has_other, bool other_is_merged, const db::RegionCheckOptions &options)
+  : check_local_operation_base<TS, TI> (check, different_polygons, is_merged, has_other, other_is_merged, options)
 {
   //  .. nothing yet ..
 }
@@ -760,7 +788,7 @@ check_local_operation_with_properties<TS, TI>::do_compute_local (db::Layout *lay
 {
   tl_assert (results.size () == 1);
 
-  auto by_prop_id = separate_interactions_by_properties (interactions, check_local_operation_base<TS, TI>::m_options.prop_constraint, m_pms, m_pmi);
+  auto by_prop_id = separate_interactions_by_properties (interactions, check_local_operation_base<TS, TI>::m_options.prop_constraint);
 
   for (auto s2p = by_prop_id.begin (); s2p != by_prop_id.end (); ++s2p) {
 
@@ -1018,6 +1046,8 @@ std::string interacting_local_operation<TS, TI, TR>::description () const
 //  explicit instantiations
 template class DB_PUBLIC interacting_local_operation<db::PolygonRef, db::PolygonRef, db::PolygonRef>;
 template class DB_PUBLIC interacting_local_operation<db::Polygon, db::Polygon, db::Polygon>;
+template class DB_PUBLIC interacting_local_operation<db::PolygonRefWithProperties, db::PolygonRefWithProperties, db::PolygonRefWithProperties>;
+template class DB_PUBLIC interacting_local_operation<db::PolygonWithProperties, db::PolygonWithProperties, db::PolygonWithProperties>;
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -1093,6 +1123,9 @@ std::string contained_local_operation<TS, TI, TR>::description () const
 template class DB_PUBLIC contained_local_operation<db::PolygonRef, db::PolygonRef, db::PolygonRef>;
 template class DB_PUBLIC contained_local_operation<db::Polygon, db::Polygon, db::Polygon>;
 template class DB_PUBLIC contained_local_operation<db::Edge, db::Edge, db::Edge>;
+template class DB_PUBLIC contained_local_operation<db::PolygonRefWithProperties, db::PolygonRefWithProperties, db::PolygonRefWithProperties>;
+template class DB_PUBLIC contained_local_operation<db::PolygonWithProperties, db::PolygonWithProperties, db::PolygonWithProperties>;
+template class DB_PUBLIC contained_local_operation<db::EdgeWithProperties, db::EdgeWithProperties, db::EdgeWithProperties>;
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -1172,6 +1205,8 @@ std::string pull_local_operation<TS, TI, TR>::description () const
 
 template class DB_PUBLIC pull_local_operation<db::PolygonRef, db::PolygonRef, db::PolygonRef>;
 template class DB_PUBLIC pull_local_operation<db::Polygon, db::Polygon, db::Polygon>;
+template class DB_PUBLIC pull_local_operation<db::PolygonRefWithProperties, db::PolygonRefWithProperties, db::PolygonRefWithProperties>;
+template class DB_PUBLIC pull_local_operation<db::PolygonWithProperties, db::PolygonWithProperties, db::PolygonWithProperties>;
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -1230,7 +1265,7 @@ void interacting_with_edge_local_operation<TS, TI, TR>::do_compute_local (db::La
       }
     }
 
-    merge_scanner.process (cluster_collector, 1, db::box_convert<db::Edge> ());
+    merge_scanner.process (cluster_collector, 1, db::box_convert<TI> ());
 
     for (typename std::unordered_set<TI>::const_iterator e = merged_heap.begin (); e != merged_heap.end (); ++e) {
       scanner.insert2 (e.operator-> (), 0);
@@ -1300,6 +1335,8 @@ std::string interacting_with_edge_local_operation<TS, TI, TR>::description () co
 
 template class DB_PUBLIC interacting_with_edge_local_operation<db::PolygonRef, db::Edge, db::PolygonRef>;
 template class DB_PUBLIC interacting_with_edge_local_operation<db::Polygon, db::Edge, db::Polygon>;
+template class DB_PUBLIC interacting_with_edge_local_operation<db::PolygonRefWithProperties, db::EdgeWithProperties, db::PolygonRefWithProperties>;
+template class DB_PUBLIC interacting_with_edge_local_operation<db::PolygonWithProperties, db::EdgeWithProperties, db::PolygonWithProperties>;
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -1361,6 +1398,8 @@ std::string pull_with_edge_local_operation<TS, TI, TR>::description () const
 
 template class DB_PUBLIC pull_with_edge_local_operation<db::PolygonRef, db::Edge, db::Edge>;
 template class DB_PUBLIC pull_with_edge_local_operation<db::Polygon, db::Edge, db::Edge>;
+template class DB_PUBLIC pull_with_edge_local_operation<db::PolygonRefWithProperties, db::EdgeWithProperties, db::EdgeWithProperties>;
+template class DB_PUBLIC pull_with_edge_local_operation<db::PolygonWithProperties, db::EdgeWithProperties, db::EdgeWithProperties>;
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -1428,6 +1467,8 @@ std::string pull_with_text_local_operation<TS, TI, TR>::description () const
 
 template class DB_PUBLIC pull_with_text_local_operation<db::PolygonRef, db::TextRef, db::TextRef>;
 template class DB_PUBLIC pull_with_text_local_operation<db::Polygon, db::Text, db::Text>;
+template class DB_PUBLIC pull_with_text_local_operation<db::PolygonRefWithProperties, db::TextRefWithProperties, db::TextRefWithProperties>;
+template class DB_PUBLIC pull_with_text_local_operation<db::PolygonWithProperties, db::TextWithProperties, db::TextWithProperties>;
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -1532,6 +1573,8 @@ std::string interacting_with_text_local_operation<TS, TI, TR>::description () co
 //  explicit instantiations
 template class DB_PUBLIC interacting_with_text_local_operation<db::PolygonRef, db::TextRef, db::PolygonRef>;
 template class DB_PUBLIC interacting_with_text_local_operation<db::Polygon, db::Text, db::Polygon>;
+template class DB_PUBLIC interacting_with_text_local_operation<db::PolygonRefWithProperties, db::TextRefWithProperties, db::PolygonRefWithProperties>;
+template class DB_PUBLIC interacting_with_text_local_operation<db::PolygonWithProperties, db::TextWithProperties, db::PolygonWithProperties>;
 
 // ---------------------------------------------------------------------------------------------
 //  BoolAndOrNotLocalOperation implementation
@@ -1617,13 +1660,15 @@ bool_and_or_not_local_operation<TS, TI, TR>::do_compute_local (db::Layout *layou
 
 template class DB_PUBLIC bool_and_or_not_local_operation<db::PolygonRef, db::PolygonRef, db::PolygonRef>;
 template class DB_PUBLIC bool_and_or_not_local_operation<db::Polygon, db::Polygon, db::Polygon>;
+template class DB_PUBLIC bool_and_or_not_local_operation<db::PolygonRefWithProperties, db::PolygonRefWithProperties, db::PolygonRefWithProperties>;
+template class DB_PUBLIC bool_and_or_not_local_operation<db::PolygonWithProperties, db::PolygonWithProperties, db::PolygonWithProperties>;
 
 // ---------------------------------------------------------------------------------------------
 //  BoolAndOrNotLocalOperationWithProperties implementation
 
 template <class TS, class TI, class TR>
-bool_and_or_not_local_operation_with_properties<TS, TI, TR>::bool_and_or_not_local_operation_with_properties (bool is_and, db::PropertiesRepository *target_pr, const db::PropertiesRepository *subject_pr, const db::PropertiesRepository *intruder_pr, db::PropertyConstraint property_constraint)
-  : m_is_and (is_and), m_property_constraint (property_constraint), m_pms (target_pr, subject_pr), m_pmi (target_pr, intruder_pr)
+bool_and_or_not_local_operation_with_properties<TS, TI, TR>::bool_and_or_not_local_operation_with_properties (bool is_and, db::PropertyConstraint property_constraint)
+  : m_is_and (is_and), m_property_constraint (property_constraint)
 {
   //  .. nothing yet ..
 }
@@ -1651,7 +1696,7 @@ bool_and_or_not_local_operation_with_properties<TS, TI, TR>::do_compute_local (d
 
   db::EdgeProcessor ep;
 
-  std::map<db::properties_id_type, std::pair<tl::slist<TS>, std::set<TI> > > by_prop_id;
+  std::map<db::properties_id_type, std::pair<tl::slist<TS>, std::set<TI> >, ComparePropertiesIds> by_prop_id;
 
   for (auto i = interactions.begin (); i != interactions.end (); ++i) {
 
@@ -1660,19 +1705,19 @@ bool_and_or_not_local_operation_with_properties<TS, TI, TR>::do_compute_local (d
     if (i->second.empty ()) {
 
       if (! m_is_and) {
-        result.insert (db::object_with_properties<TR> (subject, m_pms (subject.properties_id ())));
+        result.insert (db::object_with_properties<TR> (subject, subject.properties_id ()));
       }
 
     } else {
 
-      db::properties_id_type prop_id_s = m_pms (subject.properties_id ());
+      db::properties_id_type prop_id_s = subject.properties_id ();
 
       auto &shapes_by_prop = by_prop_id [prop_id_s];
       shapes_by_prop.first.push_front (subject);
 
       for (auto j = i->second.begin (); j != i->second.end (); ++j) {
         const db::object_with_properties<TI> &intruder = interactions.intruder_shape (*j).second;
-        if (pc_match (m_property_constraint, prop_id_s, m_pmi (intruder.properties_id ()))) {
+        if (pc_match (m_property_constraint, prop_id_s, intruder.properties_id ())) {
           shapes_by_prop.second.insert (intruder);
         }
       }
@@ -1824,9 +1869,9 @@ template class DB_PUBLIC two_bool_and_not_local_operation<db::Polygon, db::Polyg
 //  TwoBoolAndNotLocalOperationWithProperties implementation
 
 template <class TS, class TI, class TR>
-two_bool_and_not_local_operation_with_properties<TS, TI, TR>::two_bool_and_not_local_operation_with_properties (db::PropertiesRepository *target1_pr, db::PropertiesRepository *target2_pr, const db::PropertiesRepository *subject_pr, const db::PropertiesRepository *intruder_pr, db::PropertyConstraint property_constraint)
+two_bool_and_not_local_operation_with_properties<TS, TI, TR>::two_bool_and_not_local_operation_with_properties (db::PropertyConstraint property_constraint)
   : db::local_operation<db::object_with_properties<TS>, db::object_with_properties<TI>, db::object_with_properties<TR> > (),
-    m_property_constraint (property_constraint), m_pms (target1_pr, subject_pr), m_pmi (target1_pr, intruder_pr), m_pm12 (target2_pr, target1_pr)
+    m_property_constraint (property_constraint)
 {
   //  .. nothing yet ..
 }
@@ -1841,7 +1886,7 @@ two_bool_and_not_local_operation_with_properties<TS, TI, TR>::do_compute_local (
 
   db::EdgeProcessor ep;
 
-  std::map<db::properties_id_type, std::pair<tl::slist<TS>, std::set<TI> > > by_prop_id;
+  std::map<db::properties_id_type, std::pair<tl::slist<TS>, std::set<TI> >, ComparePropertiesIds> by_prop_id;
 
   for (auto i = interactions.begin (); i != interactions.end (); ++i) {
 
@@ -1849,18 +1894,18 @@ two_bool_and_not_local_operation_with_properties<TS, TI, TR>::do_compute_local (
 
     if (i->second.empty ()) {
 
-      result1.insert (db::object_with_properties<TR> (subject, m_pms (subject.properties_id ())));
+      result1.insert (db::object_with_properties<TR> (subject, subject.properties_id ()));
 
     } else {
 
-      db::properties_id_type prop_id_s = m_pms (subject.properties_id ());
+      db::properties_id_type prop_id_s = subject.properties_id ();
 
       auto &shapes_by_prop = by_prop_id [prop_id_s];
       shapes_by_prop.first.push_front (subject);
 
       for (auto j = i->second.begin (); j != i->second.end (); ++j) {
         const db::object_with_properties<TI> &intruder = interactions.intruder_shape (*j).second;
-        if (pc_match (m_property_constraint, prop_id_s, m_pmi (intruder.properties_id ()))) {
+        if (pc_match (m_property_constraint, prop_id_s, intruder.properties_id ())) {
           shapes_by_prop.second.insert (intruder);
         }
       }
@@ -1884,7 +1929,7 @@ two_bool_and_not_local_operation_with_properties<TS, TI, TR>::do_compute_local (
         result0.insert (db::object_with_properties<TR> (subject, prop_id));
       } else if (others.empty ()) {
         //  shortcut (not: keep, and: drop)
-        result1.insert (db::object_with_properties<TR> (subject, m_pm12 (prop_id)));
+        result1.insert (db::object_with_properties<TR> (subject, prop_id));
       } else {
         for (auto e = subject.begin_edge (); ! e.at_end(); ++e) {
           ep.insert (*e, p1);
@@ -1927,7 +1972,7 @@ two_bool_and_not_local_operation_with_properties<TS, TI, TR>::do_compute_local (
         result0.insert (db::object_with_properties<TR> (*r, prop_id));
       }
       for (auto r = result1_wo_props.begin (); r != result1_wo_props.end (); ++r) {
-        result1.insert (db::object_with_properties<TR> (*r, m_pm12 (prop_id)));
+        result1.insert (db::object_with_properties<TR> (*r, prop_id));
       }
 
     }
@@ -2171,8 +2216,8 @@ std::string SelfOverlapMergeLocalOperation::description () const
 
 // ---------------------------------------------------------------------------------------------
 
-PolygonToEdgeLocalOperation::PolygonToEdgeLocalOperation (db::PropertiesRepository *target_pr, const db::PropertiesRepository *source_pr)
-  : local_operation<db::PolygonRefWithProperties, db::PolygonRefWithProperties, db::EdgeWithProperties> (), m_pm (target_pr, source_pr)
+PolygonToEdgeLocalOperation::PolygonToEdgeLocalOperation ()
+  : local_operation<db::PolygonRefWithProperties, db::PolygonRefWithProperties, db::EdgeWithProperties> ()
 {
   //  .. nothing yet ..
 }
@@ -2189,7 +2234,7 @@ PolygonToEdgeLocalOperation::do_compute_local (db::Layout * /*layout*/, db::Cell
   db::EdgeProcessor ep;
   ep.set_base_verbosity (50);
 
-  auto by_prop_id = separate_interactions_by_properties (interactions, db::SamePropertiesConstraint, m_pm, m_pm);
+  auto by_prop_id = separate_interactions_by_properties (interactions, db::SamePropertiesConstraint);
   for (auto shapes_by_prop_id = by_prop_id.begin (); shapes_by_prop_id != by_prop_id.end (); ++shapes_by_prop_id) {
 
     db::properties_id_type prop_id = shapes_by_prop_id->first;

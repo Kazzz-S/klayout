@@ -465,16 +465,6 @@ void DeepEdges::apply_property_translator (const db::PropertiesTranslator &pt)
   m_merged_edges = db::DeepLayer ();
 }
 
-db::PropertiesRepository *DeepEdges::properties_repository ()
-{
-  return &deep_layer ().layout ().properties_repository ();
-}
-
-const db::PropertiesRepository *DeepEdges::properties_repository () const
-{
-  return &deep_layer ().layout ().properties_repository ();
-}
-
 bool DeepEdges::equals (const Edges &other) const
 {
   const DeepEdges *other_delegate = dynamic_cast<const DeepEdges *> (other.delegate ());
@@ -877,7 +867,7 @@ DeepEdges::apply_filter (const EdgeFilterBase &filter, bool with_true, bool with
         const db::ICplxTrans &tr = *v;
 
         for (db::Shapes::shape_iterator si = s.begin (db::ShapeIterator::Edges); ! si.at_end (); ++si) {
-          if (filter.selected (si->edge ().transformed (tr))) {
+          if (filter.selected (si->edge ().transformed (tr), si->prop_id ())) {
             if (st_true) {
               st_true->insert (*si);
             }
@@ -896,7 +886,7 @@ DeepEdges::apply_filter (const EdgeFilterBase &filter, bool with_true, bool with
       db::Shapes *st_false = with_false ? &c->shapes (res_false->deep_layer ().layer ()) : 0;
 
       for (db::Shapes::shape_iterator si = s.begin (db::ShapeIterator::Edges); ! si.at_end (); ++si) {
-        if (filter.selected (si->edge ())) {
+        if (filter.selected (si->edge (), si->prop_id ())) {
           if (with_true) {
             st_true->insert (*si);
           }
@@ -1289,7 +1279,11 @@ DeepEdges::add_in_place (const Edges &other)
 
     db::Shapes &shapes = deep_layer ().initial_cell ().shapes (deep_layer ().layer ());
     for (db::Edges::const_iterator p = other.begin (); ! p.at_end (); ++p) {
-      shapes.insert (*p);
+      if (p.prop_id () == 0) {
+        shapes.insert (*p);
+      } else {
+        shapes.insert (db::EdgeWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }

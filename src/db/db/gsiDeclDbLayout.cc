@@ -126,7 +126,7 @@ db::LayerProperties li_from_string (const char *s, bool as_target)
 static
 size_t hash_value (const db::LayerProperties *l)
 {
-  return std::hfunc (*l);
+  return tl::hfunc (*l);
 }
 
 static bool log_equal_ext (const db::LayerProperties *lp1, const db::LayerProperties &lp2)
@@ -307,83 +307,34 @@ static void delete_layout_property (db::Layout *l, const tl::Variant &key)
   //  TODO: check if is editable
 
   db::properties_id_type id = l->prop_id ();
-  if (id == 0) {
-    return;
-  }
 
-  std::pair<bool, db::property_names_id_type> nid = l->properties_repository ().get_id_of_name (key);
-  if (! nid.first) {
-    return;
-  }
-
-  db::PropertiesRepository::properties_set props = l->properties_repository ().properties (id);
-  db::PropertiesRepository::properties_set::iterator p = props.find (nid.second);
-  if (p != props.end ()) {
-    props.erase (p);
-  }
-
-  l->prop_id (l->properties_repository ().properties_id (props));
+  db::PropertiesSet props = db::properties (id);
+  props.erase (key);
+  l->prop_id (db::properties_id (props));
 }
 
 static void set_layout_property (db::Layout *l, const tl::Variant &key, const tl::Variant &value)
 {
-  //  TODO: check if is editable
-
   db::properties_id_type id = l->prop_id ();
 
-  db::property_names_id_type nid = l->properties_repository ().prop_name_id (key);
-
-  db::PropertiesRepository::properties_set props = l->properties_repository ().properties (id);
-  db::PropertiesRepository::properties_set::iterator p = props.find (nid);
-  if (p != props.end ()) {
-    p->second = value;
-  } else {
-    props.insert (std::make_pair (nid, value));
-  }
-
-  l->prop_id (l->properties_repository ().properties_id (props));
+  db::PropertiesSet props = db::properties (id);
+  props.erase (key);
+  props.insert (key, value);
+  l->prop_id (db::properties_id (props));
 }
 
 static tl::Variant get_layout_property (const db::Layout *l, const tl::Variant &key)
 {
-  //  TODO: check if is editable
-  
   db::properties_id_type id = l->prop_id ();
-  if (id == 0) {
-    return tl::Variant ();
-  }
 
-  std::pair<bool, db::property_names_id_type> nid = l->properties_repository ().get_id_of_name (key);
-  if (! nid.first) {
-    return tl::Variant ();
-  }
-
-  const db::PropertiesRepository::properties_set &props = l->properties_repository ().properties (id);
-  db::PropertiesRepository::properties_set::const_iterator p = props.find (nid.second);
-  if (p != props.end ()) {
-    return p->second;
-  } else {
-    return tl::Variant ();
-  }
-}
-
-static tl::Variant get_properties_hash (const db::Layout *layout, db::properties_id_type id)
-{
-  if (id == 0) {
-    return tl::Variant::empty_array ();
-  }
-
-  tl::Variant res = tl::Variant::empty_array ();
-  const db::PropertiesRepository::properties_set &props = layout->properties_repository ().properties (id);
-  for (auto i = props.begin (); i != props.end (); ++i) {
-    res.insert (layout->properties_repository ().prop_name (i->first), i->second);
-  }
-  return res;
+  const db::PropertiesSet &props = db::properties (id);
+  return props.value (key);
 }
 
 static tl::Variant get_layout_properties (const db::Layout *layout)
 {
-  return get_properties_hash (layout, layout->prop_id ());
+  const db::PropertiesSet &props = db::properties (layout->prop_id ());
+  return props.to_dict_var ();
 }
 
 static db::cell_index_type cell_by_name (db::Layout *l, const char *name)
@@ -608,55 +559,71 @@ static std::vector<db::LayerProperties> layer_infos (const db::Layout *l)
   return layers;
 }
 
-static db::properties_id_type properties_id (db::Layout *layout, const std::vector<tl::Variant> &properties)
+static db::properties_id_type properties_id_from_list (const std::vector<tl::Variant> &properties)
 {
-  db::PropertiesRepository::properties_set props;
+  db::PropertiesSet props;
 
   for (std::vector<tl::Variant>::const_iterator v = properties.begin (); v != properties.end (); ++v) {
     if (! v->is_list () || v->get_list ().size () != 2) {
       throw tl::Exception (tl::to_string (tr ("Expected a list of pairs of variants (found at least one that is not a pair)")));
     }
-    db::property_names_id_type name_id = layout->properties_repository ().prop_name_id (v->get_list ()[0]);
-    props.insert (std::make_pair (name_id, v->get_list () [1]));
+    props.insert (v->get_list ()[0], v->get_list () [1]);
   }
 
-  return layout->properties_repository ().properties_id (props);
+  return db::properties_id (props);
 }
 
-static db::properties_id_type properties_id_from_hash (db::Layout *layout, const std::map<tl::Variant, tl::Variant> &properties)
+//  for backward compatibility
+static db::properties_id_type properties_id_from_list_meth (const db::Layout *, const std::vector<tl::Variant> &properties)
 {
-  db::PropertiesRepository::properties_set props;
+  return properties_id_from_list (properties);
+}
+
+static db::properties_id_type properties_id_from_hash (const std::map<tl::Variant, tl::Variant> &properties)
+{
+  db::PropertiesSet props;
 
   for (std::map<tl::Variant, tl::Variant>::const_iterator v = properties.begin (); v != properties.end (); ++v) {
-    db::property_names_id_type name_id = layout->properties_repository ().prop_name_id (v->first);
-    props.insert (std::make_pair (name_id, v->second));
+    props.insert (v->first, v->second);
   }
 
-  return layout->properties_repository ().properties_id (props);
+  return db::properties_id (props);
 }
 
-static std::vector<tl::Variant> properties (const db::Layout *layout, db::properties_id_type id)
+//  for backward compatibility
+static db::properties_id_type properties_id_from_hash_meth (const db::Layout *, const std::map<tl::Variant, tl::Variant> &properties)
 {
-  std::vector<tl::Variant> ret;
-
-  if (layout->properties_repository ().is_valid_properties_id (id)) {
-
-    const db::PropertiesRepository::properties_set &props = layout->properties_repository ().properties (id);
-    ret.reserve (props.size ());
-
-    for (db::PropertiesRepository::properties_set::const_iterator p = props.begin (); p != props.end (); ++p) {
-      ret.push_back (tl::Variant::empty_list ());
-      ret.back ().get_list ().reserve (2);
-      ret.back ().get_list ().push_back (layout->properties_repository ().prop_name (p->first));
-      ret.back ().get_list ().push_back (p->second);
-    }
-
-  }
-
-  return ret;
+  return properties_id_from_hash (properties);
 }
 
-static void 
+static tl::Variant get_properties_list (db::properties_id_type id)
+{
+  return db::properties (id).to_list_var ();
+}
+
+//  for backward compatibility
+static tl::Variant get_properties_list_meth (const db::Layout *, db::properties_id_type id)
+{
+  return db::properties (id).to_list_var ();
+}
+
+static tl::Variant get_properties_hash (db::properties_id_type id)
+{
+  return db::properties (id).to_dict_var ();
+}
+
+//  for backward compatibility
+static tl::Variant get_properties_hash_meth (const db::Layout *, db::properties_id_type id)
+{
+  return db::properties (id).to_dict_var ();
+}
+
+static tl::Variant get_property_from_id (db::properties_id_type id, const tl::Variant &key)
+{
+  return db::properties (id).value (key);
+}
+
+static void
 delete_cells (db::Layout *layout, const std::vector<db::cell_index_type> &cell_indices)
 {
   layout->delete_cells (cell_indices.begin (), cell_indices.end ());
@@ -1367,18 +1334,40 @@ Class<db::Layout> decl_Layout ("db", "Layout",
     "\n"
     "This method has been introduced in version 0.29.5."
   ) +
-  gsi::method_ext ("properties_id", &properties_id, gsi::arg ("properties"),
+  //  backward-compatible version as method
+  gsi::method_ext ("properties_id", &properties_id_from_list_meth, gsi::arg ("properties"),
+    "@hide"
+  ) +
+  gsi::method ("properties_id", &properties_id_from_list, gsi::arg ("properties"),
     "@brief Gets the properties ID for a given properties set\n"
     "\n"
-    "Before a set of properties can be attached to a shape, it must be converted into an ID that "
-    "is unique for that set. The properties set must be given as a list of pairs of variants, "
-    "each pair describing a name and a value. The name acts as the key for the property and does not need to be a string (it can be an integer or double value as well).\n"
-    "The backward conversion can be performed with the 'properties' method.\n"
+    "In most places within the system, properties are stored as properties IDs. These are numbers representative for "
+    "a specific set of properties. This method allows deriving a properties ID from a list of key/value pairs.\n"
+    "It delivers a unique number for this set. A variant exists that takes a dict object instead of a list of key/value pairs.\n"
+    "\n"
+    "The \\properties_array and \\properties_hash methods allow converting the properties ID back into a list or dict object.\n"
+    "Individual values for a given key can be extracted using \\property in the static (class) method variant.\n"
+    "\n"
+    "@code\n"
+    "pid = RBA::Layout::properties_id([[1, \"one\"], [\"key\", \"value\"]])\n"
+    "# same as:\n"
+    "# pid = RBA::Layout::properties_id({ 1 => \"one\", \"key\" => \"value\" })\n"
+    "\n"
+    "RBA::Layout::properties_hash(pid)  # -> { 1 => \"one\", \"key\" => \"value\" }\n"
+    "RBA::Layout::property(pid, 1)      # -> \"one\"\n"
+    "@/code\n"
+    "\n"
+    "In previous versions, these function were methods of the Layout object. Since version 0.30, they are static (class) methods. "
+    "This means, that they provide a universal way of converting property sets into IDs and back, without need for a Layout object.\n"
     "\n"
     "@param properties The array of pairs of variants (both elements can be integer, double or string)\n"
     "@return The unique properties ID for that set"
   ) +
-  gsi::method_ext ("properties_id", &properties_id_from_hash, gsi::arg ("properties"),
+  //  backward-compatible version as method
+  gsi::method_ext ("properties_id", &properties_id_from_hash_meth, gsi::arg ("properties"),
+    "@hide"
+  ) +
+  gsi::method ("properties_id", &properties_id_from_hash, gsi::arg ("properties"),
     "@brief Gets the properties ID for a given properties set\n"
     "\n"
     "This variant accepts a hash of value vs. key for the properties instead of array of key/value pairs. "
@@ -1387,9 +1376,26 @@ Class<db::Layout> decl_Layout ("db", "Layout",
     "@param properties A hash of property keys/values (both keys and values can be integer, double or string)\n"
     "@return The unique properties ID for that set\n"
     "\n"
-    "This variant has been introduced in version 0.29.7."
+    "This variant has been introduced in version 0.29.7 and was turned in a static (class) method in 0.30."
   ) +
-  gsi::method_ext ("properties_array|#properties", &properties, gsi::arg ("properties_id"),
+  gsi::method ("property", &get_property_from_id, gsi::arg ("properties_id"), gsi::arg ("key"),
+    "@brief Extracts a property value for a given key from the properties ID\n"
+    "\n"
+    "From a given properties ID, retrieves the value for a given key. If no value for this particular "
+    "key exists, 'nil' is returned.\n"
+    "\n"
+    "For details about the properties ID concept see \\properties_id.\n"
+    "\n"
+    "Note, that this is a static (class) method that provides a universal way of extracting property values "
+    "from IDs without need for a Layout object.\n"
+    "\n"
+    "This method has been introduced in version 0.30."
+  ) +
+  //  backward-compatible version as method
+  gsi::method_ext ("properties_array|properties", &get_properties_list_meth, gsi::arg ("properties_id"),
+    "@hide"
+  ) +
+  gsi::method ("properties_array", &get_properties_list, gsi::arg ("properties_id"),
     "@brief Gets the properties set for a given properties ID\n"
     "\n"
     "Basically this method performs the backward conversion of the 'properties_id' method. "
@@ -1398,22 +1404,32 @@ Class<db::Layout> decl_Layout ("db", "Layout",
     "If the properties ID is not valid, an empty array is returned.\n"
     "A version that returns a hash instead of pairs of key/values, is \\properties_hash.\n"
     "\n"
+    "For details about the properties ID concept see \\properties_id.\n"
+    "\n"
     "@param properties_id The properties ID to get the properties for\n"
     "@return An array of key/value pairs (see \\properties_id)\n"
     "\n"
-    "The 'properties_array' alias was introduced in version 0.29.7 and the plain 'properties' alias was deprecated."
+    "The 'properties_array' alias was introduced in version 0.29.7 and the plain 'properties' alias was deprecated. "
+    "In version 0.30, this method was turned into a static (class method), providing universal conversions without need for a Layout object."
   ) +
-  gsi::method_ext ("properties_hash", &get_properties_hash, gsi::arg ("properties_id"),
+  //  backward-compatible version as method
+  gsi::method_ext ("properties_hash", &get_properties_hash_meth, gsi::arg ("properties_id"),
+    "@hide"
+  ) +
+  gsi::method ("properties_hash", &get_properties_hash, gsi::arg ("properties_id"),
     "@brief Gets the properties set for a given properties ID as a hash\n"
     "\n"
     "Returns the properties for a given properties ID as a hash.\n"
     "It is a convenient alternative to \\properties_array, which returns "
     "an array of key/value pairs.\n"
     "\n"
+    "For details about the properties ID concept see \\properties_id.\n"
+    "\n"
     "@param properties_id The properties ID to get the properties for\n"
     "@return The hash representing the properties for the given ID (values vs. key)\n"
     "\n"
-    "This method has been introduced in version 0.29.7."
+    "This method has been introduced in version 0.29.7. "
+    "In version 0.30, this method was turned into a static (class method), providing universal conversions without need for a Layout object."
   ) +
   gsi::method ("unique_cell_name", &db::Layout::uniquify_cell_name, gsi::arg ("name"),
     "@brief Creates a new unique cell name from the given name\n"

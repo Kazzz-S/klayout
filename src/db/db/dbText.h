@@ -647,6 +647,16 @@ public:
   }
 
   /**
+   *  @brief Returns the scaled path
+   */
+  db::text<db::DCoord>
+  scaled (double s) const
+  {
+    db::complex_trans<C, db::DCoord> ct (s);
+    return this->transformed (ct);
+  }
+
+  /**
    *  @brief Return the moved text
    *
    *  @param p The distance to move the text.
@@ -924,19 +934,6 @@ struct text_ref
     // .. nothing yet ..
   }
 
-  /**
-   *  @brief The transformation translation constructor
-   *  
-   *  This constructor allows one to copy a text reference with a certain transformation
-   *  to one with another transformation
-   */
-  template <class TransIn>
-  text_ref (const text_ref<Text, TransIn> &ref)
-    : shape_ref<Text, Trans> (ref.ptr (), Trans (ref.trans ()))
-  {
-    // .. nothing yet ..
-  }
-
   /** 
    *  @brief Return the transformed object
    * 
@@ -945,9 +942,18 @@ struct text_ref
   template <class TargetTrans>
   text_ref<Text, TargetTrans> transformed (const TargetTrans &t) const
   {
-    text_ref<Text, TargetTrans> tref (*this);
+    text_ref<Text, TargetTrans> tref (this->ptr (), this->trans ());
     tref.transform (t);
     return tref;
+  }
+
+  /**
+   *  @brief A dummy implementation of the "scaled" function for API compatibility
+   */
+  text_ref<Text, Trans> scaled (double) const
+  {
+    tl_assert (false); // not implemented
+    return *this;
   }
 };
 
@@ -977,11 +983,10 @@ operator* (const TargetTr &t, const text_ref<Text, Tr> &p)
  *  @return The scaled text
  */
 template <class C>
-inline text<double>
+inline text<db::DCoord>
 operator* (const text<C> &t, double s)
 {
-  db::complex_trans<C, double> ct (s);
-  return ct * t;
+  return t.scaled (s);
 }
 
 /**

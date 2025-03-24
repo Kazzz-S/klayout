@@ -62,7 +62,7 @@ public:
   virtual TextsDelegate *processed (const TextProcessorBase &) const { return new EmptyTexts (); }
   virtual RegionDelegate *processed_to_polygons (const TextToPolygonProcessorBase &) const;
 
-  virtual RegionDelegate *polygons (db::Coord e) const;
+  virtual RegionDelegate *polygons (db::Coord e, const tl::Variant &text_prop) const;
   virtual EdgesDelegate *edges () const;
 
   virtual TextsDelegate *add_in_place (const Texts &other);
@@ -75,8 +75,6 @@ public:
 
   virtual const db::RecursiveShapeIterator *iter () const { return 0; }
   virtual void apply_property_translator (const db::PropertiesTranslator &) { }
-  virtual db::PropertiesRepository *properties_repository () { return 0; }
-  virtual const db::PropertiesRepository *properties_repository () const { return 0; }
 
   virtual bool equals (const Texts &other) const;
   virtual bool less (const Texts &other) const;

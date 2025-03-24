@@ -469,15 +469,46 @@ TEST(4)
   g.rename_cell (top, "TAP");
   EXPECT_EQ (el.cell_name_dirty, true);  //  but this is
 
-  db::PropertiesRepository::properties_set ps;
-  ps.insert (std::make_pair (g.properties_repository ().prop_name_id (tl::Variant (1)), tl::Variant ("XYZ")));
-  g.properties_repository ().properties_id (ps);
+  db::PropertiesSet ps;
+  ps.insert (tl::Variant (1), tl::Variant ("XYZ"));
+  db::properties_id_type pid1 = db::properties_id (ps);
+
+  auto boxwp = g.cell (top).shapes (0).insert (db::BoxWithProperties (db::Box (0, 0, 100, 100), pid1));
+
   EXPECT_EQ (el.property_ids_dirty, true);
   el.reset ();
+  g.update ();  //  needed to enable new events from the layout
 
   ps.clear ();
-  ps.insert (std::make_pair (g.properties_repository ().prop_name_id (tl::Variant (1)), tl::Variant ("XXX")));
-  g.properties_repository ().properties_id (ps);
+  ps.insert (tl::Variant (1), tl::Variant ("XXX"));
+  db::properties_id_type pid2 = db::properties_id (ps);
+  EXPECT_NE (pid1, pid2);
+
+  boxwp.shapes ()->replace_prop_id (boxwp, pid2);
+
+  EXPECT_EQ (el.property_ids_dirty, true);
+
+  db::cell_index_type child = g.add_cell ("CHILD");
+  db::Instance inst = g.cell (top).insert (db::CellInstArray (db::CellInst (child), db::Trans ()));
+  el.reset ();
+  g.update ();  //  needed to enable new events from the layout
+
+  EXPECT_EQ (el.property_ids_dirty, false);
+  inst.instances ()->replace_prop_id (inst, pid2);
+  EXPECT_EQ (el.property_ids_dirty, true);
+
+  el.reset ();
+  g.update ();  //  needed to enable new events from the layout
+
+  EXPECT_EQ (el.property_ids_dirty, false);
+  g.cell (child).prop_id (pid1);
+  EXPECT_EQ (el.property_ids_dirty, true);
+
+  el.reset ();
+  g.update ();  //  needed to enable new events from the layout
+
+  EXPECT_EQ (el.property_ids_dirty, false);
+  g.prop_id (pid2);
   EXPECT_EQ (el.property_ids_dirty, true);
 
   el.layer_properties_dirty = false;
@@ -485,6 +516,7 @@ TEST(4)
   EXPECT_EQ (el.layer_properties_dirty, false);
   g.get_layer (db::LayerProperties (42, 17));
   EXPECT_EQ (el.layer_properties_dirty, true);  //  new layer got inserted
+
 }
 
 static std::string l2s (const db::Layout &layout)
@@ -940,7 +972,7 @@ TEST(100_UndoOfDeleteLayer)
 {
   db::Manager m;
   db::Layout l (&m);
-  db::Cell &top = l.cell (l.add_cell ("TOP"));
+  l.cell (l.add_cell ("TOP"));
 
   unsigned int li = 0, li2 = 0;
 

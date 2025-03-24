@@ -57,7 +57,7 @@ public:
   TextFilterBase () { }
   virtual ~TextFilterBase () { }
 
-  virtual bool selected (const db::Text &text) const = 0;
+  virtual bool selected (const db::Text &text, db::properties_id_type prop_id) const = 0;
   virtual const TransformationReducer *vars () const = 0;
   virtual bool wants_variants () const = 0;
 };
@@ -125,6 +125,17 @@ public:
   }
 
   /**
+   *  @brief Constructor from an object with properties
+   *
+   *  Creates an text set representing a single instance of that object
+   */
+  explicit Texts (const db::TextWithProperties &s)
+    : mp_delegate (0)
+  {
+    insert (s);
+  }
+
+  /**
    *  @brief Constructor from an object
    *
    *  Creates an text set representing a single instance of that object
@@ -180,6 +191,12 @@ public:
    *  @brief Constructor from a RecursiveShapeIterator providing a deep representation with transformation
    */
   explicit Texts (const RecursiveShapeIterator &si, DeepShapeStore &dss, const db::ICplxTrans &trans);
+
+  /**
+   *  @brief Creates a new empty layer inside the dss
+   *  This method requires the DSS to be singular.
+   */
+  explicit Texts (DeepShapeStore &dss);
 
   /**
    *  @brief Writes the text collection to a file
@@ -573,7 +590,7 @@ public:
    *  The given extension is applied in all directions rendering a square of 2*e
    *  width and height. The center of the boxes will be the position of the texts.
    */
-  void polygons (Region &output, db::Coord e = 1) const;
+  void polygons (Region &output, db::Coord e = 1, const tl::Variant &text_prop = tl::Variant ()) const;
 
   /**
    *  @brief Returns individual, dot-like edges

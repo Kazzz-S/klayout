@@ -57,22 +57,22 @@ struct DB_PUBLIC RegionPerimeterFilter
   /**
    *  @brief Returns true if the polygon's perimeter matches the criterion
    */
-  virtual bool selected (const db::Polygon &poly) const;
+  virtual bool selected (const db::Polygon &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon's perimeter matches the criterion
    */
-  virtual bool selected (const db::PolygonRef &poly) const;
+  virtual bool selected (const db::PolygonRef &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon's perimeter sum matches the criterion
    */
-  virtual bool selected_set (const std::unordered_set<db::PolygonRef> &polygons) const;
+  virtual bool selected_set (const std::unordered_set<db::PolygonRefWithProperties> &polygons) const;
 
   /**
    *  @brief Returns true if the polygon's perimeter sum matches the criterion
    */
-  virtual bool selected_set (const std::unordered_set<db::Polygon> &polygons) const;
+  virtual bool selected_set (const std::unordered_set<PolygonWithProperties> &polygons) const;
 
   /**
    *  @brief This filter is isotropic
@@ -123,22 +123,22 @@ struct DB_PUBLIC RegionAreaFilter
   /**
    *  @brief Returns true if the polygon's area matches the criterion
    */
-  virtual bool selected (const db::Polygon &poly) const;
+  virtual bool selected (const db::Polygon &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon's area matches the criterion
    */
-  virtual bool selected (const db::PolygonRef &poly) const;
+  virtual bool selected (const db::PolygonRef &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon's area sum matches the criterion
    */
-  virtual bool selected_set (const std::unordered_set<db::PolygonRef> &polygons) const;
+  virtual bool selected_set (const std::unordered_set<db::PolygonRefWithProperties> &polygons) const;
 
   /**
    *  @brief Returns true if the polygon's area sum matches the criterion
    */
-  virtual bool selected_set (const std::unordered_set<db::Polygon> &polygons) const;
+  virtual bool selected_set (const std::unordered_set<PolygonWithProperties> &polygons) const;
 
   /**
    *  @brief This filter is isotropic
@@ -175,20 +175,20 @@ struct DB_PUBLIC AllMustMatchFilter
    */
   AllMustMatchFilter () { }
 
-  virtual bool selected_set (const std::unordered_set<db::PolygonRef> &polygons) const
+  virtual bool selected_set (const std::unordered_set<db::PolygonRefWithProperties> &polygons) const
   {
-    for (std::unordered_set<db::PolygonRef>::const_iterator p = polygons.begin (); p != polygons.end (); ++p) {
-      if (! selected (*p)) {
+    for (std::unordered_set<db::PolygonRefWithProperties>::const_iterator p = polygons.begin (); p != polygons.end (); ++p) {
+      if (! selected (*p, p->properties_id ())) {
         return false;
       }
     }
     return true;
   }
 
-  virtual bool selected_set (const std::unordered_set<db::Polygon> &polygons) const
+  virtual bool selected_set (const std::unordered_set<db::PolygonWithProperties> &polygons) const
   {
-    for (std::unordered_set<db::Polygon>::const_iterator p = polygons.begin (); p != polygons.end (); ++p) {
-      if (! selected (*p)) {
+    for (std::unordered_set<db::PolygonWithProperties>::const_iterator p = polygons.begin (); p != polygons.end (); ++p) {
+      if (! selected (*p, p->properties_id ())) {
         return false;
       }
     }
@@ -215,12 +215,12 @@ struct DB_PUBLIC RectilinearFilter
   /**
    *  @brief Returns true if the polygon is rectilinear
    */
-  virtual bool selected (const db::Polygon &poly) const;
+  virtual bool selected (const db::Polygon &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon is rectilinear
    */
-  virtual bool selected (const db::PolygonRef &poly) const;
+  virtual bool selected (const db::PolygonRef &poly, properties_id_type) const;
 
   /**
    *  @brief This filter does not need variants
@@ -259,12 +259,12 @@ struct DB_PUBLIC RectangleFilter
   /**
    *  @brief Returns true if the polygon is a rectangle
    */
-  virtual bool selected (const db::Polygon &poly) const;
+  virtual bool selected (const db::Polygon &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon is a rectangle
    */
-  virtual bool selected (const db::PolygonRef &poly) const;
+  virtual bool selected (const db::PolygonRef &poly, properties_id_type) const;
 
   /**
    *  @brief This filter does not need variants
@@ -304,12 +304,12 @@ struct DB_PUBLIC HoleCountFilter
   /**
    *  @brief Returns true if the polygon is a rectangle
    */
-  virtual bool selected (const db::Polygon &poly) const;
+  virtual bool selected (const db::Polygon &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon is a rectangle
    */
-  virtual bool selected (const db::PolygonRef &poly) const;
+  virtual bool selected (const db::PolygonRef &poly, properties_id_type) const;
 
   /**
    *  @brief This filter does not need variants
@@ -375,12 +375,12 @@ struct DB_PUBLIC RegionBBoxFilter
   /**
    *  @brief Returns true if the polygon's bounding box matches the criterion
    */
-  virtual bool selected (const db::Polygon &poly) const;
+  virtual bool selected (const db::Polygon &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon's bounding box matches the criterion
    */
-  virtual bool selected (const db::PolygonRef &poly) const;
+  virtual bool selected (const db::PolygonRef &poly, properties_id_type) const;
 
   /**
    *  @brief This filter is isotropic unless the parameter is width or height
@@ -444,12 +444,12 @@ struct DB_PUBLIC RegionRatioFilter
   /**
    *  @brief Returns true if the polygon's area matches the criterion
    */
-  virtual bool selected (const db::Polygon &poly) const;
+  virtual bool selected (const db::Polygon &poly, properties_id_type) const;
 
   /**
    *  @brief Returns true if the polygon's area matches the criterion
    */
-  virtual bool selected (const db::PolygonRef &poly) const;
+  virtual bool selected (const db::PolygonRef &poly, properties_id_type) const;
 
   /**
    *  @brief This filter is isotropic unless the parameter is width or height
@@ -489,6 +489,7 @@ public:
   ~StrangePolygonCheckProcessor ();
 
   virtual void process (const db::Polygon &poly, std::vector<db::Polygon> &res) const;
+  virtual void process (const db::PolygonWithProperties &poly, std::vector<db::PolygonWithProperties> &res) const;
 
   virtual const TransformationReducer *vars () const { return 0; }
   virtual bool result_is_merged () const { return false; }
@@ -508,6 +509,7 @@ public:
   ~SmoothingProcessor ();
 
   virtual void process (const db::Polygon &poly, std::vector<db::Polygon> &res) const;
+  virtual void process (const db::PolygonWithProperties &poly, std::vector<db::PolygonWithProperties> &res) const;
 
   virtual const TransformationReducer *vars () const { return &m_vars; }
   virtual bool result_is_merged () const { return false; }
@@ -532,6 +534,7 @@ public:
   ~RoundedCornersProcessor ();
 
   virtual void process (const db::Polygon &poly, std::vector<db::Polygon> &res) const;
+  virtual void process (const db::PolygonWithProperties &poly, std::vector<db::PolygonWithProperties> &res) const;
 
   virtual const TransformationReducer *vars () const { return &m_vars; }
   virtual bool result_is_merged () const { return true; }   //  we believe so ...
@@ -556,6 +559,7 @@ public:
   ~HolesExtractionProcessor ();
 
   virtual void process (const db::Polygon &poly, std::vector<db::Polygon> &res) const;
+  virtual void process (const db::PolygonWithProperties &poly, std::vector<db::PolygonWithProperties> &res) const;
 
   virtual const TransformationReducer *vars () const { return 0; }
   virtual bool result_is_merged () const { return false; }  //  isn't merged for nested holes :(
@@ -575,6 +579,7 @@ public:
   ~HullExtractionProcessor ();
 
   virtual void process (const db::Polygon &poly, std::vector<db::Polygon> &res) const;
+  virtual void process (const db::PolygonWithProperties &poly, std::vector<db::PolygonWithProperties> &res) const;
 
   virtual const TransformationReducer *vars () const { return 0; }
   virtual bool result_is_merged () const { return false; }   //  isn't merged for nested hulls :(
@@ -593,6 +598,7 @@ public:
   SinglePolygonCheck (db::edge_relation_type rel, db::Coord d, const RegionCheckOptions &options);
 
   virtual void process (const db::Polygon &polygon, std::vector<db::EdgePair> &res) const;
+  virtual void process (const db::PolygonWithProperties &polygon, std::vector<db::EdgePairWithProperties> &res) const;
   virtual const TransformationReducer *vars () const { return &m_vars; }
   virtual bool wants_variants () const { return true; }
 

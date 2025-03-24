@@ -50,7 +50,7 @@ public:
 
   EdgePairsDelegate *clone () const;
 
-  virtual void do_insert (const db::EdgePair &edge_pair);
+  virtual void do_insert (const db::EdgePair &edge_pair, db::properties_id_type prop_id);
 
   virtual void do_transform (const db::Trans &t);
   virtual void do_transform (const db::ICplxTrans &t);
@@ -73,8 +73,6 @@ public:
   virtual bool has_valid_edge_pairs () const;
   virtual const db::RecursiveShapeIterator *iter () const;
   virtual void apply_property_translator (const db::PropertiesTranslator &pt);
-  virtual db::PropertiesRepository *properties_repository ();
-  virtual const db::PropertiesRepository *properties_repository () const;
 
   virtual EdgePairsDelegate *filter_in_place (const EdgePairFilterBase &filter);
   virtual EdgePairsDelegate *filtered (const EdgePairFilterBase &) const;

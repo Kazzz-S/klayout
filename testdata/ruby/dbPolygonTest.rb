@@ -894,6 +894,118 @@ class DBPolygon_TestClass < TestBase
 
   end
 
+  def test_polygonWithProperties
+
+    s = RBA::PolygonWithProperties::new
+    assert_equal(s.to_s, "() props={}")
+
+    s = RBA::PolygonWithProperties::new(RBA::Polygon::new(RBA::Box::new(0, 0, 100, 200)), { 1 => "one" })
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+
+    pid = RBA::Layout::properties_id({ 1 => "one" })
+    s = RBA::PolygonWithProperties::new(RBA::Polygon::new(RBA::Box::new(0, 0, 100, 200)), pid)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+    assert_equal((RBA::CplxTrans::new(0.001) * s).to_s, "(0,0;0,0.2;0.1,0.2;0.1,0) props={1=>one}")
+    assert_equal(s.property(1), "one")
+    assert_equal(s.properties, { 1 => "one" })
+    s.set_property(1, "xxx")
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>xxx}")
+    s.delete_property(1)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={}")
+    assert_equal(s.property(1), nil)
+
+    # Test downcast
+    assert_equal(s.class.to_s, "RBA::PolygonWithProperties")
+    assert_equal(s.downcast.class.to_s, "RBA::Polygon")
+
+    s = RBA::DPolygonWithProperties::new
+    assert_equal(s.to_s, "() props={}")
+
+    s = RBA::DPolygonWithProperties::new(RBA::DPolygon::new(RBA::DBox::new(0, 0, 100, 200)), { 1 => "one" })
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+
+    pid = RBA::Layout::properties_id({ 1 => "one" })
+    s = RBA::DPolygonWithProperties::new(RBA::DPolygon::new(RBA::DBox::new(0, 0, 100, 200)), pid)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+    assert_equal((RBA::VCplxTrans::new(2.5) * s).to_s, "(0,0;0,500;250,500;250,0) props={1=>one}")
+    assert_equal(s.property(1), "one")
+    assert_equal(s.properties, { 1 => "one" })
+    s.set_property(1, "xxx")
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>xxx}")
+    s.delete_property(1)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={}")
+    assert_equal(s.property(1), nil)
+
+    # Test downcast
+    assert_equal(s.class.to_s, "RBA::DPolygonWithProperties")
+    assert_equal(s.downcast.class.to_s, "RBA::DPolygon")
+
+    s = RBA::SimplePolygonWithProperties::new
+    assert_equal(s.to_s, "() props={}")
+
+    s = RBA::SimplePolygonWithProperties::new(RBA::SimplePolygon::new(RBA::Box::new(0, 0, 100, 200)), { 1 => "one" })
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+
+    pid = RBA::Layout::properties_id({ 1 => "one" })
+    s = RBA::SimplePolygonWithProperties::new(RBA::SimplePolygon::new(RBA::Box::new(0, 0, 100, 200)), pid)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+    assert_equal((RBA::CplxTrans::new(0.001) * s).to_s, "(0,0;0,0.2;0.1,0.2;0.1,0) props={1=>one}")
+    assert_equal(s.property(1), "one")
+    assert_equal(s.properties, { 1 => "one" })
+    s.set_property(1, "xxx")
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>xxx}")
+    s.delete_property(1)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={}")
+    assert_equal(s.property(1), nil)
+
+    # Test downcast
+    assert_equal(s.class.to_s, "RBA::SimplePolygonWithProperties")
+    assert_equal(s.downcast.class.to_s, "RBA::SimplePolygon")
+
+    s = RBA::DSimplePolygonWithProperties::new
+    assert_equal(s.to_s, "() props={}")
+
+    s = RBA::DSimplePolygonWithProperties::new(RBA::DSimplePolygon::new(RBA::DBox::new(0, 0, 100, 200)), { 1 => "one" })
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+
+    pid = RBA::Layout::properties_id({ 1 => "one" })
+    s = RBA::DSimplePolygonWithProperties::new(RBA::DSimplePolygon::new(RBA::DBox::new(0, 0, 100, 200)), pid)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>one}")
+    assert_equal((RBA::VCplxTrans::new(2.5) * s).to_s, "(0,0;0,500;250,500;250,0) props={1=>one}")
+    assert_equal(s.property(1), "one")
+    assert_equal(s.properties, { 1 => "one" })
+    s.set_property(1, "xxx")
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={1=>xxx}")
+    s.delete_property(1)
+    assert_equal(s.to_s, "(0,0;0,200;100,200;100,0) props={}")
+    assert_equal(s.property(1), nil)
+
+    # Test downcast
+    assert_equal(s.class.to_s, "RBA::DSimplePolygonWithProperties")
+    assert_equal(s.downcast.class.to_s, "RBA::DSimplePolygon")
+
+  end
+
+  def test_triangulation
+
+    p = RBA::Polygon::new(RBA::Box::new(0, 0, 1000, 100))
+    assert_equal(p.delaunay.to_s, "(0,0;0,100;1000,100);(0,0;1000,100;1000,0)")
+
+    assert_equal(p.delaunay(0.0, 0.5).to_s, "(0,0;0,100;250,0);(250,0;500,100;500,0);(250,0;0,100;500,100);(750,0;1000,100;1000,0);(500,0;500,100;750,0);(750,0;500,100;1000,100)")
+    assert_equal(p.delaunay(20000, 0.0).to_s, "(0,0;250,50;500,0);(500,0;250,50;500,100);(250,50;0,100;500,100);(0,0;0,100;250,50);(500,0;500,100;750,50);(500,0;750,50;1000,0);(1000,0;750,50;1000,100);(750,50;500,100;1000,100)")
+
+    assert_equal(p.delaunay([ RBA::Point::new(50, 50) ]).to_s, "(0,0;0,100;50,50);(50,50;0,100;1000,100);(0,0;50,50;1000,0);(1000,0;50,50;1000,100)")
+
+    p = RBA::DPolygon::new(RBA::DBox::new(0, 0, 1000, 100))
+    assert_equal(p.delaunay.collect(&:to_s).join(";"), "(0,0;0,100;1000,100);(0,0;1000,100;1000,0)")
+
+    assert_equal(p.delaunay(0.0, 0.5).collect(&:to_s).join(";"), "(0,0;0,100;250,0);(250,0;500,100;500,0);(250,0;0,100;500,100);(750,0;1000,100;1000,0);(500,0;500,100;750,0);(750,0;500,100;1000,100)")
+    assert_equal(p.delaunay(20000, 0.0).collect(&:to_s).join(";"), "(0,0;250,50;500,0);(500,0;250,50;500,100);(250,50;0,100;500,100);(0,0;0,100;250,50);(500,0;500,100;750,50);(500,0;750,50;1000,0);(1000,0;750,50;1000,100);(750,50;500,100;1000,100)")
+
+    assert_equal(p.delaunay([ RBA::DPoint::new(50, 50) ]).collect(&:to_s).join(";"), "(0,0;0,100;50,50);(50,50;0,100;1000,100);(0,0;50,50;1000,0);(1000,0;50,50;1000,100)")
+
+  end
+
 end
 
 load("test_epilogue.rb")

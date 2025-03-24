@@ -161,12 +161,16 @@ EdgePairsDelegate *DeepEdgePairs::clone () const
   return new DeepEdgePairs (*this);
 }
 
-void DeepEdgePairs::do_insert (const db::EdgePair &edge_pair)
+void DeepEdgePairs::do_insert (const db::EdgePair &edge_pair, db::properties_id_type prop_id)
 {
   db::Layout &layout = deep_layer ().layout ();
   if (layout.begin_top_down () != layout.end_top_down ()) {
     db::Cell &top_cell = layout.cell (*layout.begin_top_down ());
-    top_cell.shapes (deep_layer ().layer ()).insert (edge_pair);
+    if (prop_id == 0) {
+      top_cell.shapes (deep_layer ().layer ()).insert (edge_pair);
+    } else {
+      top_cell.shapes (deep_layer ().layer ()).insert (db::EdgePairWithProperties (edge_pair, prop_id));
+    }
   }
 
   invalidate_bbox ();
@@ -322,16 +326,6 @@ void DeepEdgePairs::apply_property_translator (const db::PropertiesTranslator &p
   DeepShapeCollectionDelegateBase::apply_property_translator (pt);
 }
 
-db::PropertiesRepository *DeepEdgePairs::properties_repository ()
-{
-  return &deep_layer ().layout ().properties_repository ();
-}
-
-const db::PropertiesRepository *DeepEdgePairs::properties_repository () const
-{
-  return &deep_layer ().layout ().properties_repository ();
-}
-
 EdgePairsDelegate *
 DeepEdgePairs::add_in_place (const EdgePairs &other)
 {
@@ -350,9 +344,12 @@ DeepEdgePairs::add_in_place (const EdgePairs &other)
 
     db::Shapes &shapes = deep_layer ().initial_cell ().shapes (deep_layer ().layer ());
     for (db::EdgePairs::const_iterator p = other.begin (); ! p.at_end (); ++p) {
-      shapes.insert (*p);
+      if (p.prop_id () == 0) {
+        shapes.insert (*p);
+      } else {
+        shapes.insert (db::EdgePairWithProperties (*p, p.prop_id ()));
+      }
     }
-
   }
 
   return this;
@@ -443,7 +440,7 @@ DeepEdgePairs::apply_filter (const EdgePairFilterBase &filter, bool with_true, b
         const db::ICplxTrans &tr = *v;
 
         for (db::Shapes::shape_iterator si = s.begin (db::ShapeIterator::EdgePairs); ! si.at_end (); ++si) {
-          if (filter.selected (si->edge_pair ().transformed (tr))) {
+          if (filter.selected (si->edge_pair ().transformed (tr), si->prop_id ())) {
             if (st_true) {
               st_true->insert (*si);
             }
@@ -462,7 +459,7 @@ DeepEdgePairs::apply_filter (const EdgePairFilterBase &filter, bool with_true, b
       db::Shapes *st_false = with_false ? &c->shapes (res_false->deep_layer ().layer ()) : 0;
 
       for (db::Shapes::shape_iterator si = s.begin (db::ShapeIterator::EdgePairs); ! si.at_end (); ++si) {
-        if (filter.selected (si->edge_pair ())) {
+        if (filter.selected (si->edge_pair (), si->prop_id ())) {
           if (with_true) {
             st_true->insert (*si);
           }

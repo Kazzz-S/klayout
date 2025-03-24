@@ -22,6 +22,7 @@
 
 
 #include "gsiDecl.h"
+#include "gsiDeclDbPropertiesSupport.h"
 #include "dbPoint.h"
 #include "dbPath.h"
 #include "dbHash.h"
@@ -110,7 +111,7 @@ struct path_defs
 
   static size_t hash_value (const C *e)
   {
-    return std::hfunc (*e);
+    return tl::hfunc (*e);
   }
 
   static gsi::Methods methods ()
@@ -376,12 +377,39 @@ Class<db::Path> decl_Path ("db", "Path",
   "and the end point can be pulled forward somewhat (by the 'end extension').\n"
   "\n"
   "A path may have round ends for special purposes. In particular, a round-ended path with a single point "
-  "can represent a circle. Round-ended paths should have being and end extensions equal to half the width. "
-  "Non-round-ended paths with a single point are allowed but the definition "
-  "of the resulting shape in not well defined and may differ in other tools.\n"
+  "can represent a circle. Round-ended paths should have begin and end extensions equal to half the width. "
+  "Non-round-ended paths with a single point are allowed, but the definition "
+  "of the resulting shape is not well defined and may differ in other tools.\n"
   "\n"
   "See @<a href=\"/programming/database_api.xml\">The Database API@</a> for more details about the "
   "database objects."
+);
+
+static db::PathWithProperties *new_path_with_properties (const db::Path &path, db::properties_id_type pid)
+{
+  return new db::PathWithProperties (path, pid);
+}
+
+static db::PathWithProperties *new_path_with_properties2 (const db::Path &path, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::PathWithProperties (path, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::PathWithProperties> decl_PathWithProperties (decl_Path, "db", "PathWithProperties",
+  gsi::properties_support_methods<db::PathWithProperties> () +
+  constructor ("new", &new_path_with_properties, gsi::arg ("path"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_path_with_properties2, gsi::arg ("path"), gsi::arg ("properties"),
+    "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A Path object with properties attached.\n"
+  "This class represents a combination of a Path object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
 );
 
 static db::DPath *dpath_from_ipath (const db::Path &p)
@@ -450,6 +478,33 @@ Class<db::DPath> decl_DPath ("db", "DPath",
   "\n"
   "See @<a href=\"/programming/database_api.xml\">The Database API@</a> for more details about the "
   "database objects."
+);
+
+static db::DPathWithProperties *new_dpath_with_properties (const db::DPath &path, db::properties_id_type pid)
+{
+  return new db::DPathWithProperties (path, pid);
+}
+
+static db::DPathWithProperties *new_dpath_with_properties2 (const db::DPath &path, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::DPathWithProperties (path, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::DPathWithProperties> decl_DPathWithProperties (decl_DPath, "db", "DPathWithProperties",
+  gsi::properties_support_methods<db::DPathWithProperties> () +
+  constructor ("new", &new_dpath_with_properties, gsi::arg ("path"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_dpath_with_properties2, gsi::arg ("path"), gsi::arg ("properties"),
+     "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A DPath object with properties attached.\n"
+  "This class represents a combination of a DPath object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
 );
 
 }

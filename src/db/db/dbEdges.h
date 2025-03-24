@@ -113,11 +113,33 @@ public:
   }
 
   /**
+   *  @brief Constructor from a box with properties
+   *
+   *  Creates an edge set representing the contour of the box
+   */
+  explicit Edges (const db::BoxWithProperties &s)
+    : mp_delegate (0)
+  {
+    insert (s);
+  }
+
+  /**
    *  @brief Constructor from a simple polygon
    *
    *  Creates an edge set representing the contour of the polygon
    */
   explicit Edges (const db::SimplePolygon &s)
+    : mp_delegate (0)
+  {
+    insert (s);
+  }
+
+  /**
+   *  @brief Constructor from a simple polygon with properties
+   *
+   *  Creates an edge set representing the contour of the polygon
+   */
+  explicit Edges (const db::SimplePolygonWithProperties &s)
     : mp_delegate (0)
   {
     insert (s);
@@ -135,6 +157,17 @@ public:
   }
 
   /**
+   *  @brief Constructor from a polygon with properties
+   *
+   *  Creates an edge set representing the contour of the polygon
+   */
+  explicit Edges (const db::PolygonWithProperties &s)
+    : mp_delegate (0)
+  {
+    insert (s);
+  }
+
+  /**
    *  @brief Constructor from a path
    *
    *  Creates an edge set representing the contour of the path
@@ -146,11 +179,33 @@ public:
   }
 
   /**
+   *  @brief Constructor from a path with properties
+   *
+   *  Creates an edge set representing the contour of the path
+   */
+  explicit Edges (const db::PathWithProperties &s)
+    : mp_delegate (0)
+  {
+    insert (s);
+  }
+
+  /**
    *  @brief Constructor from an edge
    *
    *  Creates an edge set representing the single edge
    */
   explicit Edges (const db::Edge &s)
+    : mp_delegate (0)
+  {
+    insert (s);
+  }
+
+  /**
+   *  @brief Constructor from an edge with properties
+   *
+   *  Creates an edge set representing the single edge
+   */
+  explicit Edges (const db::EdgeWithProperties &s)
     : mp_delegate (0)
   {
     insert (s);
@@ -202,6 +257,12 @@ public:
    *  @brief Constructor from a RecursiveShapeIterator providing a deep representation with transformation
    */
   explicit Edges (const RecursiveShapeIterator &si, DeepShapeStore &dss, const db::ICplxTrans &trans, bool as_edges = true, bool merged_semantics = true);
+
+  /**
+   *  @brief Creates a new empty layer inside the dss
+   *  This method requires the DSS to be singular.
+   */
+  explicit Edges (DeepShapeStore &dss);
 
   /**
    *  @brief Implementation of the ShapeCollection interface

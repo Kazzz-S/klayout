@@ -39,12 +39,12 @@ class EdgeNeighborhoodVisitorImpl
 public:
   EdgeNeighborhoodVisitorImpl () { }
 
-  void issue_on_edge (const db::Layout *, const db::Cell *, const db::Edge &, const tl::Variant &)
+  void issue_on_edge (const db::Layout *, const db::Cell *, const db::EdgeWithProperties &, const tl::Variant &)
   {
     //  just for signature
   }
 
-  void on_edge (const db::Layout *layout, const db::Cell *cell, const db::Edge &edge, const db::EdgeNeighborhoodVisitor::neighbors_type &neighbors)
+  void on_edge (const db::Layout *layout, const db::Cell *cell, const db::EdgeWithProperties &edge, const db::EdgeNeighborhoodVisitor::neighbors_type &neighbors)
   {
     if (f_on_edge.can_issue ()) {
 
@@ -52,24 +52,24 @@ public:
 
       //  NOTE: as scripts are potentially thread unsafe, we lock here
       tl::MutexLocker locker (&m_lock);
-      return f_on_edge.issue<EdgeNeighborhoodVisitorImpl, const db::Layout *, const db::Cell *, const db::Edge &, const tl::Variant &> (&EdgeNeighborhoodVisitorImpl::issue_on_edge, layout, cell, edge, neighborhood);
+      return f_on_edge.issue<EdgeNeighborhoodVisitorImpl, const db::Layout *, const db::Cell *, const db::EdgeWithProperties &, const tl::Variant &> (&EdgeNeighborhoodVisitorImpl::issue_on_edge, layout, cell, edge, neighborhood);
 
     }
   }
 
   gsi::Callback f_on_edge;
 
-  void issue_begin_polygon (const db::Layout *, const db::Cell *, const db::Polygon &)
+  void issue_begin_polygon (const db::Layout *, const db::Cell *, const db::PolygonWithProperties &)
   {
     //  just for signature
   }
 
-  void begin_polygon (const db::Layout *layout, const db::Cell *cell, const db::Polygon &poly)
+  void begin_polygon (const db::Layout *layout, const db::Cell *cell, const db::PolygonWithProperties &poly)
   {
     if (f_begin_polygon.can_issue ()) {
       //  NOTE: as scripts are potentially thread unsafe, we lock here
       tl::MutexLocker locker (&m_lock);
-      return f_begin_polygon.issue<EdgeNeighborhoodVisitorImpl, const db::Layout *, const db::Cell *, const db::Polygon &> (&EdgeNeighborhoodVisitorImpl::begin_polygon, layout, cell, poly);
+      return f_begin_polygon.issue<EdgeNeighborhoodVisitorImpl, const db::Layout *, const db::Cell *, const db::PolygonWithProperties &> (&EdgeNeighborhoodVisitorImpl::begin_polygon, layout, cell, poly);
     }
   }
 
@@ -224,18 +224,18 @@ Class<gsi::EdgeNeighborhoodVisitorImpl> decl_EdgeNeighborhoodVisitorImpl (decl_E
 );
 
 // ---------------------------------------------------------------------------------
-//  EdgeProcessor binding
+//  PolygonNeighborhoodCompoundOperationNode binding
 
 static db::CompoundRegionOperationNode *new_edge_neighborhood (const std::vector<db::CompoundRegionOperationNode *> &children, db::EdgeNeighborhoodVisitor *visitor, const db::Coord bext, db::Coord eext, db::Coord din, db::Coord dout)
 {
   return new db::EdgeNeighborhoodCompoundOperationNode (children, visitor, bext, eext, din, dout);
 }
 
-gsi::ClassExt<db::CompoundRegionOperationNode> decl_CompoundRegionOperationNode_ext (
+gsi::ClassExt<db::CompoundRegionOperationNode> decl_CompoundRegionOperationNode_ext_EdgeNeighborhood (
   gsi::constructor ("new_edge_neighborhood", &new_edge_neighborhood, gsi::arg ("children"), gsi::arg ("visitor"), gsi::arg ("bext", 0), gsi::arg ("eext", 0), gsi::arg ("din", 0), gsi::arg ("dout", 0),
     "@brief Creates a new edge neighborhood collector\n"
     "\n"
-    "@param children The inputs to use. The first one in the primary input, the others are neighbors.\n"
+    "@param children The inputs to use. The inputs are enumerated by base zero indexes in the visitor callback.\n"
     "@param visitor The visitor object (see \\EdgeNeighborhoodVisitor) receiving the edge events.\n"
     "@param bext The search window extension to use at the edge beginning.\n"
     "@param eext The search window extension to use at the edge end.\n"

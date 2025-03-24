@@ -89,6 +89,9 @@ AsIfFlatEdges::to_string (size_t nmax) const
     }
     first = false;
     os << p->to_string ();
+    if (p.prop_id () != 0) {
+      os << db::properties (p.prop_id ()).to_dict_var ().to_string ();
+    }
   }
   if (! p.at_end ()) {
     os << "...";
@@ -487,10 +490,9 @@ AsIfFlatEdges::extended (coord_type ext_b, coord_type ext_e, coord_type ext_o, c
   } else {
 
     std::unique_ptr<FlatRegion> output (new FlatRegion ());
-    db::PropertyMapper pm (output->properties_repository (), properties_repository ());
 
     for (EdgesIterator e (begin_merged ()); ! e.at_end (); ++e) {
-      db::properties_id_type prop_id = pm (e.prop_id ());
+      db::properties_id_type prop_id = e.prop_id ();
       if (prop_id != 0) {
         output->insert (db::PolygonWithProperties (extended_edge (*e, ext_b, ext_e, ext_o, ext_i), prop_id));
       } else {
@@ -709,8 +711,12 @@ AsIfFlatEdges::filtered (const EdgeFilterBase &filter) const
   std::unique_ptr<FlatEdges> new_region (new FlatEdges ());
 
   for (EdgesIterator p (begin_merged ()); ! p.at_end (); ++p) {
-    if (filter.selected (*p)) {
-      new_region->insert (*p);
+    if (filter.selected (*p, p.prop_id ())) {
+      if (p.prop_id () != 0) {
+        new_region->insert (db::EdgeWithProperties (*p, p.prop_id ()));
+      } else {
+        new_region->insert (*p);
+      }
     }
   }
 
@@ -724,7 +730,7 @@ AsIfFlatEdges::filtered_pair (const EdgeFilterBase &filter) const
   std::unique_ptr<FlatEdges> new_region_false (new FlatEdges ());
 
   for (EdgesIterator p (begin_merged ()); ! p.at_end (); ++p) {
-    if (filter.selected (*p)) {
+    if (filter.selected (*p, p.prop_id ())) {
       new_region_true->insert (*p);
     } else {
       new_region_false->insert (*p);
@@ -1027,12 +1033,12 @@ AsIfFlatEdges::add (const Edges &other) const
     new_edges->set_is_merged (false);
     new_edges->invalidate_cache ();
 
-    size_t n = new_edges->raw_edges ().size () + count ();
-
-    new_edges->reserve (n);
-
     for (EdgesIterator p (begin ()); ! p.at_end (); ++p) {
-      new_edges->raw_edges ().insert (*p);
+      if (p.prop_id () == 0) {
+        new_edges->raw_edges ().insert (*p);
+      } else {
+        new_edges->raw_edges ().insert (db::EdgeWithProperties (*p, p.prop_id ()));
+      }
     }
 
     return new_edges.release ();
@@ -1041,15 +1047,19 @@ AsIfFlatEdges::add (const Edges &other) const
 
     std::unique_ptr<FlatEdges> new_edges (new FlatEdges (false /*not merged*/));
 
-    size_t n = count () + other.count ();
-
-    new_edges->reserve (n);
-
     for (EdgesIterator p (begin ()); ! p.at_end (); ++p) {
-      new_edges->raw_edges ().insert (*p);
+      if (p.prop_id () == 0) {
+        new_edges->raw_edges ().insert (*p);
+      } else {
+        new_edges->raw_edges ().insert (db::EdgeWithProperties (*p, p.prop_id ()));
+      }
     }
     for (EdgesIterator p (other.begin ()); ! p.at_end (); ++p) {
-      new_edges->raw_edges ().insert (*p);
+      if (p.prop_id () == 0) {
+        new_edges->raw_edges ().insert (*p);
+      } else {
+        new_edges->raw_edges ().insert (db::EdgeWithProperties (*p, p.prop_id ()));
+      }
     }
 
     return new_edges.release ();
@@ -1104,12 +1114,11 @@ AsIfFlatEdges::insert_into (Layout *layout, db::cell_index_type into_cell, unsig
 {
   //  improves performance when inserting an original layout into the same layout
   db::LayoutLocker locker (layout);
-  db::PropertyMapper pm (&layout->properties_repository (), properties_repository ());
 
   db::Shapes &shapes = layout->cell (into_cell).shapes (into_layer);
   for (EdgesIterator e (begin ()); ! e.at_end (); ++e) {
     if (e.prop_id () != 0) {
-      shapes.insert (db::EdgeWithProperties (*e, pm (e.prop_id ())));
+      shapes.insert (db::EdgeWithProperties (*e, e.prop_id ()));
     } else {
       shapes.insert (*e);
     }

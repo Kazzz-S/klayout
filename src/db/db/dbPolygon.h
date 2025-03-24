@@ -1928,7 +1928,7 @@ public:
    *  @return The transformed polygon.
    */
   template <class Tr>
-  polygon<typename Tr::target_coord_type> transformed (const Tr &t, bool compress = default_compression<typename Tr::target_coord_type> (), bool remove_reflected = false) const
+  polygon<typename Tr::target_coord_type> transformed_ext (const Tr &t, bool compress = default_compression<typename Tr::target_coord_type> (), bool remove_reflected = false) const
   {
     typedef typename Tr::target_coord_type target_coord_type;
     polygon<target_coord_type> poly;
@@ -1940,6 +1940,32 @@ public:
     }
 
     return poly;
+  }
+
+  /**
+   *  @brief Transform the polygon.
+   *
+   *  Transforms the polygon with the given transformation.
+   *  Does not modify the polygon but returns the transformed polygon.
+   *
+   *  @param t The transformation to apply.
+   *
+   *  @return The transformed polygon.
+   */
+  template <class Tr>
+  polygon<typename Tr::target_coord_type> transformed (const Tr &t) const
+  {
+    return this->transformed_ext<Tr> (t);
+  }
+
+  /**
+   *  @brief Returns the scaled polygon
+   */
+  db::polygon<db::DCoord>
+  scaled (double s) const
+  {
+    db::complex_trans<C, db::DCoord> ct (s);
+    return this->transformed (ct);
   }
 
   /**
@@ -2821,7 +2847,7 @@ public:
    *  @return The transformed polygon.
    */
   template <class Tr>
-  simple_polygon<typename Tr::target_coord_type> transformed (const Tr &t, bool compress = default_compression<typename Tr::target_coord_type> (), bool remove_reflected = false) const
+  simple_polygon<typename Tr::target_coord_type> transformed_ext (const Tr &t, bool compress = default_compression<typename Tr::target_coord_type> (), bool remove_reflected = false) const
   {
     typedef typename Tr::target_coord_type target_coord_type;
     simple_polygon<target_coord_type> poly;
@@ -2830,6 +2856,32 @@ public:
     poly.assign_hull (begin_hull (), end_hull (), t, compress, remove_reflected);
 
     return poly;
+  }
+
+  /**
+   *  @brief Transform the polygon.
+   *
+   *  Transforms the polygon with the given transformation.
+   *  Does not modify the polygon but returns the transformed polygon.
+   *
+   *  @param t The transformation to apply.
+   *
+   *  @return The transformed polygon.
+   */
+  template <class Tr>
+  simple_polygon<typename Tr::target_coord_type> transformed (const Tr &t) const
+  {
+    return this->transformed_ext<Tr> (t);
+  }
+
+  /**
+   *  @brief Returns the scaled polygon
+   */
+  db::simple_polygon<db::DCoord>
+  scaled (double s) const
+  {
+    db::complex_trans<C, db::DCoord> ct (s);
+    return this->transformed (ct);
   }
 
   /**
@@ -3309,9 +3361,8 @@ public:
    *
    *  The polygon pointer passed is assumed to reside in a proper repository.
    */
-  template <class TransIn>
-  polygon_ref (const polygon_type *p, const TransIn &t)
-    : shape_ref<Poly, Trans> (p, Trans (t))
+  polygon_ref (const polygon_type *p, const Trans &t)
+    : shape_ref<Poly, Trans> (p, t)
   {
     // .. nothing yet ..
   }
@@ -3329,19 +3380,6 @@ public:
   }
 
   /**
-   *  @brief The transformation translation constructor
-   *  
-   *  This constructor allows one to copy a polygon reference with a certain transformation
-   *  to one with another transformation
-   */
-  template <class TransIn>
-  polygon_ref (const polygon_ref<Poly, TransIn> &ref)
-    : shape_ref<Poly, Trans> (ref.ptr (), Trans (ref.trans ()))
-  {
-    // .. nothing yet ..
-  }
-
-  /** 
    *  @brief The edge iterator 
    *
    *  The edge iterator delivers all edges of the polygon.
@@ -3480,9 +3518,18 @@ public:
   template <class TargetTrans>
   polygon_ref<Poly, TargetTrans> transformed (const TargetTrans &t) const
   {
-    polygon_ref<Poly, TargetTrans> pref (*this);
+    polygon_ref<Poly, TargetTrans> pref (this->ptr (), this->trans ());
     pref.transform (t);
     return pref;
+  }
+
+  /**
+   *  @brief A dummy implementation of the "scaled" function for API compatibility
+   */
+  polygon_ref<Poly, Trans> scaled (double) const
+  {
+    tl_assert (false); // not implemented
+    return *this;
   }
 };
 
@@ -3546,11 +3593,10 @@ operator* (const Tr &t, const simple_polygon<typename Tr::coord_type> &p)
  *  @return The scaled polygon
  */
 template <class C>
-inline polygon<double>
+inline polygon<db::DCoord>
 operator* (const polygon<C> &p, double s)
 {
-  db::complex_trans<C, double> ct (s);
-  return ct * p;
+  return p.scaled (s);
 }
 
 /**
@@ -3562,11 +3608,10 @@ operator* (const polygon<C> &p, double s)
  *  @return The scaled polygon
  */
 template <class C>
-inline simple_polygon<double>
+inline simple_polygon<db::DCoord>
 operator* (const simple_polygon<C> &p, double s)
 {
-  db::complex_trans<C, double> ct (s);
-  return ct * p;
+  return p.scaled (s);
 }
 
 /**

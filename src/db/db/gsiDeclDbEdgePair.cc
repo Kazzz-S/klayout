@@ -22,6 +22,7 @@
 
 
 #include "gsiDecl.h"
+#include "gsiDeclDbPropertiesSupport.h"
 
 #include "dbEdgePair.h"
 #include "dbHash.h"
@@ -61,7 +62,7 @@ struct edge_pair_defs
 
   static size_t hash_value (const C *ep)
   {
-    return std::hfunc (*ep);
+    return tl::hfunc (*ep);
   }
 
   static gsi::Methods methods ()
@@ -284,6 +285,33 @@ Class<db::EdgePair> decl_EdgePair ("db", "EdgePair",
   "This class has been introduced in version 0.23.\n"
 );
 
+static db::EdgePairWithProperties *new_edge_pair_with_properties (const db::EdgePair &edge_pair, db::properties_id_type pid)
+{
+  return new db::EdgePairWithProperties (edge_pair, pid);
+}
+
+static db::EdgePairWithProperties *new_edge_pair_with_properties2 (const db::EdgePair &edge_pair, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::EdgePairWithProperties (edge_pair, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::EdgePairWithProperties> decl_EdgePairWithProperties (decl_EdgePair, "db", "EdgePairWithProperties",
+  gsi::properties_support_methods<db::EdgePairWithProperties> () +
+  constructor ("new", &new_edge_pair_with_properties, gsi::arg ("edge_pair"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_edge_pair_with_properties2, gsi::arg ("edge_pair"), gsi::arg ("properties"),
+    "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A EdgePair object with properties attached.\n"
+  "This class represents a combination of a EdgePair object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
+);
+
 static db::DEdgePair *dedge_pair_from_iedge_pair (const db::EdgePair &e)
 {
   return new db::DEdgePair (e);
@@ -330,6 +358,33 @@ Class<db::DEdgePair> decl_DEdgePair ("db", "DEdgePair",
   "second layer.\n"
   "\n"
   "This class has been introduced in version 0.23.\n"
+);
+
+static db::DEdgePairWithProperties *new_dedge_pair_with_properties (const db::DEdgePair &edge_pair, db::properties_id_type pid)
+{
+  return new db::DEdgePairWithProperties (edge_pair, pid);
+}
+
+static db::DEdgePairWithProperties *new_dedge_pair_with_properties2 (const db::DEdgePair &edge_pair, const std::map<tl::Variant, tl::Variant> &properties)
+{
+  return new db::DEdgePairWithProperties (edge_pair, db::properties_id (db::PropertiesSet (properties.begin (), properties.end ())));
+}
+
+Class<db::DEdgePairWithProperties> decl_DEdgePairWithProperties (decl_EdgePair, "db", "DEdgePairWithProperties",
+  gsi::properties_support_methods<db::DEdgePairWithProperties> () +
+  constructor ("new", &new_dedge_pair_with_properties, gsi::arg ("edge_pair"), gsi::arg ("properties_id", db::properties_id_type (0)),
+    "@brief Creates a new object from a property-less object and a properties ID."
+  ) +
+  constructor ("new", &new_dedge_pair_with_properties2, gsi::arg ("edge_pair"), gsi::arg ("properties"),
+    "@brief Creates a new object from a property-less object and a properties hash."
+  )
+  ,
+  "@brief A DEdgePair object with properties attached.\n"
+  "This class represents a combination of a DEdgePair object an user properties. User properties are "
+  "stored in form of a properties ID. Convenience methods are provided to manipulate or retrieve "
+  "user properties directly.\n"
+  "\n"
+  "This class has been introduced in version 0.30."
 );
 
 }

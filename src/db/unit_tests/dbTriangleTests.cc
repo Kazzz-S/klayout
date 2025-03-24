@@ -54,9 +54,6 @@ TEST(Vertex_basic)
 
   v = db::Vertex (db::DPoint (2, 3));
   EXPECT_EQ (v.to_string (), "(2, 3)");
-
-  v.set_level (42);
-  EXPECT_EQ (v.level (), size_t (42));
 }
 
 static std::string edges_from_vertex (const db::Vertex &v)
@@ -299,6 +296,42 @@ TEST(Triangle_contains)
     EXPECT_EQ (tri2.contains(db::DPoint(2.5, 1)), -1);
     EXPECT_EQ (tri2.contains(db::DPoint(1, -1)), -1);
     EXPECT_EQ (tri2.contains(db::DPoint(1, 1)), 1);
+  }
+}
+
+TEST(Triangle_contains_small)
+{
+  db::Vertex v1;
+  db::Vertex v2 (0.001, 0.002);
+  db::Vertex v3 (0.002, 0.001);
+
+  TestableTriangleEdge s1 (&v1, &v2);
+  TestableTriangleEdge s2 (&v2, &v3);
+  TestableTriangleEdge s3 (&v3, &v1);
+
+  {
+    db::Triangle tri (&s1, &s2, &s3);
+    EXPECT_EQ (tri.contains (db::DPoint (0, 0)), 0);
+    EXPECT_EQ (tri.contains (db::DPoint (-0.001, -0.002)), -1);
+    EXPECT_EQ (tri.contains (db::DPoint (0.0005, 0.001)), 0);
+    EXPECT_EQ (tri.contains (db::DPoint (0.0005, 0.002)), -1);
+    EXPECT_EQ (tri.contains (db::DPoint (0.0025, 0.001)), -1);
+    EXPECT_EQ (tri.contains (db::DPoint (0.001, -0.001)), -1);
+    EXPECT_EQ (tri.contains (db::DPoint (0.001, 0.001)), 1);
+  }
+
+  s1.reverse ();
+  s2.reverse ();
+  s3.reverse ();
+
+  {
+    db::Triangle tri2 (&s3, &s2, &s1);
+    EXPECT_EQ (tri2.contains(db::DPoint(0, 0)), 0);
+    EXPECT_EQ (tri2.contains(db::DPoint(0.0005, 0.001)), 0);
+    EXPECT_EQ (tri2.contains(db::DPoint(0.0005, 0.002)), -1);
+    EXPECT_EQ (tri2.contains(db::DPoint(0.0025, 0.001)), -1);
+    EXPECT_EQ (tri2.contains(db::DPoint(0.001, -0.001)), -1);
+    EXPECT_EQ (tri2.contains(db::DPoint(0.001, 0.001)), 1);
   }
 }
 

@@ -26,8 +26,8 @@ load("test_prologue.rb")
 # normalizes a specification string for region, edges etc.
 # such that the order of the objects becomes irrelevant
 def csort(s)
-  # splits at ");(" without consuming the brackets
-  s.split(/(?<=\));(?=\()/).sort.join(";")
+  # splits at ");(" or "};(" without consuming the brackets
+  s.split(/(?<=[\)\}]);(?=\()/).sort.join(";")
 end
 
 class ParallelFilter < RBA::EdgeFilter
@@ -129,12 +129,8 @@ class DBEdges_TestClass < TestBase
 
     r.assign(RBA::Edges::new(RBA::Box::new(10, 20, 100, 200)))
     assert_equal(csort(r.to_s), csort("(10,20;10,200);(10,200;100,200);(100,200;100,20);(100,20;10,20)"))
-    s = "" 
-    r.each do |e|
-      s.empty? || s += ";"
-      s += e.to_s
-    end
-    assert_equal(s, "(10,20;10,200);(10,200;100,200);(100,200;100,20);(100,20;10,20)")
+    s = r.each.collect(&:to_s).join(";")
+    assert_equal(s, "(10,20;10,200) props={};(10,200;100,200) props={};(100,200;100,20) props={};(100,20;10,20) props={}")
     assert_equal(r.is_empty?, false)
     assert_equal(r.count, 4)
     assert_equal(r.hier_count, 4)
@@ -794,6 +790,8 @@ class DBEdges_TestClass < TestBase
     assert_equal(r.hier_count, 12)
     assert_equal(r.to_s, "(-10,-20;-10,20);(-10,20;10,20);(10,20;10,-20);(10,-20;-10,-20);(-10,80;-10,120);(-10,120;10,120);(10,120;10,80);(10,80;-10,80);(190,80;190,120);(190,120;210,120)...")
 
+    dss._destroy
+
   end
 
   # inside
@@ -964,6 +962,144 @@ class DBEdges_TestClass < TestBase
 
     assert_equal(edges.processed(p).to_s, "(0,0;0,100;100,100;100,0);(200,300;200,300;200,500;200,500)")
     assert_equal(edges.to_s, "(0,0;100,100);(200,300;200,500)")
+
+  end
+
+  # properties
+  def test_props
+
+    r = RBA::Edges::new([ RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 100), { 1 => "one" }) ])
+    assert_equal(r.to_s, "(0,0;100,100){1=>one}")
+
+    r = RBA::Edges::new([])
+    assert_equal(r.to_s, "")
+
+    r = RBA::Edges::new
+    r.insert([ RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 100), { 1 => "one" }) ])
+    assert_equal(r.to_s, "(0,0;100,100){1=>one}")
+
+    r = RBA::Edges::new(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 100), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;100,100){1=>one}")
+
+    r = RBA::Edges::new
+    r.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 100), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;100,100){1=>one}")
+
+    r = RBA::Edges::new([ RBA::PolygonWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }) ])
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new
+    r.insert([ RBA::PolygonWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }) ])
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new(RBA::PolygonWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new
+    r.insert(RBA::PolygonWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new(RBA::SimplePolygonWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new
+    r.insert(RBA::SimplePolygonWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new(RBA::BoxWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new
+    r.insert(RBA::BoxWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }))
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new
+    r.insert(RBA::Region::new(RBA::BoxWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" })))
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new
+    s = RBA::Shapes::new
+    s.insert(RBA::BoxWithProperties::new(RBA::Box::new(0, 0, 100, 200), { 1 => "one" }))
+    r.insert(s)
+    assert_equal(r.to_s, "(0,0;0,200){1=>one};(0,200;100,200){1=>one};(100,200;100,0){1=>one};(100,0;0,0){1=>one}")
+
+    r = RBA::Edges::new
+    s = RBA::Shapes::new
+    s.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 100), { 1 => "one" }))
+    r.insert(s)
+    assert_equal(r.to_s, "(0,0;100,100){1=>one}")
+
+    r = RBA::Edges::new
+    s = RBA::Shapes::new
+    s.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 100), { 1 => "one" }))
+    r.insert(s)
+    assert_equal(r.to_s, "(0,0;100,100){1=>one}")
+
+    r = RBA::Edges::new
+    r.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 0), { 1 => "one" }))
+    r.insert(RBA::Edge::new(10, 0, 110, 0))
+    s = r.each.collect(&:to_s).join(";")
+    assert_equal(s, "(10,0;110,0) props={};(0,0;100,0) props={1=>one}")
+    s = r.each_merged.collect(&:to_s).join(";")
+    assert_equal(s, "(10,0;110,0) props={};(0,0;100,0) props={1=>one}")
+
+    r = RBA::Edges::new
+    r.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 0), { 1 => "one" }))
+    r.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(10, 0, 110, 0), { 1 => "one" }))
+    s = r.each_merged.collect(&:to_s).join(";")
+    assert_equal(s, "(0,0;110,0) props={1=>one}")
+
+  end
+
+  # properties
+  def test_prop_filters
+
+    r = RBA::Edges::new
+    r.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 200), { "one" => -1 }))
+    r.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(1, 1, 101, 201), { "one" => 17 }))
+    r.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(2, 2, 102, 202), { "one" => 42 }))
+
+    assert_equal(r.filtered(RBA::EdgeFilter::property_filter("one", 11)).to_s, "")
+    assert_equal(r.filtered(RBA::EdgeFilter::property_filter("two", 17)).to_s, "")
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter("one", 17)).to_s), csort("(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter("one", 17, true)).to_s), csort("(0,0;100,200){one=>-1};(2,2;102,202){one=>42}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", 17, nil)).to_s), csort("(2,2;102,202){one=>42};(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", 17, 18)).to_s), csort("(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", 17, 18, true)).to_s), csort("(2,2;102,202){one=>42};(0,0;100,200){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", nil, 18)).to_s), csort("(1,1;101,201){one=>17};(0,0;100,200){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_glob("one", "1*")).to_s), csort("(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_glob("one", "1*", true)).to_s), csort("(2,2;102,202){one=>42};(0,0;100,200){one=>-1}"))
+
+    ly = RBA::Layout::new
+    top = ly.create_cell("TOP")
+    l1 = ly.layer(1, 0)
+
+    s = top.shapes(l1)
+    s.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(0, 0, 100, 200), { "one" => -1 }))
+    s.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(1, 1, 101, 201), { "one" => 17 }))
+    s.insert(RBA::EdgeWithProperties::new(RBA::Edge::new(2, 2, 102, 202), { "one" => 42 }))
+
+    dss = RBA::DeepShapeStore::new
+    iter = top.begin_shapes_rec(l1)
+    iter.enable_properties()
+    r = RBA::Edges::new(iter, dss)
+
+    assert_equal(r.filtered(RBA::EdgeFilter::property_filter("one", 11)).to_s, "")
+    assert_equal(r.filtered(RBA::EdgeFilter::property_filter("two", 17)).to_s, "")
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter("one", 17)).to_s), csort("(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter("one", 17, true)).to_s), csort("(0,0;100,200){one=>-1};(2,2;102,202){one=>42}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", 17, nil)).to_s), csort("(2,2;102,202){one=>42};(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", 17, 18)).to_s), csort("(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", 17, 18, true)).to_s), csort("(2,2;102,202){one=>42};(0,0;100,200){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_filter_bounded("one", nil, 18)).to_s), csort("(1,1;101,201){one=>17};(0,0;100,200){one=>-1}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_glob("one", "1*")).to_s), csort("(1,1;101,201){one=>17}"))
+    assert_equal(csort(r.filtered(RBA::EdgeFilter::property_glob("one", "1*", true)).to_s), csort("(2,2;102,202){one=>42};(0,0;100,200){one=>-1}"))
+
+    rr = r.dup
+    rr.filter(RBA::EdgeFilter::property_filter("one", 17))
+    assert_equal(csort(rr.to_s), csort("(1,1;101,201){one=>17}"))
+
+    dss._destroy
 
   end
 

@@ -107,28 +107,19 @@ Edges::Edges (const RecursiveShapeIterator &si, DeepShapeStore &dss, const db::I
   mp_delegate = new DeepEdges (si, dss, trans, as_edges, merged_semantics);
 }
 
+Edges::Edges (DeepShapeStore &dss)
+{
+  tl_assert (dss.is_singular ());
+  unsigned int layout_index = 0; // singular layout index
+  mp_delegate = new DeepEdges (DeepLayer (&dss, layout_index, dss.layout (layout_index).insert_layer ()));
+}
+
 const db::RecursiveShapeIterator &
 Edges::iter () const
 {
   static db::RecursiveShapeIterator def_iter;
   const db::RecursiveShapeIterator *i = mp_delegate ? mp_delegate->iter () : 0;
   return *(i ? i : &def_iter);
-}
-
-const db::PropertiesRepository &
-Edges::properties_repository () const
-{
-  static db::PropertiesRepository empty_prop_repo;
-  const db::PropertiesRepository *r = delegate () ? delegate ()->properties_repository () : 0;
-  return *(r ? r : &empty_prop_repo);
-}
-
-db::PropertiesRepository &
-Edges::properties_repository ()
-{
-  db::PropertiesRepository *r = delegate () ? delegate ()->properties_repository () : 0;
-  tl_assert (r != 0);
-  return *r;
 }
 
 void
@@ -234,6 +225,11 @@ template DB_PUBLIC void Edges::insert (const db::SimplePolygon &);
 template DB_PUBLIC void Edges::insert (const db::Polygon &);
 template DB_PUBLIC void Edges::insert (const db::Path &);
 template DB_PUBLIC void Edges::insert (const db::Edge &);
+template DB_PUBLIC void Edges::insert (const db::BoxWithProperties &);
+template DB_PUBLIC void Edges::insert (const db::SimplePolygonWithProperties &);
+template DB_PUBLIC void Edges::insert (const db::PolygonWithProperties &);
+template DB_PUBLIC void Edges::insert (const db::PathWithProperties &);
+template DB_PUBLIC void Edges::insert (const db::EdgeWithProperties &);
 
 void Edges::insert (const db::Shape &shape)
 {

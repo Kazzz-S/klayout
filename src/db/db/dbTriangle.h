@@ -74,8 +74,8 @@ public:
 
   bool has_edge (const TriangleEdge *edge) const;
 
-  size_t level () const { return m_level; }
-  void set_level (size_t l) { m_level = l; }
+  void set_is_precious (bool f) { m_is_precious = f; }
+  bool is_precious () const { return m_is_precious; }
 
   std::string to_string (bool with_id = false) const;
 
@@ -102,7 +102,7 @@ private:
   }
 
   edges_type mp_edges;
-  size_t m_level;
+  bool m_is_precious;
 };
 
 /**
@@ -483,8 +483,10 @@ public:
 
   /**
    *  @brief Gets the center point and radius of the circumcircle
+   *  If ok is non-null, it will receive a boolean value indicating whether the circumcircle is valid.
+   *  An invalid circumcircle is an indicator for a degenerated triangle with area 0 (or close to).
    */
-  std::pair<db::DPoint, double> circumcircle () const;
+  std::pair<db::DPoint, double> circumcircle (bool *ok = 0) const;
 
   /**
    *  @brief Gets the vertex opposite of the given edge

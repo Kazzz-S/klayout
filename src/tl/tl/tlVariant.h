@@ -726,6 +726,22 @@ public:
   bool operator< (const Variant &d) const;
 
   /**
+   *  @brief An exact compare
+   *
+   *  In constrast to operator==, this method compares the two variants exactly -
+   *  i.e. also the types have to be identical, not only the (normalized type) values.
+   */
+  bool equal (const Variant &d) const;
+
+  /**
+   *  @brief An exact less operator
+   *
+   *  This is the companion for "equal". It is also an exact compare - i.e.
+   *  the type codes are compared as well.
+   */
+  bool less (const Variant &d) const;
+
+  /**
    *  @brief Conversion to a string
    *
    *  This performs the conversion to a string as far as possible.
@@ -1659,6 +1675,11 @@ public:
    */
   std::string to_parsable_string () const;
 
+  /**
+   *  @brief Gets a hash value for the variant
+   */
+  size_t hash () const;
+
 private:
   type m_type;
 
@@ -1704,6 +1725,8 @@ private:
   mutable char *m_string;
 
   void set_user_object (void *obj, bool shared);
+  bool equal_core (const Variant &d, type t) const;
+  bool less_core (const Variant &d, type t) const;
 };
 
 //  specializations of the to ... methods
@@ -1796,6 +1819,21 @@ template<> TL_PUBLIC void extractor_impl<Variant> (tl::Extractor &ex, Variant &v
 template<> TL_PUBLIC bool test_extractor_impl<Variant> (tl::Extractor &ex, Variant &v);
 
 } // namespace tl
+
+namespace std
+{
+  /**
+   *  @brief That hash function for tl::Variant
+   */
+  template <>
+  struct hash <tl::Variant>
+  {
+    size_t operator() (const tl::Variant &o) const
+    {
+      return o.hash ();
+    }
+  };
+}
 
 #endif
 

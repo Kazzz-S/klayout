@@ -30,6 +30,7 @@
 #include "dbDeepEdgePairs.h"
 #include "dbEdgesUtils.h"
 #include "dbEdgePairFilters.h"
+#include "dbPropertiesFilter.h"
 
 #include "gsiDeclDbContainerHelpers.h"
 
@@ -39,23 +40,25 @@ namespace gsi
 // ---------------------------------------------------------------------------------
 //  EdgePairFilter binding
 
+typedef shape_filter_impl<db::EdgePairFilterBase> EdgePairFilterBase;
+
 class EdgePairFilterImpl
-  : public shape_filter_impl<db::EdgePairFilterBase>
+  : public EdgePairFilterBase
 {
 public:
   EdgePairFilterImpl () { }
 
-  bool issue_selected (const db::EdgePair &) const
+  bool issue_selected (const db::EdgePairWithProperties &) const
   {
     return false;
   }
 
-  virtual bool selected (const db::EdgePair &edge_pair) const
+  virtual bool selected (const db::EdgePair &edge_pair, db::properties_id_type prop_id) const
   {
     if (f_selected.can_issue ()) {
-      return f_selected.issue<EdgePairFilterImpl, bool, const db::EdgePair &> (&EdgePairFilterImpl::issue_selected, edge_pair);
+      return f_selected.issue<EdgePairFilterImpl, bool, const db::EdgePairWithProperties &> (&EdgePairFilterImpl::issue_selected, db::EdgePairWithProperties (edge_pair, prop_id));
     } else {
-      return issue_selected (edge_pair);
+      return issue_selected (db::EdgePairWithProperties (edge_pair, prop_id));
     }
   }
 
@@ -67,12 +70,76 @@ private:
   EdgePairFilterImpl (const EdgePairFilterImpl &);
 };
 
-Class<gsi::EdgePairFilterImpl> decl_EdgePairFilterImpl ("db", "EdgePairFilter",
-  EdgePairFilterImpl::method_decls (false) +
+typedef db::generic_properties_filter<gsi::EdgePairFilterBase, db::EdgePair> EdgePairPropertiesFilter;
+
+static gsi::EdgePairFilterBase *make_ppf1 (const tl::Variant &name, const tl::Variant &value, bool inverse)
+{
+  return new EdgePairPropertiesFilter (name, value, inverse);
+}
+
+static gsi::EdgePairFilterBase *make_ppf2 (const tl::Variant &name, const tl::Variant &from, const tl::Variant &to, bool inverse)
+{
+  return new EdgePairPropertiesFilter (name, from, to, inverse);
+}
+
+static gsi::EdgePairFilterBase *make_pg (const tl::Variant &name, const std::string &glob, bool inverse, bool case_sensitive)
+{
+  tl::GlobPattern pattern (glob);
+  pattern.set_case_sensitive (case_sensitive);
+  return new EdgePairPropertiesFilter (name, pattern, inverse);
+}
+
+Class<gsi::EdgePairFilterBase> decl_EdgePairFilterBase ("db", "EdgePairFilterBase",
+  gsi::EdgePairFilterBase::method_decls (true) +
+  gsi::constructor ("property_glob", &make_pg, gsi::arg ("name"), gsi::arg ("pattern"), gsi::arg ("inverse", false), gsi::arg ("case_sensitive", true),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param value The glob pattern to match the property value against.\n"
+    "@param inverse If true, inverts the selection - i.e. all edge pairs without a matching property are selected.\n"
+    "@param case_sensitive If true, the match is case sensitive (the default), if false, the match is not case sensitive.\n"
+    "\n"
+    "Apply this filter with \\EdgePairs#filtered:\n"
+    "\n"
+    "@code\n"
+    "# edge_pairs is a EdgePairs object\n"
+    "# filtered_edge_pairs contains all edge pairs where the 'net' property starts with 'C':\n"
+    "filtered_edge_pairs = edge_pairs.filtered(RBA::EdgePairFilterBase::property_glob('net', 'C*'))\n"
+    "@/code\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ) +
+  gsi::constructor ("property_filter", &make_ppf1, gsi::arg ("name"), gsi::arg ("value"), gsi::arg ("inverse", false),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param value The value against which the property is checked (exact match).\n"
+    "@param inverse If true, inverts the selection - i.e. all edge pairs without a property with the given name and value are selected.\n"
+    "\n"
+    "Apply this filter with \\EdgePairs#filtered. See \\property_glob for an example.\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ) +
+  gsi::constructor ("property_filter_bounded", &make_ppf2, gsi::arg ("name"), gsi::arg ("from"), gsi::arg ("to"), gsi::arg ("inverse", false),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param from The lower value against which the property is checked or 'nil' if no lower bound shall be used.\n"
+    "@param to The upper value against which the property is checked or 'nil' if no upper bound shall be used.\n"
+    "@param inverse If true, inverts the selection - i.e. all edge pairs without a property with the given name and value range are selected.\n"
+    "\n"
+    "This version does a bounded match. The value of the propery needs to be larger or equal to 'from' and less than 'to'.\n"
+    "Apply this filter with \\EdgePairs#filtered. See \\property_glob for an example.\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ),
+  "@hide"
+);
+
+Class<gsi::EdgePairFilterImpl> decl_EdgePairFilterImpl (decl_EdgePairFilterBase, "db", "EdgePairFilter",
   callback ("selected", &EdgePairFilterImpl::issue_selected, &EdgePairFilterImpl::f_selected, gsi::arg ("text"),
     "@brief Selects an edge pair\n"
     "This method is the actual payload. It needs to be reimplemented in a derived class.\n"
     "It needs to analyze the edge pair and return 'true' if it should be kept and 'false' if it should be discarded."
+    "\n"
+    "Since version 0.30, the edge pair carries properties."
   ),
   "@brief A generic edge pair filter adaptor\n"
   "\n"
@@ -230,7 +297,17 @@ static db::EdgePairs *new_a (const std::vector<db::EdgePair> &pairs)
   return new db::EdgePairs (pairs.begin (), pairs.end ());
 }
 
+static db::EdgePairs *new_ap (const std::vector<db::EdgePairWithProperties> &pairs, bool)
+{
+  return new db::EdgePairs (pairs.begin (), pairs.end ());
+}
+
 static db::EdgePairs *new_ep (const db::EdgePair &pair)
+{
+  return new db::EdgePairs (pair);
+}
+
+static db::EdgePairs *new_epp (const db::EdgePairWithProperties &pair)
 {
   return new db::EdgePairs (pair);
 }
@@ -399,12 +476,12 @@ static size_t id (const db::EdgePairs *ep)
   return tl::id_of (ep->delegate ());
 }
 
-static db::EdgePairs filtered (const db::EdgePairs *r, const EdgePairFilterImpl *f)
+static db::EdgePairs filtered (const db::EdgePairs *r, const gsi::EdgePairFilterBase *f)
 {
   return r->filtered (*f);
 }
 
-static void filter (db::EdgePairs *r, const EdgePairFilterImpl *f)
+static void filter (db::EdgePairs *r, const gsi::EdgePairFilterBase *f)
 {
   r->filter (*f);
 }
@@ -706,6 +783,11 @@ static std::vector<db::EdgePairs> split_with_area2 (const db::EdgePairs *r, db::
   return as_2edge_pairs_vector (r->split_filter (f));
 }
 
+static db::generic_shape_iterator<db::EdgePairWithProperties> begin_edge_pairs (const db::EdgePairs *edge_pairs)
+{
+  return db::generic_shape_iterator<db::EdgePairWithProperties> (db::make_wp_iter (edge_pairs->delegate ()->begin ()));
+}
+
 extern Class<db::ShapeCollection> decl_dbShapeCollection;
 
 Class<db::EdgePairs> decl_EdgePairs (decl_dbShapeCollection, "db", "EdgePairs",
@@ -721,12 +803,25 @@ Class<db::EdgePairs> decl_EdgePairs (decl_dbShapeCollection, "db", "EdgePairs",
     "\n"
     "This constructor has been introduced in version 0.26."
   ) +
+  //  This is a dummy constructor that allows creating a EdgePairs collection from an array
+  //  of EdgePairWithProperties objects too. GSI needs the dummy argument to
+  //  differentiate between the cases when an empty array is passed.
+  constructor ("new", &new_ap, gsi::arg ("array"), gsi::arg ("dummy", true),
+    "@hide"
+  ) +
   constructor ("new", &new_ep, gsi::arg ("edge_pair"),
     "@brief Constructor from a single edge pair object\n"
     "\n"
     "This constructor creates an edge pair collection with a single edge pair.\n"
     "\n"
     "This constructor has been introduced in version 0.26."
+  ) +
+  constructor ("new", &new_epp, gsi::arg ("edge_pair"),
+    "@brief Constructor from a single edge pair object with properties\n"
+    "\n"
+    "This constructor creates an edge pair collection with a single edge pair.\n"
+    "\n"
+    "This constructor has been introduced in version 0.30."
   ) +
   constructor ("new", &new_shapes, gsi::arg ("shapes"),
     "@brief Shapes constructor\n"
@@ -839,6 +934,11 @@ Class<db::EdgePairs> decl_EdgePairs (decl_dbShapeCollection, "db", "EdgePairs",
   ) +
   method ("insert", (void (db::EdgePairs::*) (const db::EdgePair &)) &db::EdgePairs::insert, gsi::arg ("edge_pair"),
     "@brief Inserts an edge pair into the collection\n"
+  ) +
+  method ("insert", (void (db::EdgePairs::*) (const db::EdgePairWithProperties &)) &db::EdgePairs::insert, gsi::arg ("edge_pair"),
+    "@brief Inserts an edge pair with properties into the collection\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   method_ext ("is_deep?", &is_deep,
     "@brief Returns true if the edge pair collection is a deep (hierarchical) one\n"
@@ -1750,8 +1850,10 @@ Class<db::EdgePairs> decl_EdgePairs (decl_dbShapeCollection, "db", "EdgePairs",
     "\n"
     "This method has been introduced in version 0.27."
   ) +
-  gsi::iterator ("each", &db::EdgePairs::begin,
+  gsi::iterator_ext ("each", &begin_edge_pairs,
     "@brief Returns each edge pair of the edge pair collection\n"
+    "\n"
+    "Starting with version 0.30, the iterator delivers EdgePairWithProperties objects."
   ) +
   method ("[]", &db::EdgePairs::nth, gsi::arg ("n"),
     "@brief Returns the nth edge pair\n"

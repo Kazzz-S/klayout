@@ -69,15 +69,19 @@ SOURCES = \
   dbNetlistSpiceReaderDelegate.cc \
   dbNetlistSpiceReaderExpressionParser.cc \
   dbObject.cc \
+  dbObjectWithProperties.cc \
   dbPath.cc \
   dbPCellDeclaration.cc \
   dbPCellHeader.cc \
   dbPCellVariant.cc \
   dbPoint.cc \
   dbPolygon.cc \
+  dbPolygonNeighborhood.cc \
   dbPolygonTools.cc \
   dbPolygonGenerators.cc \
+  dbPropertiesFilter.cc \
   dbPropertiesRepository.cc \
+  dbQuadTree.cc \
   dbReader.cc \
   dbRecursiveInstanceIterator.cc \
   dbRecursiveShapeIterator.cc \
@@ -138,6 +142,7 @@ SOURCES = \
   gsiDeclDbPath.cc \
   gsiDeclDbPoint.cc \
   gsiDeclDbPolygon.cc \
+  gsiDeclDbPolygonNeighborhood.cc \
   gsiDeclDbReader.cc \
   gsiDeclDbRecursiveInstanceIterator.cc \
   gsiDeclDbRecursiveShapeIterator.cc \
@@ -309,10 +314,13 @@ HEADERS = \
   dbPCellVariant.h \
   dbPoint.h \
   dbPolygon.h \
+  dbPolygonNeighborhood.h \
   dbPolygonTools.h \
   dbPolygonGenerators.h \
+  dbPropertiesFilter.h \
   dbPropertiesRepository.h \
   dbPropertyConstraint.h \
+  dbQuadTree.h \
   dbReader.h \
   dbRecursiveInstanceIterator.h \
   dbRecursiveShapeIterator.h \
@@ -420,7 +428,8 @@ HEADERS = \
   dbOriginalLayerTexts.h \
   dbNetShape.h \
   dbShapeCollection.h \
-  dbShapeCollectionUtils.h
+  dbShapeCollectionUtils.h \
+  gsiDeclDbPropertiesSupport.h
 
 RESOURCES = \
   dbResources.qrc \

@@ -36,6 +36,8 @@
 #include "dbRegionProcessors.h"
 #include "dbCompoundOperation.h"
 #include "dbLayoutToNetlist.h"
+#include "dbPropertiesRepository.h"
+#include "dbPropertiesFilter.h"
 #include "tlGlobPattern.h"
 
 #include "gsiDeclDbContainerHelpers.h"
@@ -50,31 +52,33 @@ namespace gsi
 // ---------------------------------------------------------------------------------
 //  PolygonFilter binding
 
+typedef shape_filter_impl<db::AllMustMatchFilter> PolygonFilterBase;
+
 class PolygonFilterImpl
-  : public shape_filter_impl<db::AllMustMatchFilter>
+  : public PolygonFilterBase
 {
 public:
   PolygonFilterImpl () { }
 
-  bool issue_selected (const db::Polygon &) const
+  bool issue_selected (const db::PolygonWithProperties &) const
   {
     return false;
   }
 
-  virtual bool selected (const db::Polygon &polygon) const
+  virtual bool selected (const db::Polygon &polygon, db::properties_id_type prop_id) const
   {
     if (f_selected.can_issue ()) {
-      return f_selected.issue<PolygonFilterImpl, bool, const db::Polygon &> (&PolygonFilterImpl::issue_selected, polygon);
+      return f_selected.issue<PolygonFilterImpl, bool, const db::PolygonWithProperties &> (&PolygonFilterImpl::issue_selected, db::PolygonWithProperties (polygon, prop_id));
     } else {
       return issue_selected (polygon);
     }
   }
 
-  virtual bool selected (const db::PolygonRef &polygon) const
+  virtual bool selected (const db::PolygonRef &polygon, db::properties_id_type prop_id) const
   {
     db::Polygon p;
     polygon.instantiate (p);
-    return selected (p);
+    return selected (p, prop_id);
   }
 
   gsi::Callback f_selected;
@@ -85,12 +89,76 @@ private:
   PolygonFilterImpl (const PolygonFilterImpl &);
 };
 
-Class<gsi::PolygonFilterImpl> decl_PolygonFilterImpl ("db", "PolygonFilter",
-  PolygonFilterImpl::method_decls (true) +
+typedef db::polygon_properties_filter<gsi::PolygonFilterBase> PolygonPropertiesFilter;
+
+static gsi::PolygonFilterBase *make_ppf1 (const tl::Variant &name, const tl::Variant &value, bool inverse)
+{
+  return new PolygonPropertiesFilter (name, value, inverse);
+}
+
+static gsi::PolygonFilterBase *make_ppf2 (const tl::Variant &name, const tl::Variant &from, const tl::Variant &to, bool inverse)
+{
+  return new PolygonPropertiesFilter (name, from, to, inverse);
+}
+
+static gsi::PolygonFilterBase *make_pg (const tl::Variant &name, const std::string &glob, bool inverse, bool case_sensitive)
+{
+  tl::GlobPattern pattern (glob);
+  pattern.set_case_sensitive (case_sensitive);
+  return new PolygonPropertiesFilter (name, pattern, inverse);
+}
+
+Class<gsi::PolygonFilterBase> decl_PolygonFilterBase ("db", "PolygonFilterBase",
+  gsi::PolygonFilterBase::method_decls (true) +
+  gsi::constructor ("property_glob", &make_pg, gsi::arg ("name"), gsi::arg ("pattern"), gsi::arg ("inverse", false), gsi::arg ("case_sensitive", true),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param value The glob pattern to match the property value against.\n"
+    "@param inverse If true, inverts the selection - i.e. all polygons without a matching property are selected.\n"
+    "@param case_sensitive If true, the match is case sensitive (the default), if false, the match is not case sensitive.\n"
+    "\n"
+    "Apply this filter with \\Region#filtered:\n"
+    "\n"
+    "@code\n"
+    "# region is a Region object\n"
+    "# filtered_region contains all polygons where the 'net' property starts with 'C':\n"
+    "filtered_region = region.filtered(RBA::PolygonFilterBase::property_glob('net', 'C*'))\n"
+    "@/code\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ) +
+  gsi::constructor ("property_filter", &make_ppf1, gsi::arg ("name"), gsi::arg ("value"), gsi::arg ("inverse", false),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param value The value against which the property is checked (exact match).\n"
+    "@param inverse If true, inverts the selection - i.e. all polygons without a property with the given name and value are selected.\n"
+    "\n"
+    "Apply this filter with \\Region#filtered. See \\property_glob for an example.\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ) +
+  gsi::constructor ("property_filter_bounded", &make_ppf2, gsi::arg ("name"), gsi::arg ("from"), gsi::arg ("to"), gsi::arg ("inverse", false),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param from The lower value against which the property is checked or 'nil' if no lower bound shall be used.\n"
+    "@param to The upper value against which the property is checked or 'nil' if no upper bound shall be used.\n"
+    "@param inverse If true, inverts the selection - i.e. all polygons without a property with the given name and value range are selected.\n"
+    "\n"
+    "This version does a bounded match. The value of the propery needs to be larger or equal to 'from' and less than 'to'.\n"
+    "Apply this filter with \\Region#filtered. See \\property_glob for an example.\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ),
+  "@hide"
+);
+
+Class<gsi::PolygonFilterImpl> decl_PolygonFilterImpl (decl_PolygonFilterBase, "db", "PolygonFilter",
   callback ("selected", &PolygonFilterImpl::issue_selected, &PolygonFilterImpl::f_selected, gsi::arg ("polygon"),
     "@brief Selects a polygon\n"
     "This method is the actual payload. It needs to be reimplemented in a derived class.\n"
-    "It needs to analyze the polygon and return 'true' if it should be kept and 'false' if it should be discarded."
+    "It needs to analyze the polygon and return 'true' if it should be kept and 'false' if it should be discarded.\n"
+    "\n"
+    "Since version 0.30, the polygon carries properties."
   ),
   "@brief A generic polygon filter adaptor\n"
   "\n"
@@ -250,7 +318,17 @@ static db::Region *new_a (const std::vector <db::Polygon> &a)
   return new db::Region (a.begin (), a.end ());
 }
 
+static db::Region *new_ap (const std::vector <db::PolygonWithProperties> &a, bool)
+{
+  return new db::Region (a.begin (), a.end ());
+}
+
 static db::Region *new_b (const db::Box &o)
+{
+  return new db::Region (o);
+}
+
+static db::Region *new_bp (const db::BoxWithProperties &o)
 {
   return new db::Region (o);
 }
@@ -260,12 +338,27 @@ static db::Region *new_p (const db::Polygon &o)
   return new db::Region (o);
 }
 
+static db::Region *new_pp (const db::PolygonWithProperties &o)
+{
+  return new db::Region (o);
+}
+
 static db::Region *new_ps (const db::SimplePolygon &o)
 {
   return new db::Region (o);
 }
 
+static db::Region *new_psp (const db::SimplePolygonWithProperties &o)
+{
+  return new db::Region (o);
+}
+
 static db::Region *new_path (const db::Path &o)
+{
+  return new db::Region (o);
+}
+
+static db::Region *new_pathp (const db::PathWithProperties &o)
 {
   return new db::Region (o);
 }
@@ -382,6 +475,13 @@ static void insert_a (db::Region *r, const std::vector <db::Polygon> &a)
   }
 }
 
+static void insert_ap (db::Region *r, const std::vector <db::PolygonWithProperties> &a)
+{
+  for (std::vector <db::PolygonWithProperties>::const_iterator p = a.begin (); p != a.end (); ++p) {
+    r->insert (*p);
+  }
+}
+
 static void insert_r (db::Region *r, const db::Region &a)
 {
   for (db::Region::const_iterator p = a.begin (); ! p.at_end (); ++p) {
@@ -395,7 +495,11 @@ static void insert_st (db::Region *r, const db::Shapes &a, const Trans &t)
   for (db::Shapes::shape_iterator p = a.begin (db::ShapeIterator::Polygons | db::ShapeIterator::Boxes | db::ShapeIterator::Paths); !p.at_end (); ++p) {
     db::Polygon poly;
     p->polygon (poly);
-    r->insert (poly.transformed (t));
+    if (p->prop_id () != 0) {
+      r->insert (db::PolygonWithProperties (poly.transformed (t), p->prop_id ()));
+    } else {
+      r->insert (poly.transformed (t));
+    }
   }
 }
 
@@ -508,19 +612,19 @@ static db::Edges extent_refs_edges (const db::Region *r, double fx1, double fy1,
   return r->processed (db::RelativeExtentsAsEdges (fx1, fy1, fx2, fy2));
 }
 
-static db::Region filtered (const db::Region *r, const PolygonFilterImpl *f)
+static db::Region filtered (const db::Region *r, const PolygonFilterBase *f)
 {
   return r->filtered (*f);
 }
 
-static std::vector<db::Region> split_filter (const db::Region *r, const PolygonFilterImpl *f)
-{
-  return as_2region_vector (r->split_filter (*f));
-}
-
-static void filter (db::Region *r, const PolygonFilterImpl *f)
+static void filter (db::Region *r, const PolygonFilterBase *f)
 {
   r->filter (*f);
+}
+
+static std::vector<db::Region> split_filter (const db::Region *r, const PolygonFilterBase *f)
+{
+  return as_2region_vector (r->split_filter (*f));
 }
 
 static db::Region processed_pp (const db::Region *r, const shape_processor_impl<db::PolygonProcessorBase> *f)
@@ -1275,6 +1379,16 @@ rasterize1 (const db::Region *region, const db::Point &origin, const db::Vector 
   return rasterize2 (region, origin, pixel_size, pixel_size, nx, ny);
 }
 
+static db::generic_shape_iterator<db::PolygonWithProperties> begin_region (const db::Region *region)
+{
+  return db::generic_shape_iterator<db::PolygonWithProperties> (db::make_wp_iter (region->delegate ()->begin ()));
+}
+
+static db::generic_shape_iterator<db::PolygonWithProperties> begin_region_merged (const db::Region *region)
+{
+  return db::generic_shape_iterator<db::PolygonWithProperties> (db::make_wp_iter (region->delegate ()->begin_merged ()));
+}
+
 static tl::Variant begin_shapes_rec (const db::Region *region)
 {
   auto res = region->begin_iter ();
@@ -1313,25 +1427,59 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
     "\n"
     "This constructor creates a region from an array of polygons.\n"
   ) +
+  //  This is a dummy constructor that allows creating a Region from an array
+  //  of PolygonWithProperties objects too. GSI needs the dummy argument to
+  //  differentiate between the cases when an empty array is passed.
+  constructor ("new", &new_ap, gsi::arg ("array"), gsi::arg ("dummy", true),
+    "@hide"
+  ) +
   constructor ("new", &new_b, gsi::arg ("box"),
     "@brief Box constructor\n"
     "\n"
     "This constructor creates a region from a box.\n"
+  ) +
+  constructor ("new", &new_bp, gsi::arg ("box"),
+    "@brief Box constructor\n"
+    "\n"
+    "This constructor creates a region from a box with properties.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   constructor ("new", &new_p, gsi::arg ("polygon"),
     "@brief Polygon constructor\n"
     "\n"
     "This constructor creates a region from a polygon.\n"
   ) +
+  constructor ("new", &new_pp, gsi::arg ("polygon"),
+    "@brief Polygon constructor\n"
+    "\n"
+    "This constructor creates a region from a polygon with properties.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   constructor ("new", &new_ps, gsi::arg ("polygon"),
     "@brief Simple polygon constructor\n"
     "\n"
     "This constructor creates a region from a simple polygon.\n"
   ) +
+  constructor ("new", &new_psp, gsi::arg ("polygon"),
+    "@brief Simple polygon constructor\n"
+    "\n"
+    "This constructor creates a region from a simple polygon with properties.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   constructor ("new", &new_path, gsi::arg ("path"),
     "@brief Path constructor\n"
     "\n"
     "This constructor creates a region from a path.\n"
+  ) +
+  constructor ("new", &new_pathp, gsi::arg ("path"),
+    "@brief Path constructor\n"
+    "\n"
+    "This constructor creates a region from a path with properties.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   constructor ("new", &new_si, gsi::arg ("shape_iterator"),
     "@brief Constructor from a hierarchical shape set\n"
@@ -1960,20 +2108,48 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
     "\n"
     "Inserts a box into the region.\n"
   ) +
+  method ("insert", (void (db::Region::*)(const db::BoxWithProperties &)) &db::Region::insert, gsi::arg ("box"),
+    "@brief Inserts a box\n"
+    "\n"
+    "Inserts a box with properties into the region.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   method ("insert", (void (db::Region::*)(const db::Polygon &)) &db::Region::insert, gsi::arg ("polygon"),
     "@brief Inserts a polygon\n"
     "\n"
     "Inserts a polygon into the region.\n"
+  ) +
+  method ("insert", (void (db::Region::*)(const db::PolygonWithProperties &)) &db::Region::insert, gsi::arg ("polygon"),
+    "@brief Inserts a polygon\n"
+    "\n"
+    "Inserts a polygon with properties into the region.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   method ("insert", (void (db::Region::*)(const db::SimplePolygon &)) &db::Region::insert, gsi::arg ("polygon"),
     "@brief Inserts a simple polygon\n"
     "\n"
     "Inserts a simple polygon into the region.\n"
   ) +
+  method ("insert", (void (db::Region::*)(const db::SimplePolygonWithProperties &)) &db::Region::insert, gsi::arg ("polygon"),
+    "@brief Inserts a simple polygon\n"
+    "\n"
+    "Inserts a simple polygon with properties into the region.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   method ("insert", (void (db::Region::*)(const db::Path &)) &db::Region::insert, gsi::arg ("path"),
     "@brief Inserts a path\n"
     "\n"
     "Inserts a path into the region.\n"
+  ) +
+  method ("insert", (void (db::Region::*)(const db::PathWithProperties &)) &db::Region::insert, gsi::arg ("path"),
+    "@brief Inserts a path\n"
+    "\n"
+    "Inserts a path with properties into the region.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   method_ext ("insert", &insert_si, gsi::arg ("shape_iterator"),
     "@brief Inserts all shapes delivered by the recursive shape iterator into this region\n"
@@ -1991,6 +2167,11 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
   ) +
   method_ext ("insert", &insert_a, gsi::arg ("array"),
     "@brief Inserts all polygons from the array into this region\n"
+  ) +
+  method_ext ("insert", &insert_ap, gsi::arg ("array"),
+    "@brief Inserts all polygons with properties from the array into this region\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   method_ext ("insert", &insert_r, gsi::arg ("region"),
     "@brief Inserts all polygons from the other region into this region\n"
@@ -3909,15 +4090,18 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
     "\n"
     "This method has been introduced in version 0.27."
   ) +
-  iterator ("each", &db::Region::begin,
+  iterator_ext ("each", &begin_region,
     "@brief Returns each polygon of the region\n"
     "\n"
     "This returns the raw polygons (not merged polygons if merged semantics is enabled).\n"
+    "\n"
+    "Starting with version 0.30, the iterator delivers a RegionWithProperties object."
   ) +
-  iterator ("each_merged", &db::Region::begin_merged,
+  iterator_ext ("each_merged", &begin_region_merged,
     "@brief Returns each merged polygon of the region\n"
     "\n"
     "This returns the raw polygons if merged semantics is disabled or the merged ones if merged semantics is enabled.\n"
+    "Starting with version 0.30, the iterator delivers a RegionWithProperties object."
   ) +
   method ("[]", &db::Region::nth, gsi::arg ("n"),
     "@brief Returns the nth polygon of the region\n"

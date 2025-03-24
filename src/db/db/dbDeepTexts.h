@@ -51,7 +51,7 @@ public:
 
   TextsDelegate *clone () const;
 
-  virtual void do_insert (const db::Text &text);
+  virtual void do_insert (const db::Text &text, properties_id_type prop_id);
 
   virtual void do_transform (const db::Trans &t);
   virtual void do_transform (const db::ICplxTrans &t);
@@ -74,8 +74,6 @@ public:
   virtual bool has_valid_texts () const;
   virtual const db::RecursiveShapeIterator *iter () const;
   virtual void apply_property_translator (const db::PropertiesTranslator &pt);
-  virtual db::PropertiesRepository *properties_repository ();
-  virtual const db::PropertiesRepository *properties_repository () const;
 
   virtual TextsDelegate *filter_in_place (const TextFilterBase &filter);
   virtual TextsDelegate *filtered (const TextFilterBase &) const;
@@ -88,7 +86,7 @@ public:
   virtual TextsDelegate *add_in_place (const Texts &other);
   virtual TextsDelegate *add (const Texts &other) const;
 
-  virtual RegionDelegate *polygons (db::Coord e) const;
+  virtual RegionDelegate *polygons (db::Coord e, const tl::Variant &text_prop) const;
   virtual EdgesDelegate *edges () const;
 
   virtual TextsDelegate *in (const Texts &, bool) const;

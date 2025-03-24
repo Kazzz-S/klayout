@@ -23,6 +23,7 @@
 
 #include "dbTriangles.h"
 #include "dbWriter.h"
+#include "dbRegionProcessors.h"
 #include "tlUnitTest.h"
 #include "tlStream.h"
 #include "tlFileUtils.h"
@@ -699,6 +700,9 @@ TEST(triangulate_basic)
   EXPECT_GT (tri.num_triangles (), size_t (100));
   EXPECT_LT (tri.num_triangles (), size_t (150));
 
+  //  for debugging:
+  //  tri.dump ("debug.gds");
+
   param.min_b = 1.0;
   param.max_area = 0.1;
 
@@ -913,7 +917,162 @@ TEST(triangulate_problematic)
     EXPECT_GE (t->b (), param.min_b);
   }
 
-  EXPECT_GT (tri.num_triangles (), size_t (470));
-  EXPECT_LT (tri.num_triangles (), size_t (490));
+  EXPECT_GT (tri.num_triangles (), size_t (540));
+  EXPECT_LT (tri.num_triangles (), size_t (560));
 }
 
+TEST(triangulate_thin)
+{
+  db::DPoint contour[] = {
+    db::DPoint (18790, 58090),
+    db::DPoint (18790, 58940),
+    db::DPoint (29290, 58940),
+    db::DPoint (29290, 58090)
+  };
+
+  db::DPoint hole[] = {
+    db::DPoint (18791, 58091),
+    db::DPoint (29289, 58091),
+    db::DPoint (29289, 58939),
+    db::DPoint (18791, 58939)
+  };
+
+  db::DPolygon poly;
+  poly.assign_hull (contour + 0, contour + sizeof (contour) / sizeof (contour[0]));
+  poly.insert_hole (hole + 0, hole + sizeof (hole) / sizeof (hole[0]));
+
+  double dbu = 0.001;
+
+  db::Triangles::TriangulateParameters param;
+  param.min_b = 0.5;
+  param.max_area = 0.0;
+  param.min_length = 2 * dbu;
+
+  TestableTriangles tri;
+  db::DCplxTrans trans = db::DCplxTrans (dbu) * db::DCplxTrans (db::DTrans (db::DPoint () - poly.box ().center ()));
+  tri.triangulate (trans * poly, param);
+
+  EXPECT_EQ (tri.check (false), true);
+
+  //  for debugging:
+  //  tri.dump ("debug.gds");
+
+  for (auto t = tri.begin (); t != tri.end (); ++t) {
+    EXPECT_GE (t->b (), param.min_b);
+  }
+
+  EXPECT_GT (tri.num_triangles (), size_t (13000));
+  EXPECT_LT (tri.num_triangles (), size_t (13200));
+}
+
+TEST(triangulate_issue1996)
+{
+  db::DPoint contour[] = {
+    db::DPoint (-8000, -8075),
+    db::DPoint (-8000, 8075),
+    db::DPoint (18000, 8075),
+    db::DPoint (18000, -8075)
+  };
+
+  db::DPolygon poly;
+  poly.assign_hull (contour + 0, contour + sizeof (contour) / sizeof (contour[0]));
+
+  double dbu = 0.001;
+
+  db::Triangles::TriangulateParameters param;
+  param.min_b = 0.5;
+  param.max_area = 5000.0 * dbu * dbu;
+
+  TestableTriangles tri;
+  db::DCplxTrans trans = db::DCplxTrans (dbu) * db::DCplxTrans (db::DTrans (db::DPoint () - poly.box ().center ()));
+  tri.triangulate (trans * poly, param);
+
+  EXPECT_EQ (tri.check (false), true);
+
+  //  for debugging:
+  //  tri.dump ("debug.gds");
+
+  for (auto t = tri.begin (); t != tri.end (); ++t) {
+    EXPECT_LE (t->area (), param.max_area);
+    EXPECT_GE (t->b (), param.min_b);
+  }
+
+  EXPECT_GT (tri.num_triangles (), size_t (128000));
+  EXPECT_LT (tri.num_triangles (), size_t (132000));
+}
+
+TEST(triangulate_with_vertexes)
+{
+  db::Point contour[] = {
+    db::Point (0, 0),
+    db::Point (0, 100),
+    db::Point (1000, 100),
+    db::Point (1000, 0)
+  };
+
+  db::Polygon poly;
+  poly.assign_hull (contour + 0, contour + sizeof (contour) / sizeof (contour[0]));
+
+  double dbu = 0.001;
+
+  db::Triangles::TriangulateParameters param;
+  param.min_b = 0.0;
+  param.max_area = 0.0;
+
+  std::vector<db::Point> vertexes;
+
+  TestableTriangles tri;
+  db::CplxTrans trans = db::DCplxTrans (dbu) * db::CplxTrans (db::Trans (db::Point () - poly.box ().center ()));
+  tri.triangulate (poly, param, trans);
+
+  EXPECT_EQ (tri.to_string (), "((-0.5, -0.05), (-0.5, 0.05), (0.5, 0.05)), ((0.5, -0.05), (-0.5, -0.05), (0.5, 0.05))");
+
+  vertexes.clear ();
+
+  //  outside vertexes are ignored, but lead to a different triangulation
+  vertexes.push_back (db::Point (50, 150));
+  tri.triangulate (poly, vertexes, param, trans);
+
+  EXPECT_EQ (tri.to_string (), "((-0.5, -0.05), (-0.133333333333, 0.05), (0.5, -0.05)), ((0.5, 0.05), (0.5, -0.05), (-0.133333333333, 0.05)), ((-0.133333333333, 0.05), (-0.5, -0.05), (-0.5, 0.05))");
+
+  for (auto v = vertexes.begin (); v != vertexes.end (); ++v) {
+    auto *vp = tri.find_vertex_for_point (trans * *v);
+    EXPECT_EQ (vp, 0);
+  }
+
+  vertexes.clear ();
+  vertexes.push_back (db::Point (50, 50));
+  tri.triangulate (poly, vertexes, param, trans);
+
+  EXPECT_EQ (tri.to_string (), "((-0.45, 0), (-0.5, -0.05), (-0.5, 0.05)), ((0.5, 0.05), (-0.45, 0), (-0.5, 0.05)), ((-0.45, 0), (0.5, -0.05), (-0.5, -0.05)), ((-0.45, 0), (0.5, 0.05), (0.5, -0.05))");
+
+  for (auto v = vertexes.begin (); v != vertexes.end (); ++v) {
+    auto *vp = tri.find_vertex_for_point (trans * *v);
+    if (! vp) {
+      tl::warn << "Vertex not present in output: " << v->to_string ();
+      EXPECT_EQ (1, 0);
+    }
+  }
+
+  //  aggressive triangulation
+  param.min_b = 1.0;
+  param.max_area = 20 * 20 * dbu * dbu;
+
+  tri.triangulate (poly, vertexes, param, trans);
+
+  EXPECT_GT (tri.num_triangles (), size_t (380));
+  EXPECT_LT (tri.num_triangles (), size_t (400));
+
+  for (auto t = tri.begin (); t != tri.end (); ++t) {
+    EXPECT_LE (t->area (), param.max_area);
+    EXPECT_GE (t->b (), param.min_b);
+  }
+
+  for (auto v = vertexes.begin (); v != vertexes.end (); ++v) {
+    auto *vp = tri.find_vertex_for_point (trans * *v);
+    if (! vp) {
+      tl::warn << "Vertex not present in output: " << v->to_string ();
+      EXPECT_EQ (1, 0);
+    }
+  }
+}

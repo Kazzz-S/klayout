@@ -31,6 +31,7 @@
 #include "dbRegion.h"
 #include "dbOriginalLayerRegion.h"
 #include "dbLayoutUtils.h"
+#include "dbPropertiesFilter.h"
 
 #include "gsiDeclDbContainerHelpers.h"
 
@@ -40,35 +41,26 @@ namespace gsi
 // ---------------------------------------------------------------------------------
 //  EdgeFilter binding
 
+typedef shape_filter_impl<db::AllEdgesMustMatchFilter> EdgeFilterBase;
+
 class EdgeFilterImpl
-  : public shape_filter_impl<db::EdgeFilterBase>
+  : public gsi::EdgeFilterBase
 {
 public:
   EdgeFilterImpl () { }
 
-  bool issue_selected (const db::Edge &) const
+  bool issue_selected (const db::EdgeWithProperties &) const
   {
     return false;
   }
 
-  virtual bool selected (const db::Edge &edge) const
+  virtual bool selected (const db::Edge &edge, db::properties_id_type prop_id) const
   {
     if (f_selected.can_issue ()) {
-      return f_selected.issue<EdgeFilterImpl, bool, const db::Edge &> (&EdgeFilterImpl::issue_selected, edge);
+      return f_selected.issue<EdgeFilterImpl, bool, const db::EdgeWithProperties &> (&EdgeFilterImpl::issue_selected, db::EdgeWithProperties (edge, prop_id));
     } else {
-      return issue_selected (edge);
+      return issue_selected (db::EdgeWithProperties (edge, prop_id));
     }
-  }
-
-  //  Returns true if all edges match the criterion
-  virtual bool selected (const std::unordered_set<db::Edge> &edges) const
-  {
-    for (std::unordered_set<db::Edge>::const_iterator e = edges.begin (); e != edges.end (); ++e) {
-      if (! selected (*e)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   gsi::Callback f_selected;
@@ -79,12 +71,76 @@ private:
   EdgeFilterImpl (const EdgeFilterImpl &);
 };
 
-Class<gsi::EdgeFilterImpl> decl_EdgeFilterImpl ("db", "EdgeFilter",
-  EdgeFilterImpl::method_decls (true) +
+typedef db::generic_properties_filter<gsi::EdgeFilterBase, db::Edge> EdgePropertiesFilter;
+
+static gsi::EdgeFilterBase *make_ppf1 (const tl::Variant &name, const tl::Variant &value, bool inverse)
+{
+  return new EdgePropertiesFilter (name, value, inverse);
+}
+
+static gsi::EdgeFilterBase *make_ppf2 (const tl::Variant &name, const tl::Variant &from, const tl::Variant &to, bool inverse)
+{
+  return new EdgePropertiesFilter (name, from, to, inverse);
+}
+
+static gsi::EdgeFilterBase *make_pg (const tl::Variant &name, const std::string &glob, bool inverse, bool case_sensitive)
+{
+  tl::GlobPattern pattern (glob);
+  pattern.set_case_sensitive (case_sensitive);
+  return new EdgePropertiesFilter (name, pattern, inverse);
+}
+
+Class<gsi::EdgeFilterBase> decl_EdgeFilterBase ("db", "EdgeFilterBase",
+  gsi::EdgeFilterBase::method_decls (true) +
+  gsi::constructor ("property_glob", &make_pg, gsi::arg ("name"), gsi::arg ("pattern"), gsi::arg ("inverse", false), gsi::arg ("case_sensitive", true),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param value The glob pattern to match the property value against.\n"
+    "@param inverse If true, inverts the selection - i.e. all edges without a matching property are selected.\n"
+    "@param case_sensitive If true, the match is case sensitive (the default), if false, the match is not case sensitive.\n"
+    "\n"
+    "Apply this filter with \\Edges#filtered:\n"
+    "\n"
+    "@code\n"
+    "# edges is a Edges object\n"
+    "# filtered_edges contains all edges where the 'net' property starts with 'C':\n"
+    "filtered_edges = edges.filtered(RBA::EdgeFilterBase::property_glob('net', 'C*'))\n"
+    "@/code\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ) +
+  gsi::constructor ("property_filter", &make_ppf1, gsi::arg ("name"), gsi::arg ("value"), gsi::arg ("inverse", false),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param value The value against which the property is checked (exact match).\n"
+    "@param inverse If true, inverts the selection - i.e. all edges without a property with the given name and value are selected.\n"
+    "\n"
+    "Apply this filter with \\Edges#filtered. See \\property_glob for an example.\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ) +
+  gsi::constructor ("property_filter_bounded", &make_ppf2, gsi::arg ("name"), gsi::arg ("from"), gsi::arg ("to"), gsi::arg ("inverse", false),
+    "@brief Creates a single-valued property filter\n"
+    "@param name The name of the property to use.\n"
+    "@param from The lower value against which the property is checked or 'nil' if no lower bound shall be used.\n"
+    "@param to The upper value against which the property is checked or 'nil' if no upper bound shall be used.\n"
+    "@param inverse If true, inverts the selection - i.e. all edges without a property with the given name and value range are selected.\n"
+    "\n"
+    "This version does a bounded match. The value of the propery needs to be larger or equal to 'from' and less than 'to'.\n"
+    "Apply this filter with \\Edges#filtered. See \\property_glob for an example.\n"
+    "\n"
+    "This feature has been introduced in version 0.30."
+  ),
+  "@hide"
+);
+
+Class<gsi::EdgeFilterImpl> decl_EdgeFilterImpl (decl_EdgeFilterBase, "db", "EdgeFilter",
   callback ("selected", &EdgeFilterImpl::issue_selected, &EdgeFilterImpl::f_selected, gsi::arg ("edge"),
     "@brief Selects an edge\n"
     "This method is the actual payload. It needs to be reimplemented in a derived class.\n"
     "It needs to analyze the edge and return 'true' if it should be kept and 'false' if it should be discarded."
+    "\n"
+    "Since version 0.30, the edge carries properties."
   ),
   "@brief A generic edge filter adaptor\n"
   "\n"
@@ -258,7 +314,19 @@ static db::Edges *new_e (const db::Edge &e)
   return ee;
 }
 
-static db::Edges *new_a1 (const std::vector <db::Polygon> &a)
+static db::Edges *new_ep (const db::EdgeWithProperties &e)
+{
+  db::Edges *ee = new db::Edges ();
+  ee->insert (e);
+  return ee;
+}
+
+static db::Edges *new_a1 (const std::vector <db::Polygon> &a, bool)
+{
+  return new db::Edges (a.begin (), a.end ());
+}
+
+static db::Edges *new_a1p (const std::vector <db::PolygonWithProperties> &a, bool)
 {
   return new db::Edges (a.begin (), a.end ());
 }
@@ -268,7 +336,17 @@ static db::Edges *new_a2 (const std::vector <db::Edge> &a)
   return new db::Edges (a.begin (), a.end ());
 }
 
+static db::Edges *new_a2p (const std::vector <db::EdgeWithProperties> &a, bool)
+{
+  return new db::Edges (a.begin (), a.end ());
+}
+
 static db::Edges *new_b (const db::Box &o)
+{
+  return new db::Edges (o);
+}
+
+static db::Edges *new_bp (const db::BoxWithProperties &o)
 {
   return new db::Edges (o);
 }
@@ -278,12 +356,27 @@ static db::Edges *new_p (const db::Polygon &o)
   return new db::Edges (o);
 }
 
+static db::Edges *new_pp (const db::PolygonWithProperties &o)
+{
+  return new db::Edges (o);
+}
+
 static db::Edges *new_ps (const db::SimplePolygon &o)
 {
   return new db::Edges (o);
 }
 
+static db::Edges *new_psp (const db::SimplePolygonWithProperties &o)
+{
+  return new db::Edges (o);
+}
+
 static db::Edges *new_path (const db::Path &o)
+{
+  return new db::Edges (o);
+}
+
+static db::Edges *new_pathp (const db::PathWithProperties &o)
 {
   return new db::Edges (o);
 }
@@ -334,9 +427,23 @@ static void insert_a1 (db::Edges *r, const std::vector <db::Polygon> &a)
   }
 }
 
+static void insert_a1p (db::Edges *r, const std::vector <db::PolygonWithProperties> &a)
+{
+  for (std::vector <db::PolygonWithProperties>::const_iterator p = a.begin (); p != a.end (); ++p) {
+    r->insert (*p);
+  }
+}
+
 static void insert_a2 (db::Edges *r, const std::vector <db::Edge> &a)
 {
   for (std::vector <db::Edge>::const_iterator p = a.begin (); p != a.end (); ++p) {
+    r->insert (*p);
+  }
+}
+
+static void insert_a2p (db::Edges *r, const std::vector <db::EdgeWithProperties> &a)
+{
+  for (std::vector <db::EdgeWithProperties>::const_iterator p = a.begin (); p != a.end (); ++p) {
     r->insert (*p);
   }
 }
@@ -394,19 +501,19 @@ static db::Edges moved_xy (const db::Edges *r, db::Coord x, db::Coord y)
   return r->transformed (db::Disp (db::Vector (x, y)));
 }
 
-static db::Edges filtered (const db::Edges *r, const EdgeFilterImpl *f)
+static db::Edges filtered (const db::Edges *r, const gsi::EdgeFilterBase *f)
 {
   return r->filtered (*f);
 }
 
-static std::vector<db::Edges> split_filter (const db::Edges *r, const EdgeFilterImpl *f)
-{
-  return as_2edges_vector (r->split_filter (*f));
-}
-
-static void filter (db::Edges *r, const EdgeFilterImpl *f)
+static void filter (db::Edges *r, const gsi::EdgeFilterBase *f)
 {
   r->filter (*f);
+}
+
+static std::vector<db::Edges> split_filter (const db::Edges *r, const gsi::EdgeFilterBase *f)
+{
+  return as_2edges_vector (r->split_filter (*f));
 }
 
 static db::Edges processed_ee (const db::Edges *r, const shape_processor_impl<db::EdgeProcessorBase> *f)
@@ -629,14 +736,22 @@ static db::Region extents0 (const db::Edges *r)
 static void insert_r (db::Edges *e, const db::Region &a)
 {
   for (db::Region::const_iterator p = a.begin (); ! p.at_end (); ++p) {
-    e->insert (*p);
+    if (p.prop_id () != 0) {
+      e->insert (db::PolygonWithProperties (*p, p.prop_id ()));
+    } else {
+      e->insert (*p);
+    }
   }
 }
 
 static void insert_e (db::Edges *e, const db::Edges &a)
 {
   for (db::Edges::const_iterator p = a.begin (); ! p.at_end (); ++p) {
-    e->insert (*p);
+    if (p.prop_id () != 0) {
+      e->insert (db::EdgeWithProperties (*p, p.prop_id ()));
+    } else {
+      e->insert (*p);
+    }
   }
 }
 
@@ -646,12 +761,20 @@ static void insert_st (db::Edges *e, const db::Shapes &a, const Trans &t)
   for (db::Shapes::shape_iterator p = a.begin (db::ShapeIterator::Polygons | db::ShapeIterator::Boxes | db::ShapeIterator::Paths); !p.at_end (); ++p) {
     db::Polygon poly;
     p->polygon (poly);
-    e->insert (poly.transformed (t));
+    if (p->prop_id () != 0) {
+      e->insert (db::PolygonWithProperties (poly.transformed (t), p->prop_id ()));
+    } else {
+      e->insert (poly.transformed (t));
+    }
   }
   for (db::Shapes::shape_iterator p = a.begin (db::ShapeIterator::Edges); !p.at_end (); ++p) {
     db::Edge edge;
     p->edge (edge);
-    e->insert (edge.transformed (t));
+    if (p->prop_id () != 0) {
+      e->insert (db::EdgeWithProperties (edge.transformed (t), p->prop_id ()));
+    } else {
+      e->insert (edge.transformed (t));
+    }
   }
 }
 
@@ -725,6 +848,15 @@ static std::vector<db::Edges> split_interacting_with_region (const db::Edges *r,
   return as_2edges_vector (r->selected_interacting_differential (other, min_count, max_count));
 }
 
+static db::generic_shape_iterator<db::EdgeWithProperties> begin_edges (const db::Edges *edges)
+{
+  return db::generic_shape_iterator<db::EdgeWithProperties> (db::make_wp_iter (edges->delegate ()->begin ()));
+}
+
+static db::generic_shape_iterator<db::EdgeWithProperties> begin_edges_merged (const db::Edges *edges)
+{
+  return db::generic_shape_iterator<db::EdgeWithProperties> (db::make_wp_iter (edges->delegate ()->begin_merged ()));
+}
 
 extern Class<db::ShapeCollection> decl_dbShapeCollection;
 
@@ -741,16 +873,39 @@ Class<db::Edges> decl_Edges (decl_dbShapeCollection, "db", "Edges",
     "\n"
     "This constructor creates an edge collection with a single edge.\n"
   ) +
-  constructor ("new", &new_a1, gsi::arg ("array"),
+  constructor ("new", &new_ep, gsi::arg ("edge"),
+    "@brief Constructor from a single edge with properties\n"
+    "\n"
+    "This constructor creates an edge collection with a single edge.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
+  constructor ("new", &new_a1, gsi::arg ("array"), gsi::arg ("dummy", true),
     "@brief Constructor from a polygon array\n"
     "\n"
     "This constructor creates an edge collection from an array of polygons.\n"
     "The edges form the contours of the polygons.\n"
+    "\n"
+    "The dummy argument is needed internally to differentiate the constructors "
+    "taking arrays of polygons and edges in case of empty arrays. Do not specify "
+    "this argument."
+  ) +
+  //  This is a dummy constructor that allows creating an Edges collection from an array
+  //  of PolygonWithProperties objects too. GSI needs the dummy argument to
+  //  differentiate between the cases when an empty array is passed.
+  constructor ("new", &new_a1p, gsi::arg ("array"), gsi::arg ("dummy", true),
+    "@hide"
   ) +
   constructor ("new", &new_a2, gsi::arg ("array"),
     "@brief Constructor from an edge array\n"
     "\n"
     "This constructor creates an edge collection from an array of edges.\n"
+  ) +
+  //  This is a dummy constructor that allows creating an Edges collection from an array
+  //  of EdgeWithProperties objects too. GSI needs the dummy argument to
+  //  differentiate between the cases when an empty array is passed.
+  constructor ("new", &new_a2p, gsi::arg ("array"), gsi::arg ("dummy", true),
+    "@hide"
   ) +
   constructor ("new", &new_b, gsi::arg ("box"),
     "@brief Box constructor\n"
@@ -758,11 +913,27 @@ Class<db::Edges> decl_Edges (decl_dbShapeCollection, "db", "Edges",
     "This constructor creates an edge collection from a box.\n"
     "The edges form the contour of the box.\n"
   ) +
+  constructor ("new", &new_bp, gsi::arg ("box"),
+    "@brief Box constructor\n"
+    "\n"
+    "This constructor creates an edge collection from a box with properties.\n"
+    "The edges form the contour of the box.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   constructor ("new", &new_p, gsi::arg ("polygon"),
     "@brief Polygon constructor\n"
     "\n"
     "This constructor creates an edge collection from a polygon.\n"
     "The edges form the contour of the polygon.\n"
+  ) +
+  constructor ("new", &new_pp, gsi::arg ("polygon"),
+    "@brief Polygon constructor\n"
+    "\n"
+    "This constructor creates an edge collection from a polygon with properties.\n"
+    "The edges form the contour of the polygon.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   constructor ("new", &new_ps, gsi::arg ("polygon"),
     "@brief Simple polygon constructor\n"
@@ -770,11 +941,27 @@ Class<db::Edges> decl_Edges (decl_dbShapeCollection, "db", "Edges",
     "This constructor creates an edge collection from a simple polygon.\n"
     "The edges form the contour of the polygon.\n"
   ) +
+  constructor ("new", &new_psp, gsi::arg ("polygon"),
+    "@brief Simple polygon constructor\n"
+    "\n"
+    "This constructor creates an edge collection from a simple polygon with properties.\n"
+    "The edges form the contour of the polygon.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   constructor ("new", &new_path, gsi::arg ("path"),
     "@brief Path constructor\n"
     "\n"
     "This constructor creates an edge collection from a path.\n"
     "The edges form the contour of the path.\n"
+  ) +
+  constructor ("new", &new_pathp, gsi::arg ("path"),
+    "@brief Path constructor\n"
+    "\n"
+    "This constructor creates an edge collection from a path with properties.\n"
+    "The edges form the contour of the path.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   constructor ("new", &new_shapes, gsi::arg ("shapes"), gsi::arg ("as_edges", true),
     "@brief Constructor of a flat edge collection from a \\Shapes container\n"
@@ -1064,25 +1251,60 @@ Class<db::Edges> decl_Edges (decl_dbShapeCollection, "db", "Edges",
     "\n"
     "Inserts the edge into the edge collection.\n"
   ) +
+  method ("insert", (void (db::Edges::*)(const db::EdgeWithProperties &)) &db::Edges::insert, gsi::arg ("edge"),
+    "@brief Inserts an edge\n"
+    "\n"
+    "Inserts the edge with properties into the edge collection.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   method ("insert", (void (db::Edges::*)(const db::Box &)) &db::Edges::insert, gsi::arg ("box"),
     "@brief Inserts a box\n"
     "\n"
     "Inserts the edges that form the contour of the box into the edge collection.\n"
+  ) +
+  method ("insert", (void (db::Edges::*)(const db::BoxWithProperties &)) &db::Edges::insert, gsi::arg ("box"),
+    "@brief Inserts a box\n"
+    "\n"
+    "Inserts the edges that form the contour of the box into the edge collection with the boxes properties.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   method ("insert", (void (db::Edges::*)(const db::Polygon &)) &db::Edges::insert, gsi::arg ("polygon"),
     "@brief Inserts a polygon\n"
     "\n"
     "Inserts the edges that form the contour of the polygon into the edge collection.\n"
   ) +
+  method ("insert", (void (db::Edges::*)(const db::PolygonWithProperties &)) &db::Edges::insert, gsi::arg ("polygon"),
+    "@brief Inserts a polygon\n"
+    "\n"
+    "Inserts the edges that form the contour of the polygon into the edge collection with the properties of the polygon.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   method ("insert", (void (db::Edges::*)(const db::SimplePolygon &)) &db::Edges::insert, gsi::arg ("polygon"),
     "@brief Inserts a simple polygon\n"
     "\n"
     "Inserts the edges that form the contour of the simple polygon into the edge collection.\n"
   ) +
+  method ("insert", (void (db::Edges::*)(const db::SimplePolygonWithProperties &)) &db::Edges::insert, gsi::arg ("polygon"),
+    "@brief Inserts a simple polygon\n"
+    "\n"
+    "Inserts the edges that form the contour of the simple polygon into the edge collection with the properties of the polygon.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
+  ) +
   method ("insert", (void (db::Edges::*)(const db::Path &)) &db::Edges::insert, gsi::arg ("path"),
     "@brief Inserts a path\n"
     "\n"
     "Inserts the edges that form the contour of the path into the edge collection.\n"
+  ) +
+  method ("insert", (void (db::Edges::*)(const db::PathWithProperties &)) &db::Edges::insert, gsi::arg ("path"),
+    "@brief Inserts a path\n"
+    "\n"
+    "Inserts the edges that form the contour of the path into the edge collection with the properties of the path.\n"
+    "\n"
+    "This variant has been introduced in version 0.30."
   ) +
   method_ext ("insert", &insert_e, gsi::arg ("edges"),
     "@brief Inserts all edges from the other edge collection into this one\n"
@@ -1135,8 +1357,18 @@ Class<db::Edges> decl_Edges (decl_dbShapeCollection, "db", "Edges",
   method_ext ("insert", &insert_a1, gsi::arg ("polygons"),
     "@brief Inserts all polygons from the array into this edge collection\n"
   ) +
+  method_ext ("insert", &insert_a1p, gsi::arg ("polygons"),
+    "@brief Inserts all polygons from the array into this edge collection\n"
+    "\n"
+    "This variant accepting polygons with properties has been introduced in version 0.30."
+  ) +
   method_ext ("insert", &insert_a2, gsi::arg ("edges"),
     "@brief Inserts all edges from the array into this edge collection\n"
+  ) +
+  method_ext ("insert", &insert_a2p, gsi::arg ("edges"),
+    "@brief Inserts all edges from the array into this edge collection\n"
+    "\n"
+    "This variant accepting edges with properties has been introduced in version 0.30."
   ) +
   method ("merge", (db::Edges &(db::Edges::*) ()) &db::Edges::merge,
     "@brief Merge the edges\n"
@@ -2194,15 +2426,18 @@ Class<db::Edges> decl_Edges (decl_dbShapeCollection, "db", "Edges",
     "\n"
     "This method has been introduced in version 0.27."
   ) +
-  gsi::iterator ("each", &db::Edges::begin,
+  gsi::iterator_ext ("each", &begin_edges,
     "@brief Returns each edge of the region\n"
+    "\n"
+    "Starting with version 0.30, the iterator delivers an EdgeWithProperties object."
   ) +
-  gsi::iterator ("each_merged", &db::Edges::begin_merged,
+  gsi::iterator_ext ("each_merged", &begin_edges_merged,
     "@brief Returns each edge of the region\n"
     "\n"
     "In contrast to \\each, this method delivers merged edges if merge semantics applies while \\each delivers the original edges only.\n"
     "\n"
     "This method has been introduced in version 0.25."
+    "Starting with version 0.30, the iterator delivers an EdgeWithProperties object."
   ) +
   method ("[]", &db::Edges::nth, gsi::arg ("n"),
     "@brief Returns the nth edge of the collection\n"

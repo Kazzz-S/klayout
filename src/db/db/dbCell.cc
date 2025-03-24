@@ -435,6 +435,9 @@ Cell::prop_id (db::properties_id_type id)
     if (manager () && manager ()->transacting ()) {
       manager ()->queue (this, new SetCellPropId (m_prop_id, id));
     }
+    if (layout ()) {
+      layout ()->invalidate_prop_ids ();
+    }
     m_prop_id = id;
   }
 }
@@ -829,10 +832,9 @@ Cell::copy_shapes (const db::Cell &source_cell, const db::LayerMapping &layer_ma
   check_locked ();
 
   if (target_layout != source_layout) {
-    db::PropertyMapper pm (target_layout, source_layout);
     db::ICplxTrans trans (source_layout->dbu () / target_layout->dbu ());
     for (std::map<unsigned int, unsigned int>::const_iterator lm = layer_mapping.begin (); lm != layer_mapping.end (); ++lm) {
-      shapes (lm->second).insert_transformed (source_cell.shapes (lm->first), trans, pm);
+      shapes (lm->second).insert_transformed (source_cell.shapes (lm->first), trans);
     }
   } else {
     for (std::map<unsigned int, unsigned int>::const_iterator lm = layer_mapping.begin (); lm != layer_mapping.end (); ++lm) {
@@ -990,10 +992,9 @@ Cell::move_shapes (db::Cell &source_cell, const db::LayerMapping &layer_mapping)
   check_locked ();
 
   if (target_layout != source_layout) {
-    db::PropertyMapper pm (target_layout, source_layout);
     db::ICplxTrans trans (source_layout->dbu () / target_layout->dbu ());
     for (std::map<unsigned int, unsigned int>::const_iterator lm = layer_mapping.begin (); lm != layer_mapping.end (); ++lm) {
-      shapes (lm->second).insert_transformed (source_cell.shapes (lm->first), trans, pm);
+      shapes (lm->second).insert_transformed (source_cell.shapes (lm->first), trans);
       source_cell.shapes (lm->first).clear ();
     }
   } else {
@@ -1069,7 +1070,6 @@ Cell::move_tree (db::Cell &source_cell)
 
   check_locked ();
 
-  db::PropertyMapper pm (target_layout, source_layout);
   db::ICplxTrans trans (source_layout->dbu () / target_layout->dbu ());
 
   db::CellMapping cm;
@@ -1105,7 +1105,6 @@ Cell::move_tree_shapes (db::Cell &source_cell, const db::CellMapping &cm)
 
   check_locked ();
 
-  db::PropertyMapper pm (target_layout, source_layout);
   db::ICplxTrans trans (source_layout->dbu () / target_layout->dbu ());
 
   db::LayerMapping lm;
@@ -1134,7 +1133,6 @@ Cell::move_tree_shapes (db::Cell &source_cell, const db::CellMapping &cm, const 
 
   check_locked ();
 
-  db::PropertyMapper pm (target_layout, source_layout);
   db::ICplxTrans trans (source_layout->dbu () / target_layout->dbu ());
 
   std::vector <db::cell_index_type> source_cells;

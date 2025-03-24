@@ -570,7 +570,7 @@ namespace
 
     virtual void put (const IPolygonType &p)
     {
-      PolygonType pp = p.transformed (m_tr, false);
+      PolygonType pp = p.transformed_ext (m_tr, false);
       mp_next->put (pp);
     }
 
@@ -607,7 +607,7 @@ namespace
     rec.set_trans (tr);
     rec.set_next (right_of_line);
 
-    cut_polygon_internal_int (input.transformed (tr.inverted (), false), line.transformed (tr.inverted ()), &rec);
+    cut_polygon_internal_int (input.transformed_ext (tr.inverted (), false), line.transformed (tr.inverted ()), &rec);
   }
 
 }
@@ -657,6 +657,10 @@ template DB_PUBLIC bool suggest_split_polygon<> (const db::Polygon &polygon, siz
 template DB_PUBLIC bool suggest_split_polygon<> (const db::SimplePolygon &polygon, size_t max_vertex_count, double max_area_ratio);
 template DB_PUBLIC bool suggest_split_polygon<> (const db::DPolygon &polygon, size_t max_vertex_count, double max_area_ratio);
 template DB_PUBLIC bool suggest_split_polygon<> (const db::DSimplePolygon &polygon, size_t max_vertex_count, double max_area_ratio);
+template DB_PUBLIC bool suggest_split_polygon<> (const db::PolygonWithProperties &polygon, size_t max_vertex_count, double max_area_ratio);
+template DB_PUBLIC bool suggest_split_polygon<> (const db::SimplePolygonWithProperties &polygon, size_t max_vertex_count, double max_area_ratio);
+template DB_PUBLIC bool suggest_split_polygon<> (const db::DPolygonWithProperties &polygon, size_t max_vertex_count, double max_area_ratio);
+template DB_PUBLIC bool suggest_split_polygon<> (const db::DSimplePolygonWithProperties &polygon, size_t max_vertex_count, double max_area_ratio);
 
 // -------------------------------------------------------------------------
 //  Implementation of split_polygon

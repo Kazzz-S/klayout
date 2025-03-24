@@ -34,13 +34,13 @@ namespace db
 //  FlatRegion implementation
 
 FlatRegion::FlatRegion ()
-  : MutableRegion (), mp_polygons (new db::Shapes (false)), mp_merged_polygons (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableRegion (), mp_polygons (new db::Shapes (false)), mp_merged_polygons (new db::Shapes (false))
 {
   init ();
 }
 
 FlatRegion::FlatRegion (const FlatRegion &other)
-  : MutableRegion (other), mp_polygons (other.mp_polygons), mp_merged_polygons (other.mp_merged_polygons), mp_properties_repository (other.mp_properties_repository)
+  : MutableRegion (other), mp_polygons (other.mp_polygons), mp_merged_polygons (other.mp_merged_polygons)
 {
   init ();
   m_is_merged = other.m_is_merged;
@@ -48,14 +48,14 @@ FlatRegion::FlatRegion (const FlatRegion &other)
 }
 
 FlatRegion::FlatRegion (const db::Shapes &polygons, bool is_merged)
-  : MutableRegion (), mp_polygons (new db::Shapes (polygons)), mp_merged_polygons (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableRegion (), mp_polygons (new db::Shapes (polygons)), mp_merged_polygons (new db::Shapes (false))
 {
   init ();
   m_is_merged = is_merged;
 }
 
 FlatRegion::FlatRegion (const db::Shapes &polygons, const db::ICplxTrans &trans, bool merged_semantics, bool is_merged)
-  : MutableRegion (), mp_polygons (new db::Shapes (polygons)), mp_merged_polygons (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableRegion (), mp_polygons (new db::Shapes (polygons)), mp_merged_polygons (new db::Shapes (false))
 {
   init ();
   m_is_merged = is_merged;
@@ -64,7 +64,7 @@ FlatRegion::FlatRegion (const db::Shapes &polygons, const db::ICplxTrans &trans,
 }
 
 FlatRegion::FlatRegion (bool is_merged)
-  : MutableRegion (), mp_polygons (new db::Shapes (false)), mp_merged_polygons (new db::Shapes (false)), mp_properties_repository (new db::PropertiesRepository ())
+  : MutableRegion (), mp_polygons (new db::Shapes (false)), mp_merged_polygons (new db::Shapes (false))
 {
   init ();
   m_is_merged = is_merged;
@@ -184,7 +184,7 @@ RegionDelegate *FlatRegion::filter_in_place (const PolygonFilterBase &filter)
   polygon_iterator_wp_type pw_wp = poly_layer_wp.begin ();
 
   for (RegionIterator p (filter.requires_raw_input () ? begin () : begin_merged ()); ! p.at_end (); ++p) {
-    if (filter.selected (*p)) {
+    if (filter.selected (*p, p.prop_id ())) {
       if (p.prop_id () != 0) {
         if (pw_wp == poly_layer_wp.end ()) {
           poly_layer_wp.insert (db::PolygonWithProperties (*p, p.prop_id ()));
@@ -323,15 +323,12 @@ RegionDelegate *FlatRegion::add (const Region &other) const
 
   } else {
 
-    size_t n = new_region->raw_polygons ().size ();
     for (RegionIterator p (other.begin ()); ! p.at_end (); ++p) {
-      ++n;
-    }
-
-    new_region->raw_polygons ().reserve (db::Polygon::tag (), n);
-
-    for (RegionIterator p (other.begin ()); ! p.at_end (); ++p) {
-      new_region->raw_polygons ().insert (*p);
+      if (p.prop_id () == 0) {
+        new_region->raw_polygons ().insert (*p);
+      } else {
+        new_region->raw_polygons ().insert (db::PolygonWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }
@@ -354,15 +351,12 @@ RegionDelegate *FlatRegion::add_in_place (const Region &other)
 
   } else {
 
-    size_t n = polygons.size ();
     for (RegionIterator p (other.begin ()); ! p.at_end (); ++p) {
-      ++n;
-    }
-
-    polygons.reserve (db::Polygon::tag (), n);
-
-    for (RegionIterator p (other.begin ()); ! p.at_end (); ++p) {
-      polygons.insert (*p);
+      if (p.prop_id () == 0) {
+        polygons.insert (*p);
+      } else {
+        polygons.insert (db::PolygonWithProperties (*p, p.prop_id ()));
+      }
     }
 
   }
@@ -442,20 +436,9 @@ void FlatRegion::apply_property_translator (const db::PropertiesTranslator &pt)
   }
 }
 
-db::PropertiesRepository *FlatRegion::properties_repository ()
-{
-  return mp_properties_repository.get_non_const ();
-}
-
-const db::PropertiesRepository *FlatRegion::properties_repository () const
-{
-  return mp_properties_repository.get_const ();
-}
-
 void FlatRegion::insert_into (Layout *layout, db::cell_index_type into_cell, unsigned int into_layer) const
 {
-  db::PropertyMapper pm (&layout->properties_repository (), mp_properties_repository.get_const ());
-  layout->cell (into_cell).shapes (into_layer).insert (*mp_polygons, pm);
+  layout->cell (into_cell).shapes (into_layer).insert (*mp_polygons);
 }
 
 void

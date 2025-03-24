@@ -24,6 +24,7 @@
 #include "tlVariant.h"
 #include "tlInternational.h"
 #include "tlString.h"
+#include "tlHash.h"
 
 #include <string.h>
 #include <limits>
@@ -985,6 +986,74 @@ Variant::operator= (const Variant &v)
   return *this;
 }
 
+size_t
+Variant::hash () const
+{
+  size_t h = 0;
+
+  if (m_type == t_double) {
+    h = tl::hfunc (m_var.m_double);
+  } else if (m_type == t_float) {
+    h = tl::hfunc (m_var.m_float);
+  } else if (m_type == t_bool) {
+    h = tl::hfunc (m_var.m_bool);
+  } else if (m_type == t_uchar) {
+    h = tl::hfunc (m_var.m_uchar);
+  } else if (m_type == t_schar) {
+    h = tl::hfunc (m_var.m_schar);
+  } else if (m_type == t_char) {
+    h = tl::hfunc (m_var.m_char);
+  } else if (m_type == t_ushort) {
+    h = tl::hfunc (m_var.m_ushort);
+  } else if (m_type == t_short) {
+    h = tl::hfunc (m_var.m_short);
+  } else if (m_type == t_uint) {
+    h = tl::hfunc (m_var.m_uint);
+  } else if (m_type == t_int) {
+    h = tl::hfunc (m_var.m_int);
+  } else if (m_type == t_ulong) {
+    h = tl::hfunc (m_var.m_ulong);
+  } else if (m_type == t_long) {
+    h = tl::hfunc (m_var.m_long);
+  } else if (m_type == t_longlong) {
+    h = tl::hfunc (m_var.m_longlong);
+  } else if (m_type == t_ulonglong) {
+    h = tl::hfunc (m_var.m_ulonglong);
+#if defined(HAVE_64BIT_COORD)
+  } else if (m_type == t_int128) {
+    h = tl::hfunc (m_var.m_int128);
+#endif
+  } else if (m_type == t_id) {
+    h = tl::hfunc (m_var.m_id);
+  } else if (m_type == t_bytearray) {
+    h = tl::hfunc (*m_var.m_bytearray);
+#if defined(HAVE_QT)
+  } else if (m_type == t_qstring) {
+    h = tl::hfunc (*m_var.m_qstring);
+  } else if (m_type == t_qbytearray) {
+    h = tl::hfunc (*m_var.m_qbytearray);
+#endif
+  } else if (m_type == t_stdstring) {
+    h = tl::hfunc (*m_var.m_stdstring);
+  } else if (m_type == t_string) {
+    for (const char *cp = m_string; *cp; ++cp) {
+      h = tl::hfunc (*cp, h);
+    }
+  } else if (m_type == t_list) {
+    h = tl::hfunc (*m_var.m_list);
+  } else if (m_type == t_array) {
+    h = tl::hfunc (*m_var.m_array);
+  } else if (m_type == t_user) {
+    //  NOTE: this involves pointers ...
+    h = tl::hfunc (m_var.mp_user.object, tl::hfunc (m_var.mp_user.cls, 0));
+  } else if (m_type == t_user_ref) {
+    const WeakOrSharedPtr *ptr = reinterpret_cast<const WeakOrSharedPtr *> (m_var.mp_user_ref.ptr);
+    h = tl::hfunc (ptr->get (), tl::hfunc (m_var.mp_user_ref.cls, 0));
+  }
+
+  return h;
+}
+
 inline bool
 is_integer_type (Variant::type type)
 {
@@ -1009,6 +1078,9 @@ is_integer_type (Variant::type type)
   }
 }
 
+/**
+ *  @brief normalized_type
+ */
 inline Variant::type 
 normalized_type (Variant::type type)
 {
@@ -1017,6 +1089,12 @@ normalized_type (Variant::type type)
   case Variant::t_double:
     return Variant::t_double;
   case Variant::t_char:
+    //  NOTE: char can be signed or unsigned
+    if (std::numeric_limits<char>::min () < 0) {
+      return Variant::t_longlong;
+    } else {
+      return Variant::t_ulonglong;
+    }
   case Variant::t_schar:
   case Variant::t_short:
   case Variant::t_int:
@@ -1048,7 +1126,7 @@ normalized_type (Variant::type type)
   }
 }
 
-inline std::pair<bool, Variant::type> 
+inline std::pair<bool, Variant::type>
 normalized_type (Variant::type type1, Variant::type type2)
 {
   type1 = normalized_type (type1);
@@ -1067,6 +1145,23 @@ normalized_type (Variant::type type1, Variant::type type2)
   } else {
     return std::make_pair (type1 == type2, type1);
   }
+}
+
+/**
+ *  @brief A more rigid definition of "normalized_type" with two arguments
+ *
+ *  The former version allows casting floats to integers while this version
+ *  treats floats differently.
+ *
+ *  This version is employed in Variant::less and Variant::equal.
+ */
+inline std::pair<bool, Variant::type>
+normalized_type_rigid (Variant::type type1, Variant::type type2)
+{
+  type1 = normalized_type (type1);
+  type2 = normalized_type (type2);
+
+  return std::make_pair (type1 == type2, type1);
 }
 
 static const double epsilon = 1e-13;
@@ -1106,14 +1201,8 @@ static inline bool fless (double a, double b)
 }
 
 bool 
-Variant::operator== (const tl::Variant &d) const
+Variant::equal_core (const tl::Variant &d, type t) const
 {
-  std::pair<bool, type> tt = normalized_type (m_type, d.m_type);
-  if (! tt.first) {
-    return false;
-  }
-  type t = tt.second;
-
   if (t == t_nil) {
     return true;
   } else if (t == t_bool) {
@@ -1161,15 +1250,8 @@ Variant::operator== (const tl::Variant &d) const
 }
 
 bool 
-Variant::operator< (const tl::Variant &d) const
+Variant::less_core (const tl::Variant &d, type t) const
 {
-  std::pair<bool, type> tt = normalized_type (m_type, d.m_type);
-  if (! tt.first) {
-    return normalized_type (m_type) < normalized_type (d.m_type);
-  }
-
-  type t = tt.second;
-
   if (t == t_nil) {
     return false;
   } else if (t == t_bool) {
@@ -1221,6 +1303,68 @@ Variant::operator< (const tl::Variant &d) const
     return m_var.mp_user_ref.cls->less (m_var.mp_user_ref.cls->deref_proxy_const (self), m_var.mp_user_ref.cls->deref_proxy_const (other));
   } else {
     return false;
+  }
+}
+
+bool
+Variant::operator== (const tl::Variant &d) const
+{
+  type type1 = normalized_type (m_type);
+  type type2 = normalized_type (d.m_type);
+
+  if (is_integer_type (type1)) {
+    type1 = Variant::t_double;
+  }
+  if (is_integer_type (type2)) {
+    type2 = Variant::t_double;
+  }
+
+  if (type1 != type2) {
+    return false;
+  } else {
+    return equal_core (d, type1);
+  }
+}
+
+bool
+Variant::operator< (const tl::Variant &d) const
+{
+  type type1 = normalized_type (m_type);
+  type type2 = normalized_type (d.m_type);
+
+  if (is_integer_type (type1)) {
+    type1 = Variant::t_double;
+  }
+  if (is_integer_type (type2)) {
+    type2 = Variant::t_double;
+  }
+
+  if (type1 != type2) {
+    return type1 < type2;
+  } else {
+    return less_core (d, type1);
+  }
+}
+
+bool
+Variant::equal (const Variant &d) const
+{
+  std::pair<bool, type> tt = normalized_type_rigid (m_type, d.m_type);
+  if (! tt.first) {
+    return false;
+  } else {
+    return equal_core (d, tt.second);
+  }
+}
+
+bool
+Variant::less (const Variant &d) const
+{
+  std::pair<bool, type> tt = normalized_type_rigid (m_type, d.m_type);
+  if (! tt.first) {
+    return normalized_type (m_type) < normalized_type (d.m_type);
+  } else {
+    return less_core (d, tt.second);
   }
 }
 
@@ -1622,7 +1766,6 @@ Variant::can_convert_to_uint () const
   case t_long:
     return m_var.m_long >= (long) std::numeric_limits<unsigned int>::min () && (sizeof (long) == sizeof (unsigned int) || m_var.m_long <= (long) std::numeric_limits<unsigned int>::max ());
   case t_bool:
-  case t_char:
   case t_uchar:
   case t_schar:
   case t_short:
@@ -1630,6 +1773,8 @@ Variant::can_convert_to_uint () const
   case t_uint:
   case t_nil:
     return true;
+  case t_char:
+    return m_var.m_char >= 0;
   case t_string:
 #if defined(HAVE_QT)
   case t_qstring:
@@ -1834,13 +1979,16 @@ Variant::to_string () const
       r = tl::to_string (*m_var.m_qstring);
 #endif
     } else if (m_type == t_list) {
+      r += "(";
       for (std::vector<tl::Variant>::const_iterator v = m_var.m_list->begin (); v != m_var.m_list->end (); ++v) {
         if (v != m_var.m_list->begin ()) {
           r += ",";
         }
         r += v->to_string ();
       }
+      r += ")";
     } else if (m_type == t_array) {
+      r += "{";
       for (const_array_iterator v = m_var.m_array->begin (); v != m_var.m_array->end (); ++v) {
         if (v != m_var.m_array->begin ()) {
           r += ",";
@@ -1849,6 +1997,7 @@ Variant::to_string () const
         r += "=>";
         r += v->second.to_string ();
       }
+      r += "}";
     } else if (m_type == t_id)  {
       r = "[id" + tl::to_string (m_var.m_id) + "]";
     } else if (m_type == t_user) {

@@ -92,6 +92,13 @@ Texts::Texts (const RecursiveShapeIterator &si, DeepShapeStore &dss, const db::I
   mp_delegate = new DeepTexts (si, dss, trans);
 }
 
+Texts::Texts (DeepShapeStore &dss)
+{
+  tl_assert (dss.is_singular ());
+  unsigned int layout_index = 0; // singular layout index
+  mp_delegate = new DeepTexts (DeepLayer (&dss, layout_index, dss.layout (layout_index).insert_layer ()));
+}
+
 void
 Texts::write (const std::string &fn) const
 {
@@ -116,6 +123,7 @@ void Texts::insert (const Sh &shape)
 }
 
 template DB_PUBLIC void Texts::insert (const db::Text &);
+template DB_PUBLIC void Texts::insert (const db::TextWithProperties &);
 
 void Texts::insert (const db::Shape &shape)
 {
@@ -169,25 +177,9 @@ Texts::iter () const
   return *(i ? i : &def_iter);
 }
 
-const db::PropertiesRepository &
-Texts::properties_repository () const
+void Texts::polygons (Region &output, db::Coord e, const tl::Variant &text_prop) const
 {
-  static db::PropertiesRepository empty_prop_repo;
-  const db::PropertiesRepository *r = delegate () ? delegate ()->properties_repository () : 0;
-  return *(r ? r : &empty_prop_repo);
-}
-
-db::PropertiesRepository &
-Texts::properties_repository ()
-{
-  db::PropertiesRepository *r = delegate () ? delegate ()->properties_repository () : 0;
-  tl_assert (r != 0);
-  return *r;
-}
-
-void Texts::polygons (Region &output, db::Coord e) const
-{
-  output.set_delegate (mp_delegate->polygons (e));
+  output.set_delegate (mp_delegate->polygons (e, text_prop));
 }
 
 void Texts::edges (Edges &output) const

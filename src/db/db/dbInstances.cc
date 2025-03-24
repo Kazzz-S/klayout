@@ -266,7 +266,7 @@ Instance::to_string (bool resolve_cell_name) const
   }
 
   if (has_prop_id ()) {
-    r += " prop_id=" + tl::to_string (prop_id ());
+    r += std::string (" props=") + db::properties (prop_id ()).to_dict_var ().to_string ();
   }
 
   return r;
@@ -1043,6 +1043,16 @@ Instances::invalidate_insts ()
 
   set_instance_by_cell_index_needs_made (true);
   set_instance_tree_needs_sort (true);
+
+  invalidate_prop_ids ();
+}
+
+void
+Instances::invalidate_prop_ids ()
+{
+  if (layout ()) {
+    layout ()->invalidate_prop_ids ();
+  }
 }
 
 template <class Tag, class ET, class I>
@@ -1602,6 +1612,9 @@ Instances::replace_prop_id (const instance_type &ref, db::properties_id_type pro
   }
 
   if (! ref.is_null ()) {
+    if (ref.prop_id () != prop_id) {
+      invalidate_prop_ids ();
+    }
     cell_inst_wp_array_type new_inst (ref.cell_inst (), prop_id);
     return replace (ref, new_inst);
   } else {
@@ -1653,8 +1666,7 @@ Instances::redo (db::Op *op)
 
 Instances::instance_type 
 Instances::do_insert (const Instances::instance_type &ref, 
-                      tl::func_delegate_base <db::cell_index_type> &im,
-                      tl::func_delegate_base <db::properties_id_type> &pm)
+                      tl::func_delegate_base <db::cell_index_type> &im)
 {
   if (ref.instances () == this) {
 
@@ -1669,7 +1681,7 @@ Instances::do_insert (const Instances::instance_type &ref,
 
       cell_inst_wp_array_type inst_wp = *ref.basic_ptr (cell_inst_wp_array_type::tag ());
       inst_wp.object () = cell_inst_type (im (ref.cell_index ()));
-      inst_wp.properties_id (pm (ref.prop_id ()));
+      inst_wp.properties_id (ref.prop_id ());
 
       return insert (inst_wp);
 
@@ -1689,7 +1701,7 @@ Instances::do_insert (const Instances::instance_type &ref,
       cell_inst_array_type inst (*ref.basic_ptr (cell_inst_wp_array_type::tag ()), layout () ? &layout ()->array_repository () : 0);
       inst.object () = cell_inst_type (im (ref.cell_index ()));
 
-      return insert (cell_inst_wp_array_type (inst, pm (ref.prop_id ())));
+      return insert (cell_inst_wp_array_type (inst, ref.prop_id ()));
 
     }
 

@@ -632,6 +632,16 @@ public:
   }
 
   /**
+   *  @brief Returns the scaled path
+   */
+  db::path<db::DCoord>
+  scaled (double s) const
+  {
+    db::complex_trans<C, db::DCoord> ct (s);
+    return this->transformed (ct);
+  }
+
+  /**
    *  @brief Returns the moved path
    *
    *  Moves the path by the given offset and returns the 
@@ -944,11 +954,10 @@ operator* (const Tr &t, const path<typename Tr::coord_type> &p)
  *  @return The scaled path
  */
 template <class C>
-inline path<double>
+inline path<db::DCoord>
 operator* (const path<C> &p, double s)
 {
-  db::complex_trans<C, double> ct (s);
-  return ct * p;
+  return p.scaled (s);
 }
 
 /**
@@ -1016,9 +1025,8 @@ struct path_ref
    *
    *  The path pointer passed is assumed to reside in a proper repository.
    */
-  template <class TransIn>
-  path_ref (const path_type *p, const TransIn &t)
-    : shape_ref<Path, Trans> (p, Trans (t))
+  path_ref (const path_type *p, const Trans &t)
+    : shape_ref<Path, Trans> (p, t)
   {
     // .. nothing yet ..
   }
@@ -1031,19 +1039,6 @@ struct path_ref
    */
   path_ref (const path_ref &ref, repository_type &rep)
     : shape_ref<Path, Trans> (ref, rep)
-  {
-    // .. nothing yet ..
-  }
-
-  /**
-   *  @brief The transformation translation constructor
-   *  
-   *  This constructor allows one to copy a path reference with a certain transformation
-   *  to one with another transformation
-   */
-  template <class TransIn>
-  path_ref (const path_ref<Path, TransIn> &ref)
-    : shape_ref<Path, Trans> (ref.ptr (), Trans (ref.trans ()))
   {
     // .. nothing yet ..
   }
@@ -1080,9 +1075,18 @@ struct path_ref
   template <class TargetTrans>
   path_ref<Path, TargetTrans> transformed (const TargetTrans &t) const
   {
-    path_ref<Path, TargetTrans> pref (*this);
+    path_ref<Path, TargetTrans> pref (this->ptr (), this->trans ());
     pref.transform (t);
     return pref;
+  }
+
+  /**
+   *  @brief A dummy implementation of the "scaled" function for API compatibility
+   */
+  path_ref<Path, Trans> scaled (double) const
+  {
+    tl_assert (false); // not implemented
+    return *this;
   }
 };
 

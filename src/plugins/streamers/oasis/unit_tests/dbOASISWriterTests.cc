@@ -1207,19 +1207,19 @@ TEST(115)
   db::Layout g (&m);
 
   db::property_names_id_type n1, n2, n3;
-  n1 = g.properties_repository ().prop_name_id (tl::Variant (17));
-  n2 = g.properties_repository ().prop_name_id (tl::Variant ("name"));
-  n3 = g.properties_repository ().prop_name_id (tl::Variant ((unsigned int) 42));
+  n1 = db::property_names_id (tl::Variant (17));
+  n2 = db::property_names_id (tl::Variant ("name"));
+  n3 = db::property_names_id (tl::Variant ((unsigned int) 42));
 
-  db::PropertiesRepository::properties_set s1;
-  s1.insert (std::make_pair (n1, tl::Variant ("17value")));
-  s1.insert (std::make_pair (n2, tl::Variant (117)));
+  db::PropertiesSet s1;
+  s1.insert (n1, tl::Variant ("17value"));
+  s1.insert (n2, tl::Variant (117));
 
-  db::PropertiesRepository::properties_set s2;
-  s2.insert (std::make_pair (n3, tl::Variant (42)));
+  db::PropertiesSet s2;
+  s2.insert (n3, tl::Variant (42));
 
-  db::properties_id_type p1 = g.properties_repository ().properties_id (s1);
-  db::properties_id_type p2 = g.properties_repository ().properties_id (s2);
+  db::properties_id_type p1 = db::properties_id (s1);
+  db::properties_id_type p2 = db::properties_id (s2);
 
   g.prop_id (p1);
 
@@ -1288,19 +1288,19 @@ TEST(116)
   db::Layout g (&m);
 
   db::property_names_id_type n1, n2, n3;
-  n1 = g.properties_repository ().prop_name_id (tl::Variant (17));
-  n2 = g.properties_repository ().prop_name_id (tl::Variant ("name"));
-  n3 = g.properties_repository ().prop_name_id (tl::Variant ((unsigned int) 42));
+  n1 = db::property_names_id (tl::Variant (17));
+  n2 = db::property_names_id (tl::Variant ("name"));
+  n3 = db::property_names_id (tl::Variant ((unsigned int) 42));
 
-  db::PropertiesRepository::properties_set s1;
-  s1.insert (std::make_pair (n1, tl::Variant ("17value")));
-  s1.insert (std::make_pair (n2, tl::Variant (117)));
+  db::PropertiesSet s1;
+  s1.insert (n1, tl::Variant ("17value"));
+  s1.insert (n2, tl::Variant (117));
 
-  db::PropertiesRepository::properties_set s2;
-  s2.insert (std::make_pair (n3, tl::Variant (42)));
+  db::PropertiesSet s2;
+  s2.insert (n3, tl::Variant (42));
 
-  db::properties_id_type p1 = g.properties_repository ().properties_id (s1);
-  db::properties_id_type p2 = g.properties_repository ().properties_id (s2);
+  db::properties_id_type p1 = db::properties_id (s1);
+  db::properties_id_type p2 = db::properties_id (s2);
 
   g.prop_id (p1);
 
@@ -1342,6 +1342,7 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+      "  {17 {17value}}\n"
 #if defined(HAVE_64BIT_COORD)
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
@@ -1351,7 +1352,6 @@ TEST(116)
 #endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
-      "  {17 {17value}}\n"
       "  {{name} {117}}\n"
       "}\n"
       "begin_libp $props 0.001\n"
@@ -1451,6 +1451,8 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+      "  {17 {17value}}\n"
+      "  {{S_BOUNDING_BOXES_AVAILABLE} {2}}\n"
 #if defined(HAVE_64BIT_COORD)
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
@@ -1460,19 +1462,17 @@ TEST(116)
 #endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
-      "  {{S_BOUNDING_BOXES_AVAILABLE} {2}}\n"
-      "  {17 {17value}}\n"
       "  {{name} {117}}\n"
       "}\n"
       "begin_libp $props 0.001\n"
       "set props {\n"
-      "  {{S_BOUNDING_BOX} {2,0,0,0,0}}\n"
+      "  {{S_BOUNDING_BOX} {(2,0,0,0,0)}}\n"
       "}\n"
       "begin_cellp $props {$2}\n"
       "end_cell\n"
       "set props {\n"
-      "  {{S_BOUNDING_BOX} {0,0,100,1000,1100}}\n"
       "  {42 {42}}\n"
+      "  {{S_BOUNDING_BOX} {(0,0,100,1000,1100)}}\n"
       "}\n"
       "begin_cellp $props {$1}\n"
       "path 1 0 0 0 0 {0 100} {1000 1200}\n"
@@ -1516,6 +1516,8 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+      "  {17 {17value}}\n"
+      "  {{S_BOUNDING_BOXES_AVAILABLE} {2}}\n"
 #if defined(HAVE_64BIT_COORD)
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
@@ -1525,21 +1527,19 @@ TEST(116)
 #endif
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
-      "  {{S_BOUNDING_BOXES_AVAILABLE} {2}}\n"
       "  {{name} {117}}\n"
-      "  {17 {17value}}\n"
       "}\n"
       "begin_libp $props 0.001\n"
       "set props {\n"
       "  {42 {42}}\n"
-      "  {{S_BOUNDING_BOX} {0,0,100,1000,1100}}\n"
+      "  {{S_BOUNDING_BOX} {(0,0,100,1000,1100)}}\n"
       "  {{S_CELL_OFFSET} {231}}\n"
       "}\n"
       "begin_cellp $props {$1}\n"
       "path 1 0 0 0 0 {0 100} {1000 1200}\n"
       "end_cell\n"
       "set props {\n"
-      "  {{S_BOUNDING_BOX} {2,0,0,0,0}}\n"
+      "  {{S_BOUNDING_BOX} {(2,0,0,0,0)}}\n"
       "  {{S_CELL_OFFSET} {229}}\n"
       "}\n"
       "begin_cellp $props {$2}\n"
@@ -1583,6 +1583,7 @@ TEST(116)
 
     const char *expected =
       "set props {\n"
+      "  {17 {17value}}\n"
 #if defined(HAVE_64BIT_COORD)
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
@@ -1593,7 +1594,6 @@ TEST(116)
       "  {{S_TOP_CELL} {$2}}\n"
       "  {{S_TOP_CELL} {$1}}\n"
       "  {{name} {117}}\n"
-      "  {17 {17value}}\n"
       "}\n"
       "begin_libp $props 0.001\n"
       "set props {\n"
@@ -1644,6 +1644,7 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+      "  {17 {17value}}\n"
 #if defined(HAVE_64BIT_COORD)
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
@@ -1652,7 +1653,6 @@ TEST(116)
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
 #endif
       "  {{S_TOP_CELL} {$1}}\n"
-      "  {17 {17value}}\n"
       "  {{name} {117}}\n"
       "}\n"
       "begin_libp $props 0.001\n"
@@ -1700,6 +1700,7 @@ TEST(116)
 
     const char *expected = 
       "set props {\n"
+      "  {17 {17value}}\n"
 #if defined(HAVE_64BIT_COORD)
       "  {{S_MAX_SIGNED_INTEGER_WIDTH} {8}}\n"
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {8}}\n"
@@ -1708,7 +1709,6 @@ TEST(116)
       "  {{S_MAX_UNSIGNED_INTEGER_WIDTH} {4}}\n"
 #endif
       "  {{S_TOP_CELL} {$2}}\n"
-      "  {17 {17value}}\n"
       "  {{name} {117}}\n"
       "}\n"
       "begin_libp $props 0.001\n"
