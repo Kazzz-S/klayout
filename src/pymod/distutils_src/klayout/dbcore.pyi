@@ -4588,22 +4588,25 @@ class Circuit(NetlistObject):
         """
         ...
     @overload
-    def nets_by_name(self, name_pattern: str) -> List[Net]:
+    def nets_by_name(self, name_pattern: str, case_sensitive: Optional[Any] = ...) -> List[Net]:
         r"""
         @brief Gets the net objects for a given name filter.
         The name filter is a glob pattern. This method will return all \Net objects matching the glob pattern.
+        The 'case_sensitive' argument will control whether the name is looked up in a case sensitive way or not. Note that with case insensitive search on a netlist that is case sensitive, the same name may render more than one hit. By default, case sensitivity is taken from the netlist.
 
         This method has been introduced in version 0.27.3.
+        The 'case_sensitive' argument has been added in version 0.30.2.
         """
         ...
     @overload
-    def nets_by_name(self, name_pattern: str) -> List[Net]:
+    def nets_by_name(self, name_pattern: str, case_sensitive: Optional[Any] = ...) -> List[Net]:
         r"""
         @brief Gets the net objects for a given name filter (const version).
         The name filter is a glob pattern. This method will return all \Net objects matching the glob pattern.
+        The 'case_sensitive' argument will control whether the name is looked up in a case sensitive way or not. Note that with case insensitive search on a netlist that is case sensitive, the same name may render more than one hit. By default, case sensitivity is taken from the netlist.
 
-
-        This constness variant has been introduced in version 0.27.3
+        This constness variant has been introduced in version 0.27.3.
+        The 'case_sensitive' argument has been added in version 0.30.2.
         """
         ...
     @overload
@@ -13813,7 +13816,7 @@ class DPolygon:
 
         The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.
 
-        Picking a value of 0.0 for max area and min b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
+        Picking a value of 0.0 for max_area and min_b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
 
         This method has been introduced in version 0.30.
         """
@@ -13910,6 +13913,24 @@ class DPolygon:
         Returns a hash value for the given polygon. This method enables polygons as hash keys.
 
         This method has been introduced in version 0.25.
+        """
+        ...
+    def hm_decomposition(self, with_segments: Optional[bool] = ..., split_edges: Optional[bool] = ..., max_area: Optional[float] = ..., min_b: Optional[float] = ...) -> List[DPolygon]:
+        r"""
+        @brief Performs a Hertel-Mehlhorn convex decomposition.
+
+        @return An array holding the polygons of the decomposition.
+
+        The Hertel-Mehlhorn decomposition starts with a Delaunay triangulation of the polygons and recombines the triangles into convex polygons.
+
+        The decomposition is controlled by two parameters: 'with_segments' and 'split_edges'.
+
+        If 'with_segments' is true (the default), new segments are introduced perpendicular to the edges forming a concave corner. If false, only diagonals (edges connecting original vertexes) are used.
+
+        If 'split_edges' is true, the algorithm is allowed to create collinear edges in the output. In this case, the resulting polygons may contain edges that are split into collinear partial edges. Such edges usually recombine into longer edges when processing the polygon further. When such a recombination happens, the edges no longer correspond to original edges or diagonals. When 'split_edges' is false (the default), the resulting polygons will not contain collinear edges, but the decomposition will be constrained to fewer cut lines.
+        'max_area' and 'min_b' are the corresponding parameters used for the triangulation (see \delaunay).
+
+        This method has been introduced in version 0.30.1.
         """
         ...
     def holes(self) -> int:
@@ -14926,7 +14947,7 @@ class DSimplePolygon:
 
         The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.
 
-        Picking a value of 0.0 for max area and min b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
+        Picking a value of 0.0 for max_area and min_b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
 
         This method has been introduced in version 0.30.
         """
@@ -15001,6 +15022,24 @@ class DSimplePolygon:
         Returns a hash value for the given polygon. This method enables polygons as hash keys.
 
         This method has been introduced in version 0.25.
+        """
+        ...
+    def hm_decomposition(self, with_segments: Optional[bool] = ..., split_edges: Optional[bool] = ..., max_area: Optional[float] = ..., min_b: Optional[float] = ...) -> List[DSimplePolygon]:
+        r"""
+        @brief Performs a Hertel-Mehlhorn convex decomposition.
+
+        @return An array holding the polygons of the decomposition.
+
+        The Hertel-Mehlhorn decomposition starts with a Delaunay triangulation of the polygons and recombines the triangles into convex polygons.
+
+        The decomposition is controlled by two parameters: 'with_segments' and 'split_edges'.
+
+        If 'with_segments' is true (the default), new segments are introduced perpendicular to the edges forming a concave corner. If false, only diagonals (edges connecting original vertexes) are used.
+
+        If 'split_edges' is true, the algorithm is allowed to create collinear edges in the output. In this case, the resulting polygons may contain edges that are split into collinear partial edges. Such edges usually recombine into longer edges when processing the polygon further. When such a recombination happens, the edges no longer correspond to original edges or diagonals. When 'split_edges' is false (the default), the resulting polygons will not contain collinear edges, but the decomposition will be constrained to fewer cut lines.
+        'max_area' and 'min_b' are the corresponding parameters used for the triangulation (see \delaunay).
+
+        This method has been introduced in version 0.30.1.
         """
         ...
     def inside(self, p: DPoint) -> bool:
@@ -15609,7 +15648,8 @@ class DText:
     Setter:
     @brief Sets the horizontal alignment
 
-    This is the version accepting integer values. It's provided for backward compatibility.
+    This property specifies how the text is aligned relative to the anchor point. 
+    This property has been introduced in version 0.22 and extended to enums in 0.28.
     """
     size: float
     r"""
@@ -15645,7 +15685,8 @@ class DText:
     Setter:
     @brief Sets the vertical alignment
 
-    This is the version accepting integer values. It's provided for backward compatibility.
+    This property specifies how the text is aligned relative to the anchor point. 
+    This property has been introduced in version 0.22 and extended to enums in 0.28.
     """
     x: float
     r"""
@@ -16402,13 +16443,13 @@ class DTrans:
     Getter:
     @brief Gets to the displacement vector
 
-    Staring with version 0.25 the displacement type is a vector.
+    Starting with version 0.25 the displacement type is a vector.
     Setter:
     @brief Sets the displacement
     @param u The new displacement
 
     This method was introduced in version 0.20.
-    Staring with version 0.25 the displacement type is a vector.
+    Starting with version 0.25 the displacement type is a vector.
     """
     mirror: bool
     r"""
@@ -35688,6 +35729,13 @@ class LEFDEFReaderConfiguration:
     See \dbu for details.
     """
     @property
+    def lef_context_enabled(self) -> None:
+        r"""
+        WARNING: This variable can only be set, not retrieved.
+        @hide
+        """
+        ...
+    @property
     def paths_relative_to_cwd(self) -> None:
         r"""
         WARNING: This variable can only be set, not retrieved.
@@ -41658,6 +41706,12 @@ class LayoutToNetlist:
         Usually it's not required to call this method. It has been introduced in version 0.24.
         """
         ...
+    def add_log_entry(self, entry: LogEntryData) -> None:
+        r"""
+        @brief Adds a log entry.
+        This method has been introduced in version 0.30.2
+        """
+        ...
     @overload
     def antenna_check(self, gate: Region, gate_area_factor: float, gate_perimeter_factor: float, metal: Region, metal_area_factor: float, metal_perimeter_factor: float, ratio: float, diodes: Optional[Sequence[Any]] = ..., texts: Optional[Texts] = ...) -> Region:
         r"""
@@ -41746,7 +41800,7 @@ class LayoutToNetlist:
 
         'lmap' defines which layers are to be produced. It is map, where the keys are layer indexes in the target layout and the values are Region or Texts objects or layer indexes, indicating the layer where shapes are to be taken from. 'lmap' can also be left nil, in which case, a layer mapping will be provided based on the layer info attributes of the layers (see \layer_info).
 
-        'cmap' specifies the cell mapping. Use \create_cell_mapping or \const_create_cell_mapping to define the target cells in the target layout and to derive a cell mapping.
+        'cmap' specifies the cell mapping. Use \cell_mapping_into or \const_cell_mapping_into to define the target cells in the target layout and to derive a cell mapping.
 
         The method has three net annotation modes:
         @ul
@@ -41862,6 +41916,12 @@ class LayoutToNetlist:
         See \extract_netlist for more details about this feature.
 
         Explicit net joining has been introduced in version 0.27.
+        """
+        ...
+    def clear_log_entries(self) -> None:
+        r"""
+        @brief Clears the log entries.
+        This method has been introduced in version 0.30.2
         """
         ...
     @overload
@@ -42804,6 +42864,18 @@ class LayoutVsSchematic(LayoutToNetlist):
     def compare(self, comparer: NetlistComparer) -> bool:
         r"""
         @brief Compare the layout-extracted netlist against the reference netlist using the given netlist comparer.
+        """
+        ...
+    def flag_missing_ports(self, circuit: Circuit) -> bool:
+        r"""
+        @brief Flags inconsistent port labels in the given circuit
+        @param circuit Either a layout or schematic circuit
+        @return True, if no errors were found
+        This method will check all schematic nets which have pins and tests whether the corresponding layout net has the same name. This way, it is checked if the pins are properly labelled.
+
+        The method must be called after the compare step was successful. Error messages will be added to the log entries. If an error occured or the cross reference is not value, 'false' is returned.
+
+        This method was introduced in version 0.30.2.
         """
         ...
     def read(self, path: str) -> None:
@@ -43752,6 +43824,51 @@ class LoadLayoutOptions:
 
     This method has been added in version 0.26.2.
     """
+    maly_create_other_layers: bool
+    r"""
+    Getter:
+    @brief Gets a value indicating whether other layers shall be created
+    @return True, if other layers will be created.
+    This attribute acts together with a layer map (see \maly_layer_map=). Layers not listed in this map are created as well when \maly_create_other_layers? is true. Otherwise they are ignored.
+
+    This method has been added in version 0.30.2.
+    Setter:
+    @brief Specifies whether other layers shall be created
+    @param create True, if other layers will be created.
+    See \maly_create_other_layers? for a description of this attribute.
+
+    This method has been added in version 0.30.2.
+    """
+    maly_dbu: float
+    r"""
+    Getter:
+    @brief Specifies the database unit which the reader uses and produces
+    See \maly_dbu= method for a description of this property.
+
+    This method has been added in version 0.30.2.
+    Setter:
+    @brief Specifies the database unit which the reader uses and produces
+    The database unit is the final resolution of the produced layout. This physical resolution is usually defined by the layout system - GDS for example typically uses 1nm (maly_dbu=0.001).
+    All geometry in the MALY pattern files is brought to the database unit by scaling.
+
+    This method has been added in version 0.30.2.
+    """
+    maly_layer_map: LayerMap
+    r"""
+    Getter:
+    @brief Gets the layer map
+    @return A reference to the layer map
+
+    This method has been added in version 0.30.2.
+    Setter:
+    @brief Sets the layer map
+    This sets a layer mapping for the reader. Unlike \maly_set_layer_map, the 'create_other_layers' flag is not changed.
+    @param map The layer map to set.
+
+    Layer maps can also be used to map the named MALY mask layers to GDS layer/datatypes.
+
+    This method has been added in version 0.30.2.
+    """
     mebes_boundary_datatype: int
     r"""
     Getter:
@@ -44187,6 +44304,28 @@ class LoadLayoutOptions:
         @param create_other_layers The flag indicating whether other layers will be created as well. Set to false to read only the layers in the layer map.
 
         This method has been added in version 0.26.2.
+        """
+        ...
+    def maly_select_all_layers(self) -> None:
+        r"""
+        @brief Selects all layers and disables the layer map
+
+        This disables any layer map and enables reading of all layers.
+        New layers will be created when required.
+
+        This method has been added in version 0.30.2.
+        """
+        ...
+    def maly_set_layer_map(self, map: LayerMap, create_other_layers: bool) -> None:
+        r"""
+        @brief Sets the layer map
+        This sets a layer mapping for the reader. The layer map allows selection and translation of the original layers, for example to assign layer/datatype numbers to the named layers.
+        @param map The layer map to set.
+        @param create_other_layers The flag indicating whether other layers will be created as well. Set to false to read only the layers in the layer map.
+
+        Layer maps can also be used to map the named MALY mask layers to GDS layer/datatypes.
+
+        This method has been added in version 0.30.2.
         """
         ...
     def mebes_select_all_layers(self) -> None:
@@ -46404,15 +46543,15 @@ class NetPinRef:
     @overload
     def net(self) -> Net:
         r"""
-        @brief Gets the net this pin reference is attached to (non-const version).
-
-        This constness variant has been introduced in version 0.26.8
+        @brief Gets the net this pin reference is attached to.
         """
         ...
     @overload
     def net(self) -> Net:
         r"""
-        @brief Gets the net this pin reference is attached to.
+        @brief Gets the net this pin reference is attached to (non-const version).
+
+        This constness variant has been introduced in version 0.26.8
         """
         ...
     def pin(self) -> Pin:
@@ -46735,15 +46874,15 @@ class NetTerminalRef:
     @overload
     def net(self) -> Net:
         r"""
-        @brief Gets the net this terminal reference is attached to.
+        @brief Gets the net this terminal reference is attached to (non-const version).
+
+        This constness variant has been introduced in version 0.26.8
         """
         ...
     @overload
     def net(self) -> Net:
         r"""
-        @brief Gets the net this terminal reference is attached to (non-const version).
-
-        This constness variant has been introduced in version 0.26.8
+        @brief Gets the net this terminal reference is attached to.
         """
         ...
     def terminal_def(self) -> DeviceTerminalDefinition:
@@ -47738,22 +47877,24 @@ class Netlist:
         """
         ...
     @overload
-    def circuits_by_name(self, name_pattern: str) -> List[Circuit]:
-        r"""
-        @brief Gets the circuit objects for a given name filter.
-        The name filter is a glob pattern. This method will return all \Circuit objects matching the glob pattern.
-
-        This method has been introduced in version 0.26.4.
-        """
-        ...
-    @overload
-    def circuits_by_name(self, name_pattern: str) -> List[Circuit]:
+    def circuits_by_name(self, name_pattern: str, case_sensitive: Optional[Any] = ...) -> List[Circuit]:
         r"""
         @brief Gets the circuit objects for a given name filter (const version).
         The name filter is a glob pattern. This method will return all \Circuit objects matching the glob pattern.
+        The 'case_sensitive' argument will control whether the name is looked up in a case sensitive way or not. Note that with case insensitive search on a netlist that is case sensitive, the same name may render more than one hit. By default, case sensitivity is taken from the netlist.
 
+        This constness variant has been introduced in version 0.26.8.The 'case_sensitive' argument has been added in version 0.30.2.
+        """
+        ...
+    @overload
+    def circuits_by_name(self, name_pattern: str, case_sensitive: Optional[Any] = ...) -> List[Circuit]:
+        r"""
+        @brief Gets the circuit objects for a given name filter.
+        The name filter is a glob pattern. This method will return all \Circuit objects matching the glob pattern.
+        The 'case_sensitive' argument will control whether the name is looked up in a case sensitive way or not. Note that with case insensitive search on a netlist that is case sensitive, the same name may render more than one hit. By default, case sensitivity is taken from the netlist.
 
-        This constness variant has been introduced in version 0.26.8.
+        This method has been introduced in version 0.26.4.
+        The 'case_sensitive' argument has been added in version 0.30.2.
         """
         ...
     def combine_devices(self) -> None:
@@ -47918,22 +48059,24 @@ class Netlist:
         """
         ...
     @overload
-    def nets_by_name(self, name_pattern: str) -> List[Net]:
+    def nets_by_name(self, name_pattern: str, case_sensitive: Optional[Any] = ...) -> List[Net]:
         r"""
         @brief Gets the net objects for a given name filter.
         The name filter is a glob pattern. This method will return all \Net objects matching the glob pattern.
+        The 'case_sensitive' argument will control whether the name is looked up in a case sensitive way or not. Note that with case insensitive search on a netlist that is case sensitive, the same name may render more than one hit. By default, case sensitivity is taken from the netlist.
 
         This method has been introduced in version 0.28.4.
+        The 'case_sensitive' argument has been added in version 0.30.2.
         """
         ...
     @overload
-    def nets_by_name(self, name_pattern: str) -> List[Net]:
+    def nets_by_name(self, name_pattern: str, case_sensitive: Optional[Any] = ...) -> List[Net]:
         r"""
         @brief Gets the net objects for a given name filter (const version).
         The name filter is a glob pattern. This method will return all \Net objects matching the glob pattern.
+        The 'case_sensitive' argument will control whether the name is looked up in a case sensitive way or not. Note that with case insensitive search on a netlist that is case sensitive, the same name may render more than one hit. By default, case sensitivity is taken from the netlist.
 
-
-        This constness variant has been introduced in version 0.28.4.
+        This constness variant has been introduced in version 0.28.4.The 'case_sensitive' argument has been added in version 0.30.2.
         """
         ...
     def purge(self) -> None:
@@ -47998,7 +48141,7 @@ class Netlist:
     @overload
     def top_circuit(self) -> Circuit:
         r"""
-        @brief Gets the top circuit (const version).
+        @brief Gets the top circuit.
         This method will return nil, if there is no top circuit. It will raise an error, if there is more than a single top circuit.
 
         This convenience method has been added in version 0.29.5.
@@ -48007,7 +48150,7 @@ class Netlist:
     @overload
     def top_circuit(self) -> Circuit:
         r"""
-        @brief Gets the top circuit.
+        @brief Gets the top circuit (const version).
         This method will return nil, if there is no top circuit. It will raise an error, if there is more than a single top circuit.
 
         This convenience method has been added in version 0.29.5.
@@ -48893,42 +49036,105 @@ class NetlistCrossReference(NetlistCompareLogger):
         See the class description for details.
         """
         ...
+    @overload
+    def each_device_pair(self, circuit: Circuit) -> Iterator[NetlistCrossReference.DevicePairData]:
+        r"""
+        @brief Delivers the device pairs and their status for the given circuit pair.
+        This convenience method looks up the circuit pair from the given circuit. This circuit can be a schematic or layout circuit.
+        This method has been added in version 0.30.2.
+        """
+        ...
+    @overload
     def each_device_pair(self, circuit_pair: NetlistCrossReference.CircuitPairData) -> Iterator[NetlistCrossReference.DevicePairData]:
         r"""
         @brief Delivers the device pairs and their status for the given circuit pair.
         See the class description for details.
         """
         ...
+    @overload
+    def each_net_pair(self, circuit: Circuit) -> Iterator[NetlistCrossReference.NetPairData]:
+        r"""
+        @brief Delivers the net pairs and their status for the given circuit.
+        This convenience method looks up the circuit pair from the given circuit. This circuit can be a schematic or layout circuit.
+        This method has been added in version 0.30.2.
+        """
+        ...
+    @overload
     def each_net_pair(self, circuit_pair: NetlistCrossReference.CircuitPairData) -> Iterator[NetlistCrossReference.NetPairData]:
         r"""
         @brief Delivers the net pairs and their status for the given circuit pair.
         See the class description for details.
         """
         ...
+    @overload
+    def each_net_pin_pair(self, net: Net) -> Iterator[NetlistCrossReference.NetPinRefPair]:
+        r"""
+        @brief Delivers the pin pairs for the given net pair.
+        This convenience method looks up the net pair from the given net. This net can be a schematic or layout net.
+        This method has been added in version 0.30.2.
+        """
+        ...
+    @overload
     def each_net_pin_pair(self, net_pair: NetlistCrossReference.NetPairData) -> Iterator[NetlistCrossReference.NetPinRefPair]:
         r"""
         @brief Delivers the pin pairs for the given net pair.
         For the net pair, lists the pin pairs identified on this net.
         """
         ...
+    @overload
+    def each_net_subcircuit_pin_pair(self, net: Net) -> Iterator[NetlistCrossReference.NetSubcircuitPinRefPair]:
+        r"""
+        @brief Delivers the subcircuit pin pairs for the given net pair.
+        This convenience method looks up the net pair from the given net. This net can be a schematic or layout net.
+        This method has been added in version 0.30.2.
+        """
+        ...
+    @overload
     def each_net_subcircuit_pin_pair(self, net_pair: NetlistCrossReference.NetPairData) -> Iterator[NetlistCrossReference.NetSubcircuitPinRefPair]:
         r"""
         @brief Delivers the subcircuit pin pairs for the given net pair.
         For the net pair, lists the subcircuit pin pairs identified on this net.
         """
         ...
+    @overload
+    def each_net_terminal_pair(self, net: Net) -> Iterator[NetlistCrossReference.NetTerminalRefPair]:
+        r"""
+        @brief Delivers the device terminal pairs for the given net pair.
+        This convenience method looks up the net pair from the given net. This net can be a schematic or layout net.
+        This method has been added in version 0.30.2.
+        """
+        ...
+    @overload
     def each_net_terminal_pair(self, net_pair: NetlistCrossReference.NetPairData) -> Iterator[NetlistCrossReference.NetTerminalRefPair]:
         r"""
         @brief Delivers the device terminal pairs for the given net pair.
         For the net pair, lists the device terminal pairs identified on this net.
         """
         ...
+    @overload
+    def each_pin_pair(self, circuit: Circuit) -> Iterator[NetlistCrossReference.PinPairData]:
+        r"""
+        @brief Delivers the pin pairs and their status for the given circuit pair.
+        This convenience method looks up the circuit pair from the given circuit. This circuit can be a schematic or layout circuit.
+        This method has been added in version 0.30.2.
+        """
+        ...
+    @overload
     def each_pin_pair(self, circuit_pair: NetlistCrossReference.CircuitPairData) -> Iterator[NetlistCrossReference.PinPairData]:
         r"""
         @brief Delivers the pin pairs and their status for the given circuit pair.
         See the class description for details.
         """
         ...
+    @overload
+    def each_subcircuit_pair(self, circuit: Circuit) -> Iterator[NetlistCrossReference.SubCircuitPairData]:
+        r"""
+        @brief Delivers the subcircuit pairs and their status for the given circuit pair.
+        This convenience method looks up the circuit pair from the given circuit. This circuit can be a schematic or layout circuit.
+        This method has been added in version 0.30.2.
+        """
+        ...
+    @overload
     def each_subcircuit_pair(self, circuit_pair: NetlistCrossReference.CircuitPairData) -> Iterator[NetlistCrossReference.SubCircuitPairData]:
         r"""
         @brief Delivers the subcircuit pairs and their status for the given circuit pair.
@@ -53583,11 +53789,13 @@ class Polygon:
 
         The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.
 
-        The area value is given in terms of DBU units. Picking a value of 0.0 for area and min b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
+        Picking a value of 0.0 for max_area and min_b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
+
+        The area value is given in terms of DBU units.
 
         The 'dbu' parameter a numerical scaling parameter. It should be choosen in a way that the polygon dimensions are "in the order of 1" (very roughly) after multiplication with the dbu parameter. A value of 0.001 is suitable for polygons with typical dimensions in the order to 1000 DBU. Usually the default value is good enough.
 
-        This method has been introduced in version 0.30.
+        This method has been introduced in version 0.30. Since version 0.30.1, the resulting region is in 'no merged semantics' mode, to avoid re-merging of the triangles during following operations.
         """
         ...
     @overload
@@ -53597,7 +53805,7 @@ class Polygon:
 
         This variant of the triangulation function accepts an array of additional vertexes for the triangulation.
 
-        This method has been introduced in version 0.30.
+        This method has been introduced in version 0.30. Since version 0.30.1, the resulting region is in 'no merged semantics' mode, to avoid re-merging of the triangles during following operations.
         """
         ...
     def destroy(self) -> None:
@@ -53682,6 +53890,28 @@ class Polygon:
         Returns a hash value for the given polygon. This method enables polygons as hash keys.
 
         This method has been introduced in version 0.25.
+        """
+        ...
+    def hm_decomposition(self, with_segments: Optional[bool] = ..., split_edges: Optional[bool] = ..., max_area: Optional[float] = ..., min_b: Optional[float] = ..., dbu: Optional[float] = ...) -> Region:
+        r"""
+        @brief Performs a Hertel-Mehlhorn convex decomposition.
+
+        @return A \Region holding the polygons of the decomposition.
+
+        The resulting region is in 'no merged semantics' mode, to avoid re-merging of the polygons during following operations.
+
+        The Hertel-Mehlhorn decomposition starts with a Delaunay triangulation of the polygons and recombines the triangles into convex polygons.
+
+        The decomposition is controlled by two parameters: 'with_segments' and 'split_edges'.
+
+        If 'with_segments' is true (the default), new segments are introduced perpendicular to the edges forming a concave corner. If false, only diagonals (edges connecting original vertexes) are used.
+
+        If 'split_edges' is true, the algorithm is allowed to create collinear edges in the output. In this case, the resulting polygons may contain edges that are split into collinear partial edges. Such edges usually recombine into longer edges when processing the polygon further. When such a recombination happens, the edges no longer correspond to original edges or diagonals. When 'split_edges' is false (the default), the resulting polygons will not contain collinear edges, but the decomposition will be constrained to fewer cut lines.
+        'max_area' and 'min_b' are the corresponding parameters used for the triangulation (see \delaunay).
+
+        The 'dbu' parameter a numerical scaling parameter. It should be choosen in a way that the polygon dimensions are "in the order of 1" (very roughly) after multiplication with the dbu parameter. A value of 0.001 is suitable for polygons with typical dimensions in the order to 1000 DBU. Usually the default value is good enough.
+
+        This method has been introduced in version 0.30.1.
         """
         ...
     def holes(self) -> int:
@@ -54590,6 +54820,19 @@ class PolygonNeighborhoodVisitor(PolygonNeighborhoodVisitorBase):
     Setter:
     @brief Configures the result type
     Use this method to indicate what type of result you want to deliver. You can use the corresponding 'output' method then to deliver result shapes from one the callbacks (\on_edge, \begin_polygon, \end_polygon). Set this attribute when you create the visitor object. This attribute does not need to be set if no output is indended to be delivered.
+    """
+    variant_type: VariantType
+    r"""
+    Getter:
+    @brief Gets the variant type
+    See \variant_type= for a description of this property.
+
+    This property was introduced in version 0.30.2.
+    Setter:
+    @brief Configures the variant type
+    The variant type configures transformation variant formation. The polygons presented to the visitor are normalized to the given variant type. For example, specify \VariantType#Orientation to force orientation variants in the cell tree. Polygons presented to the visitor are normalized to 'as if top' orientation with this variant type.
+
+    This property was introduced in version 0.30.2.
     """
     def _const_cast(self) -> PolygonNeighborhoodVisitor:
         r"""
@@ -63173,10 +63416,11 @@ class Shape:
 
     Starting with version 0.23, this method returns nil, if the shape does not represent an edge.
     Setter:
-    @brief Replaces the shape by the given edge (in micrometer units)
-    This method replaces the shape by the given edge, like \edge= with a \Edge argument does. This version translates the edge from micrometer units to database units internally.
+    @brief Replaces the shape by the given edge
+    This method replaces the shape by the given edge. This method can only be called for editable layouts. It does not change the user properties of the shape.
+    Calling this method will invalidate any iterators. It should not be called inside a loop iterating over shapes.
 
-    This method has been introduced in version 0.25.
+    This method has been introduced in version 0.22.
     """
     edge_pair: Any
     r"""
@@ -63393,11 +63637,10 @@ class Shape:
 
     Starting with version 0.23, this method returns nil, if the shape does not represent a text.
     Setter:
-    @brief Replaces the shape by the given text object
-    This method replaces the shape by the given text object. This method can only be called for editable layouts. It does not change the user properties of the shape.
-    Calling this method will invalidate any iterators. It should not be called inside a loop iterating over shapes.
+    @brief Replaces the shape by the given text (in micrometer units)
+    This method replaces the shape by the given text, like \text= with a \Text argument does. This version translates the text from micrometer units to database units internally.
 
-    This method has been introduced in version 0.22.
+    This method has been introduced in version 0.25.
     """
     text_dpos: DVector
     r"""
@@ -66722,11 +66965,13 @@ class SimplePolygon:
 
         The minimum angle of the resulting triangles relates to the 'b' parameter as: @t min_angle = arcsin(B/2) @/t.
 
-        The area value is given in terms of DBU units. Picking a value of 0.0 for area and min b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
+        Picking a value of 0.0 for max_area and min_b will make the implementation skip the refinement step. In that case, the results are identical to the standard constrained Delaunay triangulation.
+
+        The area value is given in terms of DBU units.
 
         The 'dbu' parameter a numerical scaling parameter. It should be choosen in a way that the polygon dimensions are "in the order of 1" (very roughly) after multiplication with the dbu parameter. A value of 0.001 is suitable for polygons with typical dimensions in the order to 1000 DBU. Usually the default value is good enough.
 
-        This method has been introduced in version 0.30.
+        This method has been introduced in version 0.30. Since version 0.30.1, the resulting region is in 'no merged semantics' mode, to avoid re-merging of the triangles during following operations.
         """
         ...
     @overload
@@ -66736,7 +66981,7 @@ class SimplePolygon:
 
         This variant of the triangulation function accepts an array of additional vertexes for the triangulation.
 
-        This method has been introduced in version 0.30.
+        This method has been introduced in version 0.30. Since version 0.30.1, the resulting region is in 'no merged semantics' mode, to avoid re-merging of the triangles during following operations.
         """
         ...
     def destroy(self) -> None:
@@ -66799,6 +67044,27 @@ class SimplePolygon:
         Returns a hash value for the given polygon. This method enables polygons as hash keys.
 
         This method has been introduced in version 0.25.
+        """
+        ...
+    def hm_decomposition(self, with_segments: Optional[bool] = ..., split_edges: Optional[bool] = ..., max_area: Optional[float] = ..., min_b: Optional[float] = ..., dbu: Optional[float] = ...) -> Region:
+        r"""
+        @brief Performs a Hertel-Mehlhorn convex decomposition.
+
+        @return A \Region holding the polygons of the decomposition.
+        The resulting region is in 'no merged semantics' mode, to avoid re-merging of the polygons during following operations.
+
+        The Hertel-Mehlhorn decomposition starts with a Delaunay triangulation of the polygons and recombines the triangles into convex polygons.
+
+        The decomposition is controlled by two parameters: 'with_segments' and 'split_edges'.
+
+        If 'with_segments' is true (the default), new segments are introduced perpendicular to the edges forming a concave corner. If false, only diagonals (edges connecting original vertexes) are used.
+
+        If 'split_edges' is true, the algorithm is allowed to create collinear edges in the output. In this case, the resulting polygons may contain edges that are split into collinear partial edges. Such edges usually recombine into longer edges when processing the polygon further. When such a recombination happens, the edges no longer correspond to original edges or diagonals. When 'split_edges' is false (the default), the resulting polygons will not contain collinear edges, but the decomposition will be constrained to fewer cut lines.
+        'max_area' and 'min_b' are the corresponding parameters used for the triangulation (see \delaunay).
+
+        The 'dbu' parameter a numerical scaling parameter. It should be choosen in a way that the polygon dimensions are "in the order of 1" (very roughly) after multiplication with the dbu parameter. A value of 0.001 is suitable for polygons with typical dimensions in the order to 1000 DBU. Usually the default value is good enough.
+
+        This method has been introduced in version 0.30.1.
         """
         ...
     def inside(self, p: Point) -> bool:
@@ -71654,13 +71920,13 @@ class Trans:
     Getter:
     @brief Gets to the displacement vector
 
-    Staring with version 0.25 the displacement type is a vector.
+    Starting with version 0.25 the displacement type is a vector.
     Setter:
     @brief Sets the displacement
     @param u The new displacement
 
     This method was introduced in version 0.20.
-    Staring with version 0.25 the displacement type is a vector.
+    Starting with version 0.25 the displacement type is a vector.
     """
     mirror: bool
     r"""
@@ -74671,6 +74937,251 @@ class VCplxTrans:
         @return The transformed text
 
         This convenience method has been introduced in version 0.30.
+        """
+        ...
+    ...
+
+class VariantType:
+    r"""
+    @brief This class represents the cell variant type for various methods.
+
+    Cell variants are needed in hierarchical applications, when operations are to be performed on cell level, but the operations are not transformation invariant.
+    In that case, a variant type needs to be specified in order to make the algorithm separate the cells by their absolute orientation or by their accumulated magnification.
+
+    This enum has been introduced in version 0.30.2.
+    """
+    Magnification: ClassVar[VariantType]
+    r"""
+    @brief Scaling variants needed.
+    For example, distance measurements or the isotropic sizing operations needs this variant type.
+    """
+    MagnificationAndOrientation: ClassVar[VariantType]
+    r"""
+    @brief Scaling and orientation variants needed.
+    For example, the 'move' operation needs this variant type.
+    """
+    NoVariants: ClassVar[VariantType]
+    r"""
+    @brief No variants needed.
+    """
+    Orientation: ClassVar[VariantType]
+    r"""
+    @brief Orientation variants needed.
+    For example, the edge orientation selection operation needs this variant type.
+    """
+    Orthogonal: ClassVar[VariantType]
+    r"""
+    @brief Orthogonal transformations (rotations by multiples of 90 degree) need variants.
+    For example, the diagonal edge selection operation needs this variant type.
+    """
+    XYAnisotropyAndMagnification: ClassVar[VariantType]
+    r"""
+    @brief Scaling and anisotropy variants needed.
+    For example, the anisotropic sizing operation needs this variant type.
+    """
+    @overload
+    @classmethod
+    def new(cls, i: int) -> VariantType:
+        r"""
+        @brief Creates an enum from an integer value
+        """
+        ...
+    @overload
+    @classmethod
+    def new(cls, s: str) -> VariantType:
+        r"""
+        @brief Creates an enum from a string value
+        """
+        ...
+    def __copy__(self) -> VariantType:
+        r"""
+        @brief Creates a copy of self
+        """
+        ...
+    def __deepcopy__(self) -> VariantType:
+        r"""
+        @brief Creates a copy of self
+        """
+        ...
+    @overload
+    def __eq__(self, other: int) -> bool:
+        r"""
+        @brief Compares an enum with an integer value
+        """
+        ...
+    @overload
+    def __eq__(self, other: object) -> bool:
+        r"""
+        @brief Compares two enums
+        """
+        ...
+    def __hash__(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
+        ...
+    @overload
+    def __init__(self, i: int) -> None:
+        r"""
+        @brief Creates an enum from an integer value
+        """
+        ...
+    @overload
+    def __init__(self, s: str) -> None:
+        r"""
+        @brief Creates an enum from a string value
+        """
+        ...
+    def __int__(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
+        """
+        ...
+    @overload
+    def __lt__(self, other: VariantType) -> bool:
+        r"""
+        @brief Returns true if the first enum is less (in the enum symbol order) than the second
+        """
+        ...
+    @overload
+    def __lt__(self, other: int) -> bool:
+        r"""
+        @brief Returns true if the enum is less (in the enum symbol order) than the integer value
+        """
+        ...
+    @overload
+    def __ne__(self, other: int) -> bool:
+        r"""
+        @brief Compares an enum with an integer for inequality
+        """
+        ...
+    @overload
+    def __ne__(self, other: object) -> bool:
+        r"""
+        @brief Compares two enums for inequality
+        """
+        ...
+    def __repr__(self) -> str:
+        r"""
+        @brief Converts an enum to a visual string
+        """
+        ...
+    def __str__(self) -> str:
+        r"""
+        @brief Gets the symbolic string from an enum
+        """
+        ...
+    def _const_cast(self) -> VariantType:
+        r"""
+        @brief Returns a non-const reference to self.
+        Basically, this method allows turning a const object reference to a non-const one. This method is provided as last resort to remove the constness from an object. Usually there is a good reason for a const object reference, so using this method may have undesired side effects.
+
+        This method has been introduced in version 0.29.6.
+        """
+        ...
+    def _create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+        ...
+    def _destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+        ...
+    def _destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+        ...
+    def _is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+        ...
+    def _manage(self) -> None:
+        r"""
+        @brief Marks the object as managed by the script side.
+        After calling this method on an object, the script side will be responsible for the management of the object. This method may be called if an object is returned from a C++ function and the object is known not to be owned by any C++ instance. If necessary, the script side may delete the object if the script's reference is no longer required.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+        ...
+    def _to_const_object(self) -> VariantType:
+        r"""
+        @hide
+        """
+        ...
+    def _unmanage(self) -> None:
+        r"""
+        @brief Marks the object as no longer owned by the script side.
+        Calling this method will make this object no longer owned by the script's memory management. Instead, the object must be managed in some other way. Usually this method may be called if it is known that some C++ object holds and manages this object. Technically speaking, this method will turn the script's reference into a weak reference. After the script engine decides to delete the reference, the object itself will still exist. If the object is not managed otherwise, memory leaks will occur.
+
+        Usually it's not required to call this method. It has been introduced in version 0.24.
+        """
+        ...
+    def assign(self, other: VariantType) -> None:
+        r"""
+        @brief Assigns another object to self
+        """
+        ...
+    def create(self) -> None:
+        r"""
+        @brief Ensures the C++ object is created
+        Use this method to ensure the C++ object is created, for example to ensure that resources are allocated. Usually C++ objects are created on demand and not necessarily when the script object is created.
+        """
+        ...
+    def destroy(self) -> None:
+        r"""
+        @brief Explicitly destroys the object
+        Explicitly destroys the object on C++ side if it was owned by the script interpreter. Subsequent access to this object will throw an exception.
+        If the object is not owned by the script, this method will do nothing.
+        """
+        ...
+    def destroyed(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the object was already destroyed
+        This method returns true, if the object was destroyed, either explicitly or by the C++ side.
+        The latter may happen, if the object is owned by a C++ object which got destroyed itself.
+        """
+        ...
+    def dup(self) -> VariantType:
+        r"""
+        @brief Creates a copy of self
+        """
+        ...
+    def hash(self) -> int:
+        r"""
+        @brief Gets the hash value from the enum
+        """
+        ...
+    def inspect(self) -> str:
+        r"""
+        @brief Converts an enum to a visual string
+        """
+        ...
+    def is_const_object(self) -> bool:
+        r"""
+        @brief Returns a value indicating whether the reference is a const reference
+        This method returns true, if self is a const reference.
+        In that case, only const methods may be called on self.
+        """
+        ...
+    def to_i(self) -> int:
+        r"""
+        @brief Gets the integer value from the enum
+        """
+        ...
+    def to_s(self) -> str:
+        r"""
+        @brief Gets the symbolic string from an enum
         """
         ...
     ...
