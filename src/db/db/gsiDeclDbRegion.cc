@@ -41,6 +41,7 @@
 #include "tlGlobPattern.h"
 
 #include "gsiDeclDbContainerHelpers.h"
+#include "gsiDeclDbMeasureHelpers.h"
 
 #include <memory>
 #include <vector>
@@ -108,6 +109,11 @@ static gsi::PolygonFilterBase *make_pg (const tl::Variant &name, const std::stri
   return new PolygonPropertiesFilter (name, pattern, inverse);
 }
 
+static gsi::PolygonFilterBase *make_pe (const std::string &expression, bool inverse, const std::map<std::string, tl::Variant> &variables, double dbu)
+{
+  return new gsi::expression_filter<gsi::PolygonFilterBase, db::Region> (expression, inverse, dbu, variables);
+}
+
 Class<gsi::PolygonFilterBase> decl_PolygonFilterBase ("db", "PolygonFilterBase",
   gsi::PolygonFilterBase::method_decls (true) +
   gsi::constructor ("property_glob", &make_pg, gsi::arg ("name"), gsi::arg ("pattern"), gsi::arg ("inverse", false), gsi::arg ("case_sensitive", true),
@@ -148,6 +154,26 @@ Class<gsi::PolygonFilterBase> decl_PolygonFilterBase ("db", "PolygonFilterBase",
     "Apply this filter with \\Region#filtered. See \\property_glob for an example.\n"
     "\n"
     "This feature has been introduced in version 0.30."
+  ) +
+  gsi::constructor ("expression_filter", &make_pe, gsi::arg ("expression"), gsi::arg ("inverse", false), gsi::arg ("variables", std::map<std::string, tl::Variant> (), "{}"), gsi::arg ("dbu", 0.0),
+    "@brief Creates an expression-based filter\n"
+    "@param expression The expression to evaluate.\n"
+    "@param inverse If true, inverts the selection - i.e. all polygons without a property with the given name and value range are selected.\n"
+    "@param dbu If given and greater than zero, the shapes delivered by the 'shape' function will be in micrometer units.\n"
+    "@param variables Arbitrary values that are available as variables inside the expressions.\n"
+    "\n"
+    "Creates a filter that will evaluate the given expression on every shape and select the shape "
+    "when the expression renders a boolean true value. "
+    "The expression may use the following variables and functions:\n"
+    "\n"
+    "@ul\n"
+    "@li @b shape @/b: The current shape (i.e. 'Polygon' without DBU specified or 'DPolygon' otherwise) @/li\n"
+    "@li @b value(<name>) @/b: The value of the property with the given name (the first one if there are multiple properties with the same name) @/li\n"
+    "@li @b values(<name>) @/b: All values of the properties with the given name (returns a list) @/li\n"
+    "@li @b <name> @/b: A shortcut for 'value(<name>)' (<name> is used as a symbol) @/li\n"
+    "@/ul\n"
+    "\n"
+    "This feature has been introduced in version 0.30.3."
   ),
   "@hide"
 );
@@ -203,7 +229,9 @@ Class<gsi::PolygonFilterImpl> decl_PolygonFilterImpl (decl_PolygonFilterBase, "d
 // ---------------------------------------------------------------------------------
 //  PolygonProcessor binding
 
-Class<shape_processor_impl<db::PolygonProcessorBase> > decl_PolygonOperator ("db", "PolygonOperator",
+Class<db::PolygonProcessorBase> decl_PolygonProcessorBase ("db", "PolygonProcessorBase", "@hide");
+
+Class<shape_processor_impl<db::PolygonProcessorBase> > decl_PolygonOperator (decl_PolygonProcessorBase, "db", "PolygonOperator",
   shape_processor_impl<db::PolygonProcessorBase>::method_decls (true),
   "@brief A generic polygon operator\n"
   "\n"
@@ -248,7 +276,69 @@ Class<shape_processor_impl<db::PolygonProcessorBase> > decl_PolygonOperator ("db
   "This class has been introduced in version 0.29.\n"
 );
 
-Class<shape_processor_impl<db::PolygonToEdgeProcessorBase> > decl_PolygonToEdgeProcessor ("db", "PolygonToEdgeOperator",
+static
+property_computation_processor<db::PolygonProcessorBase, db::Region> *
+new_pcp (const db::Region *container, const std::map<tl::Variant, std::string> &expressions, bool copy_properties, const std::map <std::string, tl::Variant> &variables, double dbu)
+{
+  return new property_computation_processor<db::PolygonProcessorBase, db::Region> (container, expressions, copy_properties, dbu, variables);
+}
+
+property_computation_processor<db::PolygonProcessorBase, db::Region> *
+new_pcps (const db::Region *container, const std::string &expression, bool copy_properties, const std::map <std::string, tl::Variant> &variables, double dbu)
+{
+  std::map<tl::Variant, std::string> expressions;
+  expressions.insert (std::make_pair (tl::Variant (), expression));
+  return new property_computation_processor<db::PolygonProcessorBase, db::Region> (container, expressions, copy_properties, dbu, variables);
+}
+
+Class<property_computation_processor<db::PolygonProcessorBase, db::Region> > decl_PolygonPropertiesExpressions (decl_PolygonProcessorBase, "db", "PolygonPropertiesExpressions",
+  property_computation_processor<db::PolygonProcessorBase, db::Region>::method_decls (true) +
+  gsi::constructor ("new", &new_pcp, gsi::arg ("region"), gsi::arg ("expressions"), gsi::arg ("copy_properties", false), gsi::arg ("variables", std::map<std::string, tl::Variant> (), "{}"), gsi::arg ("dbu", 0.0),
+    "@brief Creates a new properties expressions operator\n"
+    "\n"
+    "@param region The region, the processor will be used on. Can be nil, but if given, allows some optimization.\n"
+    "@param expressions A map of property names and expressions used to generate the values of the properties (see class description for details).\n"
+    "@param copy_properties If true, new properties will be added to existing ones.\n"
+    "@param dbu If not zero, this value specifies the database unit to use. If given, the shapes returned by the 'shape' function will be micrometer-unit objects.\n"
+    "@param variables Arbitrary values that are available as variables inside the expressions.\n"
+  ) +
+  gsi::constructor ("new", &new_pcps, gsi::arg ("region"), gsi::arg ("expression"), gsi::arg ("copy_properties", false), gsi::arg ("variables", std::map<std::string, tl::Variant> (), "{}"), gsi::arg ("dbu", 0.0),
+    "@brief Creates a new properties expressions operator\n"
+    "\n"
+    "@param region The region, the processor will be used on. Can be nil, but if given, allows some optimization.\n"
+    "@param expression A single expression evaluated for each shape (see class description for details).\n"
+    "@param copy_properties If true, new properties will be added to existing ones.\n"
+    "@param dbu If not zero, this value specifies the database unit to use. If given, the shapes returned by the 'shape' function will be micrometer-unit objects.\n"
+    "@param variables Arbitrary values that are available as variables inside the expressions.\n"
+  ),
+  "@brief An operator attaching computed properties to the edge pairs\n"
+  "\n"
+  "This operator will execute a number of expressions and attach the results as new properties. "
+  "The expression inputs can be taken either from the edges themselves or from existing properties.\n"
+  "\n"
+  "A number of expressions can be supplied with a name. The expressions will be evaluated and the result "
+  "is attached to the output edge pairs as user properties with the given names.\n"
+  "\n"
+  "Alternatively, a single expression can be given. In that case, 'put' needs to be used to attach properties "
+  "to the output shape. You can also use 'skip' to drop shapes in that case.\n"
+  "\n"
+  "The expression may use the following variables and functions:\n"
+  "\n"
+  "@ul\n"
+  "@li @b shape @/b: The current shape (i.e. 'Polygon' without DBU specified or 'DPolygon' otherwise) @/li\n"
+  "@li @b put(<name>, <value>) @/b: Attaches the given value as a property with name 'name' to the output shape @/li\n"
+  "@li @b skip(<flag>) @/b: If called with a 'true' value, the shape is dropped from the output @/li\n"
+  "@li @b value(<name>) @/b: The value of the property with the given name (the first one if there are multiple properties with the same name) @/li\n"
+  "@li @b values(<name>) @/b: All values of the properties with the given name (returns a list) @/li\n"
+  "@li @b <name> @/b: A shortcut for 'value(<name>)' (<name> is used as a symbol) @/li\n"
+  "@/ul\n"
+  "\n"
+  "This class has been introduced in version 0.30.3.\n"
+);
+
+Class<db::PolygonToEdgeProcessorBase> decl_PolygonToEdgeProcessorBase ("db", "PolygonToEdgeProcessorBase", "@hide");
+
+Class<shape_processor_impl<db::PolygonToEdgeProcessorBase> > decl_PolygonToEdgeProcessor (decl_PolygonToEdgeProcessorBase, "db", "PolygonToEdgeOperator",
   shape_processor_impl<db::PolygonToEdgeProcessorBase>::method_decls (true),
   "@brief A generic polygon-to-edge operator\n"
   "\n"
@@ -272,7 +362,9 @@ Class<shape_processor_impl<db::PolygonToEdgeProcessorBase> > decl_PolygonToEdgeP
   "This class has been introduced in version 0.29.\n"
 );
 
-Class<shape_processor_impl<db::PolygonToEdgePairProcessorBase> > decl_PolygonToEdgePairProcessor ("db", "PolygonToEdgePairOperator",
+Class<db::PolygonToEdgePairProcessorBase> decl_PolygonToEdgePairProcessorBase ("db", "PolygonToEdgePairProcessorBase", "@hide");
+
+Class<shape_processor_impl<db::PolygonToEdgePairProcessorBase> > decl_PolygonToEdgePairProcessor (decl_PolygonToEdgePairProcessorBase, "db", "PolygonToEdgePairOperator",
   shape_processor_impl<db::PolygonToEdgePairProcessorBase>::method_decls (true),
   "@brief A generic polygon-to-edge-pair operator\n"
   "\n"
@@ -627,22 +719,22 @@ static std::vector<db::Region> split_filter (const db::Region *r, const PolygonF
   return as_2region_vector (r->split_filter (*f));
 }
 
-static db::Region processed_pp (const db::Region *r, const shape_processor_impl<db::PolygonProcessorBase> *f)
+static db::Region processed_pp (const db::Region *r, const db::PolygonProcessorBase *f)
 {
   return r->processed (*f);
 }
 
-static void process_pp (db::Region *r, const shape_processor_impl<db::PolygonProcessorBase> *f)
+static void process_pp (db::Region *r, const db::PolygonProcessorBase *f)
 {
   r->process (*f);
 }
 
-static db::EdgePairs processed_pep (const db::Region *r, const shape_processor_impl<db::PolygonToEdgePairProcessorBase> *f)
+static db::EdgePairs processed_pep (const db::Region *r, const db::PolygonToEdgePairProcessorBase *f)
 {
   return r->processed (*f);
 }
 
-static db::Edges processed_pe (const db::Region *r, const shape_processor_impl<db::PolygonToEdgeProcessorBase> *f)
+static db::Edges processed_pe (const db::Region *r, const db::PolygonToEdgeProcessorBase *f)
 {
   return r->processed (*f);
 }
@@ -977,9 +1069,9 @@ static db::Region &merge_ext1 (db::Region *r, int min_wc)
   return *r;
 }
 
-static db::Region &merge_ext2 (db::Region *r, bool min_coherence, int min_wc)
+static db::Region &merge_ext2 (db::Region *r, bool min_coherence, int min_wc, bool jpm)
 {
-  r->merge (min_coherence, std::max (0, min_wc - 1));
+  r->merge (min_coherence, std::max (0, min_wc - 1), jpm);
   return *r;
 }
 
@@ -988,9 +1080,9 @@ static db::Region merged_ext1 (db::Region *r, int min_wc)
   return r->merged (false, std::max (0, min_wc - 1));
 }
 
-static db::Region merged_ext2 (db::Region *r, bool min_coherence, int min_wc)
+static db::Region merged_ext2 (db::Region *r, bool min_coherence, int min_wc, bool jpm)
 {
-  return r->merged (min_coherence, std::max (0, min_wc - 1));
+  return r->merged (min_coherence, std::max (0, min_wc - 1), jpm);
 }
 
 static db::EdgePairs width2 (const db::Region *r, db::Region::distance_type d, bool whole_edges, db::metrics_type metrics, const tl::Variant &ignore_angle, const tl::Variant &min_projection, const tl::Variant &max_projection, bool shielded, bool negative, db::PropertyConstraint prop_constraint, db::zero_distance_mode zero_distance_mode)
@@ -1656,6 +1748,23 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
     "@brief Gets a flag indicating whether merged semantics is enabled\n"
     "See \\merged_semantics= for a description of this attribute.\n"
   ) +
+  method ("join_properties_on_merge=", &db::Region::set_join_properties_on_merge, gsi::arg ("f"),
+    "@brief Sets a flag indicating whether to join properties on merge\n"
+    "\n"
+    "When this flag is set to true, properties are joined on 'merge'.\n"
+    "That is: shapes merging into bigger shapes will have their properties joined.\n"
+    "With the flag set to false (the default), 'merge' will not join properties and return merged\n"
+    "shapes only if the sub-shapes have the same properties - i.e. properties form\n"
+    "separate shape classes on merge.\n"
+    "\n"
+    "This attribute has been introduced in version 0.30.3."
+  ) +
+  method ("join_properties_on_merge?", &db::Region::join_properties_on_merge,
+    "@brief Gets a flag indicating whether to join properties on merge\n"
+    "See \\join_properties_on_merge= for a description of this attribute.\n"
+    "\n"
+    "This attribute has been introduced in version 0.30.3."
+  ) +
   method ("strict_handling=", &db::Region::set_strict_handling, gsi::arg ("f"),
     "@brief Enables or disables strict handling\n"
     "\n"
@@ -2289,65 +2398,77 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
   method ("merge", (db::Region &(db::Region::*) ()) &db::Region::merge,
     "@brief Merge the region\n"
     "\n"
-    "@return The region after is has been merged (self).\n"
+    "@return The region after it has been merged (self).\n"
     "\n"
     "Merging removes overlaps and joins touching polygons.\n"
-    "If the region is already merged, this method does nothing\n"
+    "If the region is already merged, this method does nothing.\n"
+    "This method will behave according to the settings of the \\min_coherence and \\join_properties_on_merge attributes."
   ) +
   method_ext ("merge", &merge_ext1, gsi::arg ("min_wc"),
     "@brief Merge the region with options\n"
     "\n"
     "@param min_wc Overlap selection\n"
-    "@return The region after is has been merged (self).\n"
+    "@return The region after it has been merged (self).\n"
     "\n"
     "Merging removes overlaps and joins touching polygons.\n"
     "This version provides one additional option: \"min_wc\" controls whether output is only produced if multiple "
     "polygons overlap. The value specifies the number of polygons that need to overlap. A value of 2 "
     "means that output is only produced if two or more polygons overlap.\n"
     "\n"
-    "This method is equivalent to \"merge(false, min_wc).\n"
+    "This method is equivalent to \"merge(false, min_wc, false).\n"
   ) +
-  method_ext ("merge", &merge_ext2, gsi::arg ("min_coherence"), gsi::arg ("min_wc"),
+  method_ext ("merge", &merge_ext2, gsi::arg ("min_coherence"), gsi::arg ("min_wc"), gsi::arg ("join_properties_on_merge", false),
     "@brief Merge the region with options\n"
     "\n"
     "@param min_coherence A flag indicating whether the resulting polygons shall have minimum coherence\n"
     "@param min_wc Overlap selection\n"
-    "@return The region after is has been merged (self).\n"
+    "@param join_properties_on_merge See below\n"
+    "@return The region after it has been merged (self).\n"
     "\n"
     "Merging removes overlaps and joins touching polygons.\n"
     "This version provides two additional options: if \"min_coherence\" is set to true, \"kissing corners\" are "
     "resolved by producing separate polygons. \"min_wc\" controls whether output is only produced if multiple "
     "polygons overlap. The value specifies the number of polygons that need to overlap. A value of 2 "
     "means that output is only produced if two or more polygons overlap.\n"
+    "\n"
+    "The 'join_properties_on_merge' argument indicates how properties should be handled: if true, "
+    "the properties of the parts are joined and attached to the merged shape. If false, "
+    "only shapes with the same properties are merged - i.e. different properties form shape classes "
+    "that are merged individually.\n"
+    "\n"
+    "'join_properties_on_merge' has been added in version 0.30.3."
   ) +
   method ("merged", (db::Region (db::Region::*) () const) &db::Region::merged,
     "@brief Returns the merged region\n"
     "\n"
-    "@return The region after is has been merged.\n"
+    "@return The region after it has been merged.\n"
     "\n"
     "Merging removes overlaps and joins touching polygons.\n"
     "If the region is already merged, this method does nothing.\n"
+    "This method will behave according to the settings of the \\min_coherence and \\join_properties_on_merge attributes.\n"
     "In contrast to \\merge, this method does not modify the region but returns a merged copy.\n"
   ) +
   method_ext ("merged", &merged_ext1, gsi::arg ("min_wc"),
     "@brief Returns the merged region (with options)\n"
     "\n"
-    "@return The region after is has been merged.\n"
+    "@param min_wc Overlap selection\n"
+    "@return The region after it has been merged.\n"
     "\n"
     "This version provides one additional options: \"min_wc\" controls whether output is only produced if multiple "
     "polygons overlap. The value specifies the number of polygons that need to overlap. A value of 2 "
     "means that output is only produced if two or more polygons overlap.\n"
     "\n"
-    "This method is equivalent to \"merged(false, min_wc)\".\n"
+    "This method is equivalent to \"merged(false, min_wc, false)\".\n"
     "\n"
     "In contrast to \\merge, this method does not modify the region but returns a merged copy.\n"
   ) +
-  method_ext ("merged", &merged_ext2, gsi::arg ("min_coherence"), gsi::arg ("min_wc"),
+  method_ext ("merged", &merged_ext2, gsi::arg ("min_coherence"), gsi::arg ("min_wc"), gsi::arg ("join_properties_on_merge", false),
     "@brief Returns the merged region (with options)\n"
     "\n"
     "@param min_coherence A flag indicating whether the resulting polygons shall have minimum coherence\n"
     "@param min_wc Overlap selection\n"
-    "@return The region after is has been merged (self).\n"
+    "@param join_properties_on_merge See below\n"
+    "@return The region after it has been merged (self).\n"
     "\n"
     "Merging removes overlaps and joins touching polygons.\n"
     "This version provides two additional options: if \"min_coherence\" is set to true, \"kissing corners\" are "
@@ -2355,7 +2476,15 @@ Class<db::Region> decl_Region (decl_dbShapeCollection, "db", "Region",
     "polygons overlap. The value specifies the number of polygons that need to overlap. A value of 2 "
     "means that output is only produced if two or more polygons overlap.\n"
     "\n"
+    "\n"
+    "The 'join_properties_on_merge' argument indicates how properties should be handled: if true, "
+    "the properties of the parts are joined and attached to the merged shape. If false, "
+    "only shapes with the same properties are merged - i.e. different properties form shape classes "
+    "that are merged individually.\n"
+    "\n"
     "In contrast to \\merge, this method does not modify the region but returns a merged copy.\n"
+    "\n"
+    "'join_properties_on_merge' has been added in version 0.30.3."
   ) +
   method ("round_corners", &db::Region::round_corners, gsi::arg ("r_inner"), gsi::arg ("r_outer"), gsi::arg ("n"),
     "@brief Corner rounding\n"

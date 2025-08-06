@@ -2069,10 +2069,16 @@ TEST(50_PropertiesFlat)
     "{}:(10,20;10,220;110,220;110,20)"
   );
 
+  r.set_join_properties_on_merge (false);
   EXPECT_EQ (sip2s (r.begin_merged ()),
     "{id=>1}:(1,2;1,202;101,202;101,2)\n"
     "{id=>42}:(11,12;11,212;111,212;111,12)\n"
     "{}:(0,0;0,200;10,200;10,220;110,220;110,20;100,20;100,0)"
+  );
+
+  r.set_join_properties_on_merge (true);
+  EXPECT_EQ (sip2s (r.begin_merged ()),
+    "{id=>42}:(0,0;0,200;1,200;1,202;10,202;10,220;110,220;110,212;111,212;111,12;101,12;101,2;100,2;100,0)"
   );
 }
 
@@ -2165,10 +2171,16 @@ TEST(51_PropertiesFlatFromLayout)
     "{}:(10,20;10,220;110,220;110,20)"
   );
 
+  r.set_join_properties_on_merge (false);
   EXPECT_EQ (sip2s (r.begin_merged ()),
     "{id=>1}:(1,2;1,202;101,202;101,2)\n"
     "{id=>42}:(11,12;11,212;111,212;111,12)\n"
     "{}:(0,0;0,200;10,200;10,220;110,220;110,20;100,20;100,0)"
+  );
+
+  r.set_join_properties_on_merge (true);
+  EXPECT_EQ (sip2s (r.begin_merged ()),
+    "{id=>42}:(0,0;0,200;1,200;1,202;10,202;10,220;110,220;110,212;111,212;111,12;101,12;101,2;100,2;100,0)"
   );
 }
 
@@ -2214,6 +2226,7 @@ TEST(52_PropertiesDeep)
   ++s;
   EXPECT_EQ (s.at_end (), true);
 
+  r.set_join_properties_on_merge (false);
   s = r.begin_merged ();
   EXPECT_EQ (s.at_end (), false);
   EXPECT_EQ (s.prop_id (), db::properties_id_type (0));
@@ -2231,6 +2244,16 @@ TEST(52_PropertiesDeep)
   EXPECT_EQ (s.prop_id (), pid42);
   //  a single property #42 element
   EXPECT_EQ (s->to_string (), "(11,12;11,212;111,212;111,12)");
+  ++s;
+
+  EXPECT_EQ (s.at_end (), true);
+
+  r.set_join_properties_on_merge (true);
+  s = r.begin_merged ();
+  EXPECT_EQ (s.at_end (), false);
+
+  //  polygons are merged with "maximum" property value
+  EXPECT_EQ (db::PolygonWithProperties (*s, s.prop_id ()).to_string (), "(0,0;0,200;1,200;1,202;10,202;10,220;110,220;110,212;111,212;111,12;101,12;101,2;100,2;100,0) props={id=>42}");
   ++s;
 
   EXPECT_EQ (s.at_end (), true);
@@ -2345,6 +2368,7 @@ TEST(53_PropertiesDeepFromLayout)
   ++s;
   EXPECT_EQ (s.at_end (), true);
 
+  r.set_join_properties_on_merge (false);
   s = r.begin_merged ();
   EXPECT_EQ (s.at_end (), false);
   EXPECT_EQ (s.prop_id (), db::properties_id_type (0));
@@ -2362,6 +2386,16 @@ TEST(53_PropertiesDeepFromLayout)
   EXPECT_EQ (db::prop2string (s.prop_id ()), "{VALUE=>42}");
   //  a single property #42 element
   EXPECT_EQ (s->to_string (), "(11,12;11,212;111,212;111,12)");
+  ++s;
+
+  EXPECT_EQ (s.at_end (), true);
+
+  r.set_join_properties_on_merge (true);
+  s = r.begin_merged ();
+  EXPECT_EQ (s.at_end (), false);
+
+  //  polygons are merged with "maximum" property value
+  EXPECT_EQ (db::PolygonWithProperties (*s, s.prop_id ()).to_string (), "(0,0;0,200;1,200;1,202;10,202;10,220;110,220;110,212;111,212;111,12;101,12;101,2;100,2;100,0) props={VALUE=>42}");
   ++s;
 
   EXPECT_EQ (s.at_end (), true);

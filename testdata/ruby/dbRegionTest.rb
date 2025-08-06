@@ -1636,6 +1636,11 @@ class DBRegion_TestClass < TestBase
     r.insert(RBA::Box::new(10, 20, 110, 220))
     s = r.each.collect(&:to_s).join(";")
     assert_equal(s, "(10,20;10,220;110,220;110,20) props={};(0,0;0,200;100,200;100,0) props={1=>one}")
+    rr = r.dup
+    rr.join_properties_on_merge = true
+    assert_equal(rr.join_properties_on_merge, true)
+    s = rr.each_merged.collect(&:to_s).join(";")
+    assert_equal(s, "(0,0;0,200;10,200;10,220;110,220;110,20;100,20;100,0) props={1=>one}")
     s = r.each_merged.collect(&:to_s).join(";")
     assert_equal(s, "(10,20;10,220;110,220;110,20) props={};(0,0;0,200;100,200;100,0) props={1=>one}")
 
@@ -1654,6 +1659,8 @@ class DBRegion_TestClass < TestBase
     r.insert(RBA::PolygonWithProperties::new(RBA::Box::new(0, 0, 100, 200), { "one" => -1 }))
     r.insert(RBA::PolygonWithProperties::new(RBA::Box::new(1, 1, 101, 201), { "one" => 17 }))
     r.insert(RBA::PolygonWithProperties::new(RBA::Box::new(2, 2, 102, 202), { "one" => 42 }))
+    r.join_properties_on_merge = false
+    assert_equal(r.join_properties_on_merge, false)
 
     assert_equal(r.filtered(RBA::PolygonFilter::property_filter("one", 11)).to_s, "")
     assert_equal(r.filtered(RBA::PolygonFilter::property_filter("two", 17)).to_s, "")
@@ -1665,6 +1672,16 @@ class DBRegion_TestClass < TestBase
     assert_equal(csort(r.filtered(RBA::PolygonFilter::property_filter_bounded("one", nil, 18)).to_s), csort("(1,1;1,201;101,201;101,1){one=>17};(0,0;0,200;100,200;100,0){one=>-1}"))
     assert_equal(csort(r.filtered(RBA::PolygonFilter::property_glob("one", "1*")).to_s), csort("(1,1;1,201;101,201;101,1){one=>17}"))
     assert_equal(csort(r.filtered(RBA::PolygonFilter::property_glob("one", "1*", true)).to_s), csort("(2,2;2,202;102,202;102,2){one=>42};(0,0;0,200;100,200;100,0){one=>-1}"))
+
+    rr = r.dup
+    rr.filter(RBA::PolygonFilter::property_filter("one", 17))
+    assert_equal(csort(rr.to_s), csort("(1,1;1,201;101,201;101,1){one=>17}"))
+
+    r.join_properties_on_merge = true
+    assert_equal(r.join_properties_on_merge, true)
+    assert_equal(csort(r.filtered(RBA::PolygonFilter::property_filter("one", 42)).to_s), csort("(0,0;0,200;1,200;1,201;2,201;2,202;102,202;102,2;101,2;101,1;100,1;100,0){one=>42}"))
+
+    # deep regions
 
     ly = RBA::Layout::new
     top = ly.create_cell("TOP")
@@ -1679,6 +1696,8 @@ class DBRegion_TestClass < TestBase
     iter = top.begin_shapes_rec(l1)
     iter.enable_properties()
     r = RBA::Region::new(iter, dss)
+    r.join_properties_on_merge = false
+    assert_equal(r.join_properties_on_merge, false)
 
     assert_equal(r.filtered(RBA::PolygonFilter::property_filter("one", 11)).to_s, "")
     assert_equal(r.filtered(RBA::PolygonFilter::property_filter("two", 17)).to_s, "")
@@ -1695,7 +1714,45 @@ class DBRegion_TestClass < TestBase
     rr.filter(RBA::PolygonFilter::property_filter("one", 17))
     assert_equal(csort(rr.to_s), csort("(1,1;1,201;101,201;101,1){one=>17}"))
 
+    r.join_properties_on_merge = true
+    assert_equal(r.join_properties_on_merge, true)
+    assert_equal(csort(r.filtered(RBA::PolygonFilter::property_filter("one", 42)).to_s), csort("(0,0;0,200;1,200;1,201;2,201;2,202;102,202;102,2;101,2;101,1;100,1;100,0){one=>42}"))
+
     dss._destroy
+
+  end
+
+  # properties
+  def test_prop_expressions
+
+    r = RBA::Region::new
+    r.insert(RBA::BoxWithProperties::new(RBA::Box::new(0, 0, 1000, 2000), { "PropA" => 17.0, 1 => 42 }))
+    assert_equal(r.to_s, "(0,0;0,2000;1000,2000;1000,0){1=>42,PropA=>17}")
+
+    # replace
+    pr = RBA::PolygonPropertiesExpressions::new(r, { "X" => "PropA+1", "Y" => "shape.area", "Z" => "value(1)+one" }, variables: { "one" => 1 })
+    assert_equal(r.processed(pr).to_s, "(0,0;0,2000;1000,2000;1000,0){X=>18,Y=>2000000,Z=>43}")
+
+    # replace (with 'put')
+    pr = RBA::PolygonPropertiesExpressions::new(r, "put('X', PropA+1); put('Y', shape.area); put('Z', value(1)+one)", variables: { "one" => 1 })
+    assert_equal(r.processed(pr).to_s, "(0,0;0,2000;1000,2000;1000,0){X=>18,Y=>2000000,Z=>43}")
+
+    # substitutions
+    pr = RBA::PolygonPropertiesExpressions::new(r, { "PropA" => "0", "X" => "PropA+1", "Y" => "shape.area", "Z" => "value(1)+1" }, true)
+    assert_equal(r.processed(pr).to_s, "(0,0;0,2000;1000,2000;1000,0){1=>42,PropA=>0,X=>18,Y=>2000000,Z=>43}")
+
+    # substitutions
+    pr = RBA::PolygonPropertiesExpressions::new(r, { "PropA" => "0", "X" => "PropA+1", "Y" => "shape.area", "Z" => "value(1)+1" }, true, dbu: 0.001)
+    assert_equal(r.processed(pr).to_s, "(0,0;0,2000;1000,2000;1000,0){1=>42,PropA=>0,X=>18,Y=>2,Z=>43}")
+
+    ef = RBA::PolygonFilterBase::expression_filter("PropX==18")
+    assert_equal(r.filtered(ef).to_s, "")
+
+    ef = RBA::PolygonFilterBase::expression_filter("PropA==v17", variables: { "v17" => 17 })
+    assert_equal(r.filtered(ef).to_s, "(0,0;0,2000;1000,2000;1000,0){1=>42,PropA=>17}")
+
+    ef = RBA::PolygonFilterBase::expression_filter("value(1)>=40")
+    assert_equal(r.filtered(ef).to_s, "(0,0;0,2000;1000,2000;1000,0){1=>42,PropA=>17}")
 
   end
 

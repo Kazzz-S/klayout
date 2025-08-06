@@ -79,6 +79,17 @@ db::properties_id_type properties_id (const PropertiesSet &ps)
   return PropertiesRepository::instance ().properties_id (ps);
 }
 
+db::properties_id_type properties_id (const std::map<tl::Variant, tl::Variant> &dict)
+{
+  db::PropertiesSet props;
+
+  for (std::map<tl::Variant, tl::Variant>::const_iterator v = dict.begin (); v != dict.end (); ++v) {
+    props.insert (v->first, v->second);
+  }
+
+  return db::properties_id (props);
+}
+
 size_t hash_for_properties_id (properties_id_type id)
 {
   return id == 0 ? 0 : db::properties (id).hash ();
@@ -246,6 +257,32 @@ void
 PropertiesSet::merge (const db::PropertiesSet &other)
 {
   m_map.insert (other.m_map.begin (), other.m_map.end ());
+}
+
+void
+PropertiesSet::join_max (const db::PropertiesSet &other)
+{
+  if (other.empty ()) {
+
+    //  ignore empty properties
+
+  } else if (empty ()) {
+
+    *this = other;
+
+  } else {
+
+    for (auto i = other.begin (); i != other.end (); ++i) {
+      auto f = find (i->first);
+      if (f == end ()) {
+        insert_by_id (i->first, i->second);
+      } else if (db::property_value (f->second) < db::property_value (i->second)) {
+        erase (i->first);
+        insert_by_id (i->first, i->second);
+      }
+    }
+
+  }
 }
 
 std::multimap<tl::Variant, tl::Variant>

@@ -117,14 +117,15 @@ std::string tr (const char *s)
 
 #endif
 
-}
-
-#if ! defined(HAVE_QT)
-
-std::string tr (const char *s)
+std::string tr_fallback (const char *s)
 {
+#if defined(HAVE_QT)
+  return tl::to_string (QObject::tr (s));
+#else
   //  TODO: this is a fallback implementation without translation
   return std::string (s);
+#endif
 }
 
-#endif
+}
+
