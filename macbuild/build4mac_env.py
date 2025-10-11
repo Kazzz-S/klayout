@@ -129,7 +129,7 @@ Qt56Dictionary  = { 'Qt5MacPorts': Qt5MacPorts,
 #           for the previous states.
 #-----------------------------------------------------
 RubyNil  = [ 'nil' ]
-RubySys  = [ 'RubyMonterey', 'RubyVentura', 'RubySonoma', 'RubySequoia' ]
+RubySys  = [ 'RubyMonterey', 'RubyVentura', 'RubySonoma', 'RubySequoia', 'RubyTahoe' ]
 RubyExt  = [ 'Ruby33MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
 Rubies   = RubyNil + RubySys + RubyExt
 
@@ -188,6 +188,16 @@ RubySequoia      = { 'exe':  '/System/Library/Frameworks/Ruby.framework/Versions
                      'lib':  '%s/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/lib/libruby.tbd' % SequoiaXcSDK
                    }
 
+# Bundled with Tahoe (26.x)
+# [Key Type Name] = 'Sys'
+TahoeXcSDK       = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+TahoeCLTSDK      = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+RubyTahoe        = { 'exe':  '/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/bin/ruby',
+                     'inc':  '%s/System/Library/Frameworks/Ruby.framework/Headers' % TahoeXcSDK,
+                     'inc2': '%s/System/Library/Frameworks/Ruby.framework/Headers/ruby' % TahoeXcSDK,
+                     'lib':  '%s/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/lib/libruby.tbd' % TahoeXcSDK
+                   }
+
 # Ruby 3.3 from MacPorts (https://www.macports.org/)
 #  install with 'sudo port install ruby33'
 # [Key Type Name] = 'MP33'
@@ -220,6 +230,7 @@ RubyDictionary  = { 'nil'           : None,
                     'RubyVentura'   : RubyVentura,
                     'RubySonoma'    : RubySonoma,
                     'RubySequoia'   : RubySequoia,
+                    'RubyTahoe'     : RubyTahoe,
                     'Ruby33MacPorts': Ruby33MacPorts,
                     'Ruby34Brew'    : Ruby34Brew,
                     'RubyAnaconda3' : RubyAnaconda3
@@ -234,7 +245,7 @@ RubyDictionary  = { 'nil'           : None,
 #           for the previous states.
 #-----------------------------------------------------
 PythonNil  = [ 'nil' ]
-PythonSys  = [ 'PythonMonterey', 'PythonVentura', 'PythonSonoma', 'PythonSequoia' ]
+PythonSys  = [ 'PythonMonterey', 'PythonVentura', 'PythonSonoma', 'PythonSequoia', 'PythonTahoe' ]
 PythonExt  = [ 'Python311MacPorts', 'Python312MacPorts' ]
 PythonExt += [ 'Python311Brew', 'Python312Brew', 'PythonAutoBrew' ]
 PythonExt += [ 'PythonAnaconda3' ]
@@ -277,6 +288,15 @@ SequoiaPy3FW     = "/Library/Developer/CommandLineTools/Library/Frameworks"
 PythonSequoia    = { 'exe': '%s/Python3.framework/Versions/3.9/bin/python3.9' % SequoiaPy3FW,
                      'inc': '%s/Python3.framework/Versions/3.9/include/python3.9' % SequoiaPy3FW,
                      'lib': '%s/Python3.framework/Versions/3.9/lib/libpython3.9.dylib' % SequoiaPy3FW
+                   }
+
+# Bundled with Tahoe (26.x)
+# [Key Type Name] = 'Sys'
+TahoePy3FWXc     = "/Applications/Xcode.app/Contents/Developer/Library/Frameworks"
+TahoePy3FW       = "/Library/Developer/CommandLineTools/Library/Frameworks"
+PythonTahoe      = { 'exe': '%s/Python3.framework/Versions/3.9/bin/python3.9' % TahoePy3FW,
+                     'inc': '%s/Python3.framework/Versions/3.9/include/python3.9' % TahoePy3FW,
+                     'lib': '%s/Python3.framework/Versions/3.9/lib/libpython3.9.dylib' % TahoePy3FW
                    }
 
 # Python 3.11 from MacPorts (https://www.macports.org/)
@@ -378,6 +398,7 @@ PythonDictionary = { 'nil'              : None,
                      'PythonVentura'    : PythonVentura,
                      'PythonSonoma'     : PythonSonoma,
                      'PythonSequoia'    : PythonSequoia,
+                     'PythonTahoe'      : PythonTahoe,
                      'Python312MacPorts': Python312MacPorts,
                      'Python312Brew'    : Python312Brew,
                      'PythonAnaconda3'  : PythonAnaconda3,
