@@ -84,13 +84,12 @@ Qt5Brew = { 'qmake' : '%s/opt/qt@5/bin/qmake' % DefaultHomebrewRoot,
             'libdir': '%s/opt/qt@5/lib' % DefaultHomebrewRoot
           }
 
-# Qt5 bundled with anaconda3 installed under /Applications/anaconda3/
-# The standard installation deploys the tool under $HOME/opt/anaconda3/.
-# If so, you need to make a symbolic link: /Applications/anaconda3 ---> $HOME/opt/anaconda3/
+# Qt5 bundled with anaconda3 installed under /opt/anaconda3/
+#   (checked with "Anaconda3-2025.06-0-MacOSX-arm64.pkg")
 # [Key Type Name] = 'Qt5Ana3'
-Qt5Ana3 = { 'qmake' : '/Applications/anaconda3/bin/qmake',
-            'deploy': '/Applications/anaconda3/bin/macdeployqt',
-            'libdir': '/Applications/anaconda3/lib'
+Qt5Ana3 = { 'qmake' : '/opt/anaconda3/bin/qmake',
+            'deploy': '/opt/anaconda3/bin/macdeployqt',
+            'libdir': '/opt/anaconda3/lib'
           }
 
 #-------------------------------------------------------------------------
@@ -215,13 +214,12 @@ Ruby34Brew      = { 'exe': '%s/bin/ruby' % HBRuby34Path,
                     'lib': '%s/lib/libruby.3.4.dylib' % HBRuby34Path
                   }
 
-# Ruby 3.2 bundled with anaconda3 installed under /Applications/anaconda3/
-# The standard installation deploys the tool under $HOME/opt/anaconda3/.
-# If so, you need to make a symbolic link: /Applications/anaconda3 ---> $HOME/opt/anaconda3/
+# Ruby 3.2 bundled with anaconda3 installed under /opt/anaconda3/
+#   (checked with "Anaconda3-2025.06-0-MacOSX-arm64.pkg")
 # [Key Type Name] = 'Ana3'
-RubyAnaconda3   = { 'exe': '/Applications/anaconda3/bin/ruby',
-                    'inc': '/Applications/anaconda3/include/ruby-3.2.0',
-                    'lib': '/Applications/anaconda3/lib/libruby.3.2.dylib'
+RubyAnaconda3   = { 'exe': '/opt/anaconda3/bin/ruby',
+                    'inc': '/opt/anaconda3/include/ruby-3.2.0',
+                    'lib': '/opt/anaconda3/lib/libruby.3.2.dylib'
                   }
 
 # Consolidated dictionary kit for Ruby
@@ -333,13 +331,12 @@ Python312Brew     = { 'exe': '%s/Versions/3.12/bin/python3.12' % HBPython312Fram
                       'lib': '%s/Versions/3.12/lib/libpython3.12.dylib' % HBPython312FrameworkPath
                     }
 
-# Python 3.12 bundled with anaconda3 installed under /Applications/anaconda3/
-# The standard installation deploys the tool under $HOME/opt/anaconda3/.
-# If so, you need to make a symbolic link: /Applications/anaconda3 ---> $HOME/opt/anaconda3/
+# Python 3.13 bundled with anaconda3 installed under /opt/anaconda3/
+#   (checked with "Anaconda3-2025.06-0-MacOSX-arm64.pkg")
 # [Key Type Name] = 'Ana3'
-PythonAnaconda3 = { 'exe': '/Applications/anaconda3/bin/python3.12',
-                    'inc': '/Applications/anaconda3/include/python3.12',
-                    'lib': '/Applications/anaconda3/lib/libpython3.12.dylib'
+PythonAnaconda3 = { 'exe': '/opt/anaconda3/bin/python3.13',
+                    'inc': '/opt/anaconda3/include/python3.13',
+                    'lib': '/opt/anaconda3/lib/libpython3.13.dylib'
                   }
 
 # Latest Python from Homebrew
