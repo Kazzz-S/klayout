@@ -106,7 +106,11 @@ def SetGlobals():
 
     release = int( Release.split(".")[0] ) # take the first of ['21', '0', '0']
     LatestOS = ""
-    if release == 24:
+    if release == 25:
+        GenOSName = "macOS"
+        Platform  = "Tahoe"
+        LatestOS  = Platform
+    elif release == 24:
         GenOSName = "macOS"
         Platform  = "Sequoia"
         LatestOS  = Platform
@@ -131,7 +135,7 @@ def SetGlobals():
 
     if not Machine == "x86_64":
         # with an Apple Silicon Chip?
-        if Machine == "arm64" and Platform in ["Sequoia", "Sonoma", "Ventura", "Monterey"]:
+        if Machine == "arm64" and Platform in ["Tahoe", "Sequoia", "Sonoma", "Ventura", "Monterey"]:
             print("")
             print( "### Your Mac equips an Apple Silicon Chip ###" )
             print("")
@@ -293,9 +297,15 @@ def CheckPkgDirectory():
         PackagePrefix    = pkgdirComponents[0]
         QtIdentification = pkgdirComponents[2]
         if QtIdentification.find('qt5') == 0:
-            BackgroundPNG = "KLayoutDMG-BackQt5.png"
+            if Machine == "x86_64":
+                BackgroundPNG = "KLayoutDMG-BackQt5-X86.png"
+            else: # arm64
+                BackgroundPNG = "KLayoutDMG-BackQt5-Mx.png"
         elif QtIdentification.find('qt6') == 0:
-            BackgroundPNG = "KLayoutDMG-BackQt6.png"
+            if Machine == "x86_64":
+                BackgroundPNG = "KLayoutDMG-BackQt6-X86.png"
+            else: # arm64
+                BackgroundPNG = "KLayoutDMG-BackQt6-Mx.png"
         else:
             BackgroundPNG = None
             raise Exception( "! neither qt5 nor qt6" )
