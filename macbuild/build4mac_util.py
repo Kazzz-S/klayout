@@ -870,6 +870,224 @@ def DumpDependencyDicPair( title, depDic, pathDic ):
 
     return
 
+#----------------------------------------------------------------------------------------
+## To append qmake LFLAGS with -Wl,-adhoc_codesign only if the linker supports it.
+#  [ChatGPT]
+#
+#  Call this once BEFORE running qmake.
+#
+# @return void
+#----------------------------------------------------------------------------------------
+def Append_qmake_Flags():
+    import os, subprocess, tempfile, textwrap, shutil
+
+    def _run(cmd):
+        try:
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT, text=True)
+            return True
+        except Exception:
+            return False
+
+    # If the user explicitly disables probing, honor it.
+    if os.environ.get("DISABLE_ADHOC_CODESIGN_PROBE") == "1":
+        return
+
+    # Prefer clang if available; otherwise try cc.
+    compiler = shutil.which("clang") or shutil.which("cc")
+    if not compiler:
+        # No compiler available to probe; just skip injecting.
+        return
+
+    # Probe: try a tiny link with -Wl,-adhoc_codesign (toolchain-dependent)
+    probe_src = textwrap.dedent("int main(){return 0;}\n")
+    with tempfile.TemporaryDirectory() as td:
+        src = os.path.join(td, "t.c")
+        out = os.path.join(td, "t.out")
+        with open(src, "w") as f:
+            f.write(probe_src)
+        supported = _run([compiler, src, "-Wl,-adhoc_codesign", "-o", out])
+
+    if not supported:
+        # Old ld64 (e.g., some Monterey toolchains) -> skip injecting the flag.
+        return
+
+    def _append(name, extra):
+        prev = os.environ.get(name, "")
+        os.environ[name] = (prev + " " + extra).strip() if prev else extra
+
+    extra = "-Wl,-adhoc_codesign"
+    # Cover all target types
+    for var in ("QMAKE_LFLAGS", "QMAKE_LFLAGS_APP", "QMAKE_LFLAGS_SHLIB", "QMAKE_LFLAGS_PLUGIN"):
+        _append(var, extra)
+
+#------------------------------------------------------------------------------------------------
+## Sign a macOS application bundle (ad-hoc) after all post-build edits (install_name_tool/strip).
+#
+#  [ChatGPT]
+#
+# What it does:
+#   - Removes quarantine recursively
+#   - Drops exec bits on *.so (prevents dyld from treating them as executables)
+#   - Signs all Mach-O candidates (.dylib, .so, executables), inner code first
+#   - Deep-signs the .app
+#   - Verifies with codesign & spctl
+#
+# Usage:
+#   res = Sign_App_Bundle("/Applications/klayout-ana3.app")
+#   print(res["ok"], res["verify_codesign_ok"], res["verify_spctl_ok"])
+#------------------------------------------------------------------------------------------------
+def Sign_App_Bundle(app_path: str) -> dict:
+    """
+    Ad-hoc sign a macOS .app bundle (for local execution on Sequoia/Tahoe).
+    Call this at the very end of your build chain, after any strip/install_name_tool steps.
+
+    @param[in] app_path   Path to the .app bundle
+    @return               Dict with results and logs.
+    """
+    import os
+    import subprocess
+    import plistlib
+    import shutil
+    from pathlib import Path
+
+    def _run(cmd):
+        """Run a shell command and return (ok, stdout+stderr)."""
+        try:
+            out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, text=True)
+            return True, out
+        except subprocess.CalledProcessError as e:
+            return False, e.output
+        except FileNotFoundError as e:
+            return False, str(e)
+
+    # Tool availability (nice diagnostics if something is missing)
+    for tool in ("codesign", "spctl", "xattr"):
+        if not shutil.which(tool):
+            return {"ok": False, "error": f"Required tool not found: {tool}"}
+
+    app = Path(app_path).resolve()
+    if not app.exists():
+        return {"ok": False, "error": f"App not found: {app}"}
+
+    info_plist = app / "Contents" / "Info.plist"
+    if not info_plist.exists():
+        return {"ok": False, "error": f"Info.plist not found: {info_plist}"}
+
+    # Read CFBundleExecutable to locate the main binary
+    with info_plist.open("rb") as f:
+        info = plistlib.load(f)
+    exe_name = info.get("CFBundleExecutable")
+    if not exe_name:
+        return {"ok": False, "error": "CFBundleExecutable not set in Info.plist"}
+
+    main_bin = app / "Contents" / "MacOS" / exe_name
+    steps_log = []
+
+    # 0) Remove quarantine (recursively)
+    ok, out = _run(["xattr", "-dr", "com.apple.quarantine", str(app)])
+    steps_log.append(("xattr_clear_quarantine", ok, out))
+
+    # 1) Drop exec bits on *.so (avoid dyld “executable” validation on Python extensions)
+    so_execbits_dropped = []
+    for p in app.rglob("*.so"):
+        try:
+            if p.is_symlink():
+                continue
+            mode = p.stat().st_mode
+            if mode & 0o111:
+                os.chmod(p, mode & ~0o111)  # remove all exec bits
+                so_execbits_dropped.append(str(p))
+        except Exception as e:
+            steps_log.append(("chmod_so", False, f"{p}: {e}"))
+
+    # 2) Build signing target list
+    #    Sign nested code first (dylib/so/other executables), then main binary, then deep-sign the app.
+    inner_targets = []
+
+    # a) Any other executable files under Contents/MacOS and Contents/Buddy (excluding main)
+    for sub in ("Contents/MacOS", "Contents/Buddy"):
+        root = app / sub
+        if root.exists():
+            for p in root.rglob("*"):
+                try:
+                    if p.is_symlink() or not p.is_file():
+                        continue
+                    if p == main_bin:
+                        continue
+                    if os.access(p, os.X_OK):
+                        inner_targets.append(p)
+                except Exception:
+                    pass
+
+    # b) All .dylib and .so anywhere (sign even without exec bit)
+    for ext in ("*.dylib", "*.so"):
+        for p in app.rglob(ext):
+            if p.is_symlink() or not p.is_file():
+                continue
+            inner_targets.append(p)
+
+    # De-duplicate while preserving order
+    seen = set()
+    uniq_inner_targets = []
+    for p in inner_targets:
+        sp = str(p)
+        if sp not in seen:
+            seen.add(sp)
+            uniq_inner_targets.append(p)
+
+    # 3) Sign inner targets (ad-hoc)
+    sign_errors = []
+    for p in uniq_inner_targets:
+        ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(p)])
+        steps_log.append(("codesign_inner", ok, f"{p}\n{out}"))
+        if not ok:
+            sign_errors.append(str(p))
+
+    # 4) Sign the main executable
+    if main_bin.exists():
+        ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(main_bin)])
+        steps_log.append(("codesign_main", ok, f"{main_bin}\n{out}"))
+        if not ok:
+            return {
+                "ok": False,
+                "error": "Failed to sign main executable",
+                "main_executable": str(main_bin),
+                "sign_errors": sign_errors,
+                "log": steps_log,
+            }
+    else:
+        return {"ok": False, "error": f"Main executable not found: {main_bin}"}
+
+    # 5) Deep-sign the .app last
+    ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", "--deep", str(app)])
+    steps_log.append(("codesign_app_deep", ok, out))
+    if not ok:
+        return {
+            "ok": False,
+            "error": "Deep codesign failed",
+            "main_executable": str(main_bin),
+            "sign_errors": sign_errors,
+            "log": steps_log,
+        }
+
+    # 6) Verify
+    ok1, out1 = _run(["codesign", "--verify", "--deep", "--strict", "--verbose=4", str(app)])
+    ok2, out2 = _run(["spctl", "--assess", "--type", "execute", "--verbose=4", str(app)])
+    steps_log.append(("verify_codesign", ok1, out1))
+    steps_log.append(("assess_spctl", ok2, out2))
+
+    return {
+        "ok": bool(ok1 and ok2),
+        "main_executable": str(main_bin),
+        "so_execbits_dropped": so_execbits_dropped,
+        "sign_errors": sign_errors,
+        "verify_codesign_ok": ok1,
+        "verify_spctl_ok": ok2,
+        "verify_codesign_out": out1,
+        "verify_spctl_out": out2,
+        "log": steps_log,
+    }
+
 #----------------
 # End of File
 #----------------

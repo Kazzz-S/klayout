@@ -51,12 +51,13 @@ def GenerateUsage(platform):
     usage += "   option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)  | default value\n"
     usage += "   ----------------------------------------------------------------------------------------+---------------\n"
     usage += "   [-q|--qt <type>]     : case-insensitive type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3',      | %s\n" % myQt56
-    usage += "                        :                        'Qt6MacPorts', 'Qt6Brew']                 |\n"
+    usage += "                        :                        'Qt6MacPorts', 'Qt6Brew', 'Qt6Ana3'']     |\n"
     usage += "                        :   Qt5MacPorts: use Qt5 from MacPorts                             |\n"
     usage += "                        :       Qt5Brew: use Qt5 from Homebrew                             |\n"
     usage += "                        :       Qt5Ana3: use Qt5 from Anaconda3                            |\n"
     usage += "                        :   Qt6MacPorts: use Qt6 from MacPorts (*)                         |\n"
     usage += "                        :       Qt6Brew: use Qt6 from Homebrew (*)                         |\n"
+    usage += "                        :       Qt6Ana3: use Qt6 from Anaconda3 (*)                        |\n"
     usage += "                        :                        (*) migration to Qt6 is ongoing           |\n"
     usage += "   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP33', 'HB34', 'Ana3']     | %s\n" % myRuby
     usage += "                        :    nil: don't bind Ruby                                          |\n"
@@ -273,7 +274,7 @@ def Parse_CLI_Args(config):
     p = optparse.OptionParser(usage=Usage)
     p.add_option( '-q', '--qt',
                     dest='type_qt',
-                    help="Qt type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3', 'Qt6MacPorts', 'Qt6Brew']" )
+                    help="Qt type=['Qt5MacPorts', 'Qt5Brew', 'Qt5Ana3', 'Qt6MacPorts', 'Qt6Brew', 'Qt6Ana3'']" )
 
     p.add_option( '-r', '--ruby',
                     dest='type_ruby',
@@ -381,6 +382,7 @@ def Parse_CLI_Args(config):
     candidates['QT5ANA3']     = 'Qt5Ana3'
     candidates['QT6MACPORTS'] = 'Qt6MacPorts'
     candidates['QT6BREW']     = 'Qt6Brew'
+    candidates['QT6ANA3']     = 'Qt6Ana3'
     try:
         ModuleQt = candidates[ opt.type_qt.upper() ]
     except KeyError:
@@ -402,6 +404,8 @@ def Parse_CLI_Args(config):
         choiceQt56 = 'qt6MP'
     elif ModuleQt == "Qt6Brew":
         choiceQt56 = 'qt6Brew'
+    elif ModuleQt == "Qt6Ana3":
+        choiceQt56 = 'qt6Ana3'
 
     # Check if non-OS-standard (-bundled) script languages (Ruby and Python) are used
     NonOSStdLang = False
@@ -1022,6 +1026,7 @@ def Run_Build_Command(config, parameters):
     else:
         jump2pymod_wheel = True
 
+    Append_qmake_Flags()
     #-----------------------------------------------------------------
     # [1] Use the AddressSanitizer (ASan) in the debug build.
     #     This environment variable is tested in ../src/klayout.pri.
@@ -1050,8 +1055,11 @@ def Run_Build_Command(config, parameters):
             addLibPath = "%s/lib"     % DefaultHomebrewRoot  # -- ditto --
         # Using Anaconda3
         elif ModuleQt.upper() in [ 'QT5ANA3' ]:
-            addIncPath = "/Applications/anaconda3/include"
-            addLibPath = "/Applications/anaconda3/lib"
+            addIncPath = "%s/include" % Ana3VE5
+            addLibPath = "%s/lib" % Ana3VE5
+        elif ModuleQt.upper() in [ 'QT6ANA3' ]:
+            addIncPath = "%s/include" % Ana3VE6
+            addLibPath = "%s/lib" % Ana3VE6
         else:
             addIncPath = ""
             addLibPath = ""
@@ -2189,7 +2197,16 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     else:
         print( " [8] Skipped deploying Qt's Frameworks and optional Python/Ruby Frameworks..." )
     print( "##### Finished deploying the libraries and executables for <klayout.app> #####" )
+
+    #-------------------------------------------------------------
+    # [11] Sign the application bundle
+    #-------------------------------------------------------------
     print("")
+    print( " [11] Signing the macOS application bundle (ad-hoc) after all post-build edits (install_name_tool/strip)..." )
+    appbundle = "%s/klayout.app" % AbsMacPkgDir
+    res = Sign_App_Bundle(appbundle)
+    print(res["ok"], res["verify_codesign_ok"], res["verify_spctl_ok"])
+
     os.chdir(ProjectDir)
     return 0
 
