@@ -338,7 +338,7 @@ def CheckPkgDirectory():
 
         LatestOSAnaconda3  = Platform == LatestOS
         LatestOSAnaconda3 &= PackagePrefix == "LW"
-        LatestOSAnaconda3 &= QtIdentification in [ "qt5Ana3" ]
+        LatestOSAnaconda3 &= QtIdentification in [ "qt5Ana3", "qt6Ana3" ]
         LatestOSAnaconda3 &= RubyPythonID in [ "Rana3Pana3" ]
 
         LatestOSHomebrewH  = Platform == LatestOS
