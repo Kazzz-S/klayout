@@ -1312,8 +1312,10 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     #                +-- Contents/+
     #                             +-- Info.plist
     #                             +-- PkgInfo
+    #                             +-- PlugIns/
     #                             +-- Resources/+
     #                             |             +-- 'klayout.icns'
+    #                             |             +-- 'qt.conf'
     #                             +-- Frameworks/+
     #                             |              +-- '*.framework'
     #                             |              +-- '*.dylib'
@@ -1837,8 +1839,8 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         deploytool = parameters['deploy_tool']
 
         # Without the following, the plugin cocoa would not be found properly.
-        shutil.copy2( sourceDir2 + "/qt.conf", targetDirM )
-        os.chmod( targetDirM + "/qt.conf", 0o0644 )
+        shutil.copy2( sourceDir2 + "/qt.conf", targetDirR )
+        os.chmod( targetDirR + "/qt.conf", 0o0644 )
 
         os.chdir(ProjectDir)
         os.chdir(MacPkgDir)
@@ -2206,7 +2208,10 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     appbundle = "%s/klayout.app" % AbsMacPkgDir
     res = Sign_App_Bundle(appbundle)
     print(res["ok"], res["verify_codesign_ok"], res["verify_spctl_ok"])
-
+    if not res["ok"]:
+        print("ERROR:", res.get("error",""))
+        for tag, ok, out in res["log"][-6:]:
+            print(f"[{tag}] ok={ok}\n{out}")
     os.chdir(ProjectDir)
     return 0
 

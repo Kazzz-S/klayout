@@ -882,23 +882,24 @@ def Append_qmake_Flags():
     import os, subprocess, tempfile, textwrap, shutil
 
     def _run(cmd):
+        """Return True if command exits successfully, False otherwise."""
         try:
             subprocess.check_output(cmd, stderr=subprocess.STDOUT, text=True)
             return True
         except Exception:
             return False
 
-    # If the user explicitly disables probing, honor it.
+    # Allow disabling the probe via environment variable, if needed.
     if os.environ.get("DISABLE_ADHOC_CODESIGN_PROBE") == "1":
         return
 
-    # Prefer clang if available; otherwise try cc.
+    # Prefer clang; fall back to cc if clang is not available.
     compiler = shutil.which("clang") or shutil.which("cc")
     if not compiler:
-        # No compiler available to probe; just skip injecting.
+        # No compiler to probe with; skip injecting the flag.
         return
 
-    # Probe: try a tiny link with -Wl,-adhoc_codesign (toolchain-dependent)
+    # Probe: attempt a tiny link with -Wl,-adhoc_codesign (toolchain dependent).
     probe_src = textwrap.dedent("int main(){return 0;}\n")
     with tempfile.TemporaryDirectory() as td:
         src = os.path.join(td, "t.c")
@@ -908,21 +909,22 @@ def Append_qmake_Flags():
         supported = _run([compiler, src, "-Wl,-adhoc_codesign", "-o", out])
 
     if not supported:
-        # Old ld64 (e.g., some Monterey toolchains) -> skip injecting the flag.
+        # Older ld64 (e.g., some Monterey toolchains) may not support this flag.
+        # Skip injecting; post-build signing will still make the app runnable.
         return
 
     def _append(name, extra):
+        """Append 'extra' to env var 'name' with a space if it already exists."""
         prev = os.environ.get(name, "")
         os.environ[name] = (prev + " " + extra).strip() if prev else extra
 
     extra = "-Wl,-adhoc_codesign"
-    # Cover all target types
+    # Cover all target types to ensure both executables and shared libs get the flag.
     for var in ("QMAKE_LFLAGS", "QMAKE_LFLAGS_APP", "QMAKE_LFLAGS_SHLIB", "QMAKE_LFLAGS_PLUGIN"):
         _append(var, extra)
 
 #------------------------------------------------------------------------------------------------
 ## Sign a macOS application bundle (ad-hoc) after all post-build edits (install_name_tool/strip).
-#
 #  [ChatGPT]
 #
 # What it does:
@@ -932,26 +934,47 @@ def Append_qmake_Flags():
 #   - Deep-signs the .app
 #   - Verifies with codesign & spctl
 #
-# Usage:
-#   res = Sign_App_Bundle("/Applications/klayout-ana3.app")
+# Always returns a dict with these keys:
+#   ok (bool), main_executable (str), so_execbits_dropped (list[str]),
+#   sign_errors (list[str]), verify_codesign_ok (bool), verify_spctl_ok (bool),
+#   verify_codesign_out (str), verify_spctl_out (str), log (list[tuple]), error (str)
+#
+# Usage example:
+#   res = Sign_App_Bundle("/Applications/klayout.app")
 #   print(res["ok"], res["verify_codesign_ok"], res["verify_spctl_ok"])
 #------------------------------------------------------------------------------------------------
-def Sign_App_Bundle(app_path: str) -> dict:
+def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
     """
-    Ad-hoc sign a macOS .app bundle (for local execution on Sequoia/Tahoe).
-    Call this at the very end of your build chain, after any strip/install_name_tool steps.
+    Ad-hoc sign a macOS .app bundle for local execution.
+    If gatekeeper_required=False (default), overall 'ok' reflects codesign verification only.
+    If gatekeeper_required=True, overall 'ok' requires both codesign AND spctl to pass.
 
-    @param[in] app_path   Path to the .app bundle
-    @return               Dict with results and logs.
+    @param[in] app_path: Path to the .app bundle
+    @param[in] gatekeeper_required: Whether to require Gatekeeper assessment (spctl) to pass
+
+    @return: Dict with keys:
+             ok, main_executable, so_execbits_dropped, sign_errors,
+             verify_codesign_ok, verify_spctl_ok,
+             verify_codesign_out, verify_spctl_out, log, error
     """
-    import os
-    import subprocess
-    import plistlib
-    import shutil
+    import os, subprocess, plistlib, shutil
     from pathlib import Path
 
+    def _blank(error_msg=""):
+        return {
+            "ok": False,
+            "main_executable": "",
+            "so_execbits_dropped": [],
+            "sign_errors": [],
+            "verify_codesign_ok": False,
+            "verify_spctl_ok": False,
+            "verify_codesign_out": "",
+            "verify_spctl_out": "",
+            "log": [],
+            "error": error_msg,
+        }
+
     def _run(cmd):
-        """Run a shell command and return (ok, stdout+stderr)."""
         try:
             out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, text=True)
             return True, out
@@ -960,34 +983,54 @@ def Sign_App_Bundle(app_path: str) -> dict:
         except FileNotFoundError as e:
             return False, str(e)
 
-    # Tool availability (nice diagnostics if something is missing)
+    # Tools
     for tool in ("codesign", "spctl", "xattr"):
         if not shutil.which(tool):
-            return {"ok": False, "error": f"Required tool not found: {tool}"}
+            return _blank(f"Required tool not found: {tool}")
 
     app = Path(app_path).resolve()
     if not app.exists():
-        return {"ok": False, "error": f"App not found: {app}"}
+        return _blank(f"App not found: {app}")
 
     info_plist = app / "Contents" / "Info.plist"
     if not info_plist.exists():
-        return {"ok": False, "error": f"Info.plist not found: {info_plist}"}
+        return _blank(f"Info.plist not found: {info_plist}")
 
-    # Read CFBundleExecutable to locate the main binary
-    with info_plist.open("rb") as f:
-        info = plistlib.load(f)
+    # CFBundleExecutable
+    try:
+        with info_plist.open("rb") as f:
+            info = plistlib.load(f)
+    except Exception as e:
+        return _blank(f"Failed to read Info.plist: {e}")
+
     exe_name = info.get("CFBundleExecutable")
     if not exe_name:
-        return {"ok": False, "error": "CFBundleExecutable not set in Info.plist"}
+        return _blank("CFBundleExecutable not set in Info.plist")
 
     main_bin = app / "Contents" / "MacOS" / exe_name
     steps_log = []
+    result = _blank()
+    result["main_executable"] = str(main_bin)
 
-    # 0) Remove quarantine (recursively)
+    # 0) Clear quarantine
     ok, out = _run(["xattr", "-dr", "com.apple.quarantine", str(app)])
     steps_log.append(("xattr_clear_quarantine", ok, out))
 
-    # 1) Drop exec bits on *.so (avoid dyld “executable” validation on Python extensions)
+    # 1) Ensure qt.conf is under Resources (harmless if already correct)
+    macos_qtconf = app / "Contents" / "MacOS" / "qt.conf"
+    if macos_qtconf.exists():
+        try:
+            resdir = app / "Contents" / "Resources"
+            resdir.mkdir(parents=True, exist_ok=True)
+            target = resdir / "qt.conf"
+            if target.exists():
+                target.unlink()
+            shutil.move(str(macos_qtconf), str(target))
+            steps_log.append(("relocate_qt_conf", True, f"Moved to {target}"))
+        except Exception as e:
+            steps_log.append(("relocate_qt_conf", False, f"{e}"))
+
+    # 2) Drop exec bits on *.so
     so_execbits_dropped = []
     for p in app.rglob("*.so"):
         try:
@@ -995,16 +1038,14 @@ def Sign_App_Bundle(app_path: str) -> dict:
                 continue
             mode = p.stat().st_mode
             if mode & 0o111:
-                os.chmod(p, mode & ~0o111)  # remove all exec bits
+                os.chmod(p, mode & ~0o111)
                 so_execbits_dropped.append(str(p))
         except Exception as e:
             steps_log.append(("chmod_so", False, f"{p}: {e}"))
+    result["so_execbits_dropped"] = so_execbits_dropped
 
-    # 2) Build signing target list
-    #    Sign nested code first (dylib/so/other executables), then main binary, then deep-sign the app.
-    inner_targets = []
-
-    # a) Any other executable files under Contents/MacOS and Contents/Buddy (excluding main)
+    # 3) Collect inner targets (exclude main)
+    inner = []
     for sub in ("Contents/MacOS", "Contents/Buddy"):
         root = app / sub
         if root.exists():
@@ -1015,78 +1056,68 @@ def Sign_App_Bundle(app_path: str) -> dict:
                     if p == main_bin:
                         continue
                     if os.access(p, os.X_OK):
-                        inner_targets.append(p)
+                        inner.append(p)
                 except Exception:
                     pass
-
-    # b) All .dylib and .so anywhere (sign even without exec bit)
     for ext in ("*.dylib", "*.so"):
         for p in app.rglob(ext):
             if p.is_symlink() or not p.is_file():
                 continue
-            inner_targets.append(p)
+            inner.append(p)
 
     # De-duplicate while preserving order
     seen = set()
-    uniq_inner_targets = []
-    for p in inner_targets:
+    inner_unique = []
+    for p in inner:
         sp = str(p)
         if sp not in seen:
             seen.add(sp)
-            uniq_inner_targets.append(p)
+            inner_unique.append(p)
 
-    # 3) Sign inner targets (ad-hoc)
+    # 4) Sign inner
     sign_errors = []
-    for p in uniq_inner_targets:
+    for p in inner_unique:
         ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(p)])
         steps_log.append(("codesign_inner", ok, f"{p}\n{out}"))
         if not ok:
             sign_errors.append(str(p))
+    result["sign_errors"] = sign_errors
 
-    # 4) Sign the main executable
-    if main_bin.exists():
-        ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(main_bin)])
-        steps_log.append(("codesign_main", ok, f"{main_bin}\n{out}"))
-        if not ok:
-            return {
-                "ok": False,
-                "error": "Failed to sign main executable",
-                "main_executable": str(main_bin),
-                "sign_errors": sign_errors,
-                "log": steps_log,
-            }
-    else:
-        return {"ok": False, "error": f"Main executable not found: {main_bin}"}
+    # 5) Sign main
+    if not main_bin.exists():
+        result["log"] = steps_log
+        result["error"] = f"Main executable not found: {main_bin}"
+        return result
+    ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(main_bin)])
+    steps_log.append(("codesign_main", ok, f"{main_bin}\n{out}"))
+    if not ok:
+        result["log"] = steps_log
+        result["error"] = "Failed to sign main executable"
+        return result
 
-    # 5) Deep-sign the .app last
+    # 6) Deep-sign app
     ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", "--deep", str(app)])
     steps_log.append(("codesign_app_deep", ok, out))
     if not ok:
-        return {
-            "ok": False,
-            "error": "Deep codesign failed",
-            "main_executable": str(main_bin),
-            "sign_errors": sign_errors,
-            "log": steps_log,
-        }
+        result["log"] = steps_log
+        result["error"] = "Deep codesign failed"
+        return result
 
-    # 6) Verify
+    # 7) Verify
     ok1, out1 = _run(["codesign", "--verify", "--deep", "--strict", "--verbose=4", str(app)])
     ok2, out2 = _run(["spctl", "--assess", "--type", "execute", "--verbose=4", str(app)])
     steps_log.append(("verify_codesign", ok1, out1))
     steps_log.append(("assess_spctl", ok2, out2))
 
-    return {
-        "ok": bool(ok1 and ok2),
-        "main_executable": str(main_bin),
-        "so_execbits_dropped": so_execbits_dropped,
-        "sign_errors": sign_errors,
-        "verify_codesign_ok": ok1,
-        "verify_spctl_ok": ok2,
-        "verify_codesign_out": out1,
-        "verify_spctl_out": out2,
-        "log": steps_log,
-    }
+    result["verify_codesign_ok"] = bool(ok1)
+    result["verify_spctl_ok"] = bool(ok2)
+    result["verify_codesign_out"] = out1
+    result["verify_spctl_out"] = out2
+    result["log"] = steps_log
+
+    # Overall result: choose policy based on gatekeeper_required
+    result["ok"] = bool(ok1 and ok2) if gatekeeper_required else bool(ok1)
+    return result
 
 #----------------
 # End of File
