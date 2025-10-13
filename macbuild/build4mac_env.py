@@ -6,9 +6,9 @@
 #
 # Here are dictionaries of ...
 #  different modules for building KLayout (http://www.klayout.de/index.php)
-#  version 0.30.2 or later on different Apple Mac OSX platforms.
+#  version 0.30.5 or later on different Apple Mac OSX platforms.
 #
-# This file is imported by 'build4mac.py' script.
+# This file is imported by the 'build4mac.py' script.
 #===============================================================================
 import os
 import re
@@ -27,14 +27,18 @@ XcodeToolChain = { 'nameID': '/usr/bin/install_name_tool -id ',
 
 (System, Node, Release, MacVersion, Machine, Processor) = platform.uname()
 if Machine == "arm64": # Apple Silicon!
-  DefaultHomebrewRoot = '/opt/homebrew'
+  DefaultHomebrewRoot  = '/opt/homebrew'
+  DefaultAnaconda3Root = '/opt/anaconda3'
+  Ana3VirEnv           = '%s/envs/klayout-qt6' % DefaultAnaconda3Root
   HomebrewSearchPathFilter1 = '\t+%s/opt' % DefaultHomebrewRoot
   HomebrewSearchPathFilter2 = '\t+@loader_path/../../../../../../../../../../opt'
   HomebrewSearchPathFilter3 =    '@loader_path/../../../../../../../../../../opt' # no leading white space
   # 1: absolute path as seen in ~python@3.9.17
   # 2: relative path as seen in  python@3.9.18
-else:
-  DefaultHomebrewRoot = '/usr/local'
+else: # x86_64|Intel
+  DefaultHomebrewRoot  = '/usr/local'
+  DefaultAnaconda3Root = '/Applications/anaconda3'
+  Ana3VirEnv           = '%s/envs/klayout-qt5' % DefaultAnaconda3Root
   HomebrewSearchPathFilter1 = '\t+%s/opt' % DefaultHomebrewRoot
   HomebrewSearchPathFilter2 = '\t+@loader_path/../../../../../../../../../../opt'
   HomebrewSearchPathFilter3 =    '@loader_path/../../../../../../../../../../opt' # no leading white space
@@ -108,10 +112,9 @@ Qt5Brew = { 'qmake' : '%s/opt/qt@5/bin/qmake' % DefaultHomebrewRoot,
 #        $ conda install -y --override-channels -c conda-forge "qt-main=5.15.15"
 #
 # [Key Type Name] = 'Qt5Ana3'
-Ana3VE5 = '/opt/anaconda3/envs/klayout-qt5'
-Qt5Ana3 = { 'qmake' : '%s/bin/qmake' % Ana3VE5,
-            'deploy': '%s/bin/macdeployqt' % Ana3VE5,
-            'libdir': '%s/lib' % Ana3VE5
+Qt5Ana3 = { 'qmake' : '%s/bin/qmake' % Ana3VirEnv,
+            'deploy': '%s/bin/macdeployqt' % Ana3VirEnv,
+            'libdir': '%s/lib' % Ana3VirEnv
           }
 
 #-------------------------------------------------------------------------
@@ -157,10 +160,9 @@ Qt6Brew = { 'qmake' : '%s/opt/qt@6/bin/qmake' % DefaultHomebrewRoot,
 #        $ conda install -y --override-channels -c conda-forge "qt6-main=6.9.3"
 #
 # [Key Type Name] = 'Qt6Ana3'
-Ana3VE6 = '/opt/anaconda3/envs/klayout-qt6'
-Qt6Ana3 = { 'qmake' : '%s/bin/qmake6' % Ana3VE6,
-            'deploy': '%s/bin/macdeployqt6' % Ana3VE6,
-            'libdir': '%s/lib' % Ana3VE6
+Qt6Ana3 = { 'qmake' : '%s/bin/qmake6' % Ana3VirEnv,
+            'deploy': '%s/bin/macdeployqt6' % Ana3VirEnv,
+            'libdir': '%s/lib' % Ana3VirEnv
           }
 
 # Consolidated dictionary kit for Qt[5|6]
@@ -182,7 +184,7 @@ Qt56Dictionary  = { 'Qt5MacPorts': Qt5MacPorts,
 #-----------------------------------------------------
 RubyNil  = [ 'nil' ]
 RubySys  = [ 'RubyMonterey', 'RubyVentura', 'RubySonoma', 'RubySequoia', 'RubyTahoe' ]
-RubyExt  = [ 'Ruby33MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
+RubyExt  = [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
 Rubies   = RubyNil + RubySys + RubyExt
 
 #-----------------------------------------------------
@@ -250,12 +252,12 @@ RubyTahoe        = { 'exe':  '/System/Library/Frameworks/Ruby.framework/Versions
                      'lib':  '%s/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/lib/libruby.tbd' % TahoeXcSDK
                    }
 
-# Ruby 3.3 from MacPorts (https://www.macports.org/)
+# Ruby 3.4 from MacPorts (https://www.macports.org/)
 #  install with 'sudo port install ruby33'
-# [Key Type Name] = 'MP33'
-Ruby33MacPorts  = { 'exe': '/opt/local/bin/ruby3.3',
-                    'inc': '/opt/local/include/ruby-3.3.9',
-                    'lib': '/opt/local/lib/libruby.3.3.dylib'
+# [Key Type Name] = 'MP34'
+Ruby34MacPorts  = { 'exe': '/opt/local/bin/ruby3.4',
+                    'inc': '/opt/local/include/ruby-3.4.6',
+                    'lib': '/opt/local/lib/libruby.3.4.dylib'
                   }
 
 # Ruby 3.4 from Homebrew
@@ -267,13 +269,13 @@ Ruby34Brew      = { 'exe': '%s/bin/ruby' % HBRuby34Path,
                     'lib': '%s/lib/libruby.3.4.dylib' % HBRuby34Path
                   }
 
-# Ruby 3.2 bundled with anaconda3 installed under /opt/anaconda3/
+# Ruby 3.4 installed under /opt/anaconda3/envs/klayout-qt[5|6]
 #   using "Anaconda3-2025.06-0-MacOSX-arm64.pkg", then...
 #   See the [Qt5] [Qt6] section above.
 # [Key Type Name] = 'Ana3'
-RubyAnaconda3   = { 'exe': '%s/bin/ruby' % Ana3VE6,
-                    'inc': '%s/include/ruby-3.2.0' % Ana3VE6,
-                    'lib': '%s/lib/libruby.3.2.dylib' % Ana3VE6
+RubyAnaconda3   = { 'exe': '%s/bin/ruby' % Ana3VirEnv,
+                    'inc': '%s/include/ruby-3.4.0' % Ana3VirEnv,
+                    'lib': '%s/lib/libruby.3.4.dylib' % Ana3VirEnv
                   }
 
 # Consolidated dictionary kit for Ruby
@@ -283,7 +285,7 @@ RubyDictionary  = { 'nil'           : None,
                     'RubySonoma'    : RubySonoma,
                     'RubySequoia'   : RubySequoia,
                     'RubyTahoe'     : RubyTahoe,
-                    'Ruby33MacPorts': Ruby33MacPorts,
+                    'Ruby34MacPorts': Ruby34MacPorts,
                     'Ruby34Brew'    : Ruby34Brew,
                     'RubyAnaconda3' : RubyAnaconda3
                   }
@@ -298,8 +300,8 @@ RubyDictionary  = { 'nil'           : None,
 #-----------------------------------------------------
 PythonNil  = [ 'nil' ]
 PythonSys  = [ 'PythonMonterey', 'PythonVentura', 'PythonSonoma', 'PythonSequoia', 'PythonTahoe' ]
-PythonExt  = [ 'Python311MacPorts', 'Python312MacPorts' ]
-PythonExt += [ 'Python311Brew', 'Python312Brew', 'PythonAutoBrew' ]
+PythonExt  = [ 'Python311MacPorts', 'Python312MacPorts', 'Python313MacPorts' ]
+PythonExt += [ 'Python311Brew', 'Python312Brew', 'Python313Brew', 'PythonAutoBrew' ]
 PythonExt += [ 'PythonAnaconda3' ]
 Pythons    = PythonNil + PythonSys + PythonExt
 
@@ -367,6 +369,14 @@ Python312MacPorts = { 'exe': '/opt/local/Library/Frameworks/Python.framework/Ver
                       'lib': '/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/libpython3.12.dylib'
                     }
 
+# Python 3.13 from MacPorts (https://www.macports.org/)
+#   install with 'sudo port install python313'
+# [Key Type Name] = 'MP313'
+Python313MacPorts = { 'exe': '/opt/local/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13',
+                      'inc': '/opt/local/Library/Frameworks/Python.framework/Versions/3.13/include/python3.13',
+                      'lib': '/opt/local/Library/Frameworks/Python.framework/Versions/3.13/lib/libpython3.13.dylib'
+                    }
+
 # Python 3.11 from Homebrew
 #   install with 'brew install python@3.11'
 # [Key Type Name] = 'HB311'
@@ -385,13 +395,22 @@ Python312Brew     = { 'exe': '%s/Versions/3.12/bin/python3.12' % HBPython312Fram
                       'lib': '%s/Versions/3.12/lib/libpython3.12.dylib' % HBPython312FrameworkPath
                     }
 
-# Python 3.13 bundled with anaconda3 installed under /opt/anaconda3/
+# Python 3.13 from Homebrew
+#   install with 'brew install python@3.13'
+# [Key Type Name] = 'HB313'
+HBPython313FrameworkPath = '%s/opt/python@3.13/Frameworks/Python.framework' % DefaultHomebrewRoot
+Python313Brew     = { 'exe': '%s/Versions/3.13/bin/python3.13' % HBPython312FrameworkPath,
+                      'inc': '%s/Versions/3.13/include/python3.13' % HBPython312FrameworkPath,
+                      'lib': '%s/Versions/3.13/lib/libpython3.13.dylib' % HBPython312FrameworkPath
+                    }
+
+# Python 3.13 installed under /opt/anaconda3/klayout-qt[5|6]
 #   using "Anaconda3-2025.06-0-MacOSX-arm64.pkg", then...
 #   See the [Qt5] [Qt6] section above.
 # [Key Type Name] = 'Ana3'
-PythonAnaconda3 = { 'exe': '%s/bin/python3.13' % Ana3VE6,
-                    'inc': '%s/include/python3.13' % Ana3VE6,
-                    'lib': '%s/lib/libpython3.13.dylib' % Ana3VE6
+PythonAnaconda3 = { 'exe': '%s/bin/python3.13' % Ana3VirEnv,
+                    'inc': '%s/include/python3.13' % Ana3VirEnv,
+                    'lib': '%s/lib/libpython3.13.dylib' % Ana3VirEnv
                   }
 
 # Latest Python from Homebrew
@@ -451,9 +470,11 @@ PythonDictionary = { 'nil'              : None,
                      'PythonSonoma'     : PythonSonoma,
                      'PythonSequoia'    : PythonSequoia,
                      'PythonTahoe'      : PythonTahoe,
+                     'Python313MacPorts': Python313MacPorts,
+                     'Python313Brew'    : Python313Brew,
+                     'PythonAnaconda3'  : PythonAnaconda3,
                      'Python312MacPorts': Python312MacPorts,
                      'Python312Brew'    : Python312Brew,
-                     'PythonAnaconda3'  : PythonAnaconda3,
                      'Python311MacPorts': Python311MacPorts,
                      'Python311Brew'    : Python311Brew
                    }

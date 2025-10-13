@@ -78,13 +78,13 @@ def SetGlobals():
     Usage  = "\n"
     Usage += "---------------------------------------------------------------------------------------------------------\n"
     Usage += "<< Usage of 'makeDMG4mac.py' >>\n"
-    Usage += "       for making a DMG file of KLayout 0.30.2 or later on different Apple macOS platforms.\n"
+    Usage += "       for making a DMG file of KLayout 0.30.5 or later on different Apple macOS platforms.\n"
     Usage += "\n"
     Usage += "$ [python] ./makeDMG4mac.py\n"
     Usage += "   option & argument    : descriptions                                               | default value\n"
     Usage += "   ----------------------------------------------------------------------------------+-----------------\n"
     Usage += "   <-p|--pkg <dir>>     : package directory created by `build4mac.py` with [-y|-Y]   | ``\n"
-    Usage += "                        : like 'LW-qt5MP.pkg.macos-Sequoia-release-Rmp33Pmp312'      | \n"
+    Usage += "                        : like 'LW-qt5MP.pkg.macos-Sequoia-release-Rmp34Pmp313'      | \n"
     Usage += "   <-c|--clean>         : clean the work directory                                   | disabled\n"
     Usage += "   <-m|--make>          : make a compressed DMG file                                 | disabled\n"
     Usage += "                        :   <-c|--clean> and <-m|--make> are mutually exclusive      | \n"
@@ -329,12 +329,12 @@ def CheckPkgDirectory():
         LatestOSMacPorts   = Platform == LatestOS
         LatestOSMacPorts  &= PackagePrefix == "LW"
         LatestOSMacPorts  &= QtIdentification in [ "qt5MP", "qt6MP" ]
-        LatestOSMacPorts  &= RubyPythonID in [ "Rmp33Pmp312", "Rmp33Pmp311" ]
+        LatestOSMacPorts  &= RubyPythonID in [ "Rmp34Pmp313", "Rmp34Pmp312", "Rmp34Pmp311" ]
 
         LatestOSHomebrew   = Platform == LatestOS
         LatestOSHomebrew  &= PackagePrefix == "LW"
         LatestOSHomebrew  &= QtIdentification in [ "qt5Brew", "qt6Brew", "qt5MP", "qt6MP" ] # "qt[5|6]MP" are the alternatives
-        LatestOSHomebrew  &= RubyPythonID in [ "Rhb34Phb312", "Rhb34Phb311", "Rhb34Phbauto" ]
+        LatestOSHomebrew  &= RubyPythonID in [ "Rhb34Phb313", "Rhb34Phb312", "Rhb34Phb311", "Rhb34Phbauto" ]
 
         LatestOSAnaconda3  = Platform == LatestOS
         LatestOSAnaconda3 &= PackagePrefix == "LW"

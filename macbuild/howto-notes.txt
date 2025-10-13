@@ -18,6 +18,16 @@ $ sudo port install qt5
 
 ==========================================================================
 $ sudo port install qt6
+==========================================================================
+
+$ sudo port install coreutils
+$ sudo port install findutils
+$ sudo port install qt5
+$ sudo port install ruby34
+$ sudo port install python313
+$ sudo port install py313-pip
+$ sudo port install libgit2
+
 
 ==========================================================================
 Anaconda3
@@ -81,8 +91,8 @@ Qt5Ana3 = { 'qmake' : '%s/bin/qmake' % Ana3Env,
           }
 
 In the virtual env.
-$ conda install ruby=3.2.2
-$ conda install libgit2=1.6.4
+ $ conda install -y --override-channels -c conda-forge "ruby=3.4.7"
+ $ conda install -y --override-channels -c conda-forge "libgit2=1.9.1"
 
 
 Patching...
@@ -112,14 +122,14 @@ Patching...
 # Qt6 bundled with anaconda3 installed under /opt/anaconda3/
 #   using "Anaconda3-2025.06-0-MacOSX-arm64.pkg", then
 #
-#   1) Create a new env "klayout-qt5" (with stable solver & channels)
+#   1) Create a new env "klayout-qt6" (with stable solver & channels)
 #      switch solver to libmamba for faster/more stable resolves
 #        $ conda install -n base -y conda-libmamba-solver
 #        $ conda config --set solver libmamba
 #
 #      Create the environment (on this ARM machine it will pull osx-arm64 builds)
-#        $ conda create -n klayout-qt5 python=3.13 -y
-#        $ conda activate klayout-qt5
+#        $ conda create -n klayout-qt6 python=3.13 -y
+#        $ conda activate klayout-qt6
 #
 #      In this env only, prefer conda-forge strictly (to avoid mixing)
 #        $ conda config --env --add channels conda-forge
@@ -134,7 +144,7 @@ Patching...
 #        $ conda install -y --override-channels -c conda-forge "qt6-multimedia=6.9.3"
 
 
- $ conda install -y --override-channels -c conda-forge "ruby=3.2.2"
+ $ conda install -y --override-channels -c conda-forge "ruby=3.4.7"
  $ conda install -y --override-channels -c conda-forge "libgit2=1.9.1"
 
 

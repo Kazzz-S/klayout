@@ -6,7 +6,7 @@
 #
 # Here are utility functions and classes ...
 #  for building KLayout (http://www.klayout.de/index.php)
-#  version 0.30.2 or later on different Apple Mac OSX platforms.
+#  version 0.30.5 or later on different Apple Mac OSX platforms.
 #
 # This file is imported by 'build4mac.py' script.
 #========================================================================================
@@ -131,8 +131,10 @@ def SetChangeIdentificationNameOfDyLib( libdic, pathDic ):
 #                +-- Contents/+
 #                             +-- Info.plist
 #                             +-- PkgInfo
+#                             +-- PlugIns/
 #                             +-- Resources/+
 #                             |             +-- 'klayout.icns'
+#                             |             +-- 'qt.conf'
 #                             +-- Frameworks/+
 #                             |              +-- '*.framework'
 #                             |              +-- '*.dylib'
@@ -146,11 +148,15 @@ def SetChangeIdentificationNameOfDyLib( libdic, pathDic ):
 #                             |         +-- pymod/
 #                             |
 #                             +-- Buddy/+
-#                                       +-- 'strm2cif'
-#                                       +-- 'strm2dxf'
-#                                       :
-#                                       +-- 'strmxor'
+#                             |         +-- 'strm2cif'
+#                             |         +-- 'strm2dxf'
+#                             |         :
+#                             |         +-- 'strmxor'
+#                             |
+#                             +-- pymod-dist/+ (created only if *.whl is available)
+#                                            +-- klayout-0.27.8-cp38-cp38-macosx_10_9_x86_64.whl (example)(1)
 #
+#                                            (1) *.whl is install with 'pip3'
 # @return 0 on success; non-zero on failure
 #----------------------------------------------------------------------------------------
 def SetChangeLibIdentificationName( executable, relativedir ):

@@ -4,8 +4,8 @@
 #===============================================================================
 # File: "macbuild/build4mac.py"
 #
-#  The top Python script for building KLayout (http://www.klayout.de/index.php)
-#  version 0.30.2 or later on different Apple Mac OSX platforms.
+#  The top Python script for building KLayout (http://www.klayout.de/index.php).
+#  version 0.30.5 or later on different Apple Mac OSX platforms.
 #===============================================================================
 import sys
 import os
@@ -45,7 +45,7 @@ def GenerateUsage(platform):
     usage  = "\n"
     usage += "-----------------------------------------------------------------------------------------------------------\n"
     usage += "<< Usage of 'build4mac.py' >>\n"
-    usage += "       for building KLayout 0.30.2 or later on different Apple macOS platforms.\n"
+    usage += "       for building KLayout 0.30.5 or later on different Apple macOS platforms.\n"
     usage += "\n"
     usage += "$ [python] ./build4mac.py\n"
     usage += "   option & argument    : descriptions (refer to 'macbuild/build4mac_env.py' for details)  | default value\n"
@@ -59,19 +59,22 @@ def GenerateUsage(platform):
     usage += "                        :       Qt6Brew: use Qt6 from Homebrew (*)                         |\n"
     usage += "                        :       Qt6Ana3: use Qt6 from Anaconda3 (*)                        |\n"
     usage += "                        :                        (*) migration to Qt6 is ongoing           |\n"
-    usage += "   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP33', 'HB34', 'Ana3']     | %s\n" % myRuby
+    usage += "   [-r|--ruby <type>]   : case-insensitive type=['nil', 'Sys', 'MP34', 'HB34', 'Ana3']     | %s\n" % myRuby
     usage += "                        :    nil: don't bind Ruby                                          |\n"
     usage += "                        :    Sys: use [Sequoia|Sonoma|Ventura|Monterey]-bundled Ruby 2.6   |\n"
-    usage += "                        :   MP33: use Ruby 3.3 from MacPorts                               |\n"
+    usage += "                        :   MP34: use Ruby 3.4 from MacPorts                               |\n"
     usage += "                        :   HB34: use Ruby 3.4 from Homebrew                               |\n"
-    usage += "                        :   Ana3: use Ruby 3.2 from Anaconda3                              |\n"
-    usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'Sys', 'MP312', 'HB312', 'Ana3',   | %s\n" % myPython
+    usage += "                        :   Ana3: use Ruby 3.4 from Anaconda3                              |\n"
+    usage += "   [-p|--python <type>] : case-insensitive type=['nil', 'Sys', 'MP313', 'HB313', 'Ana3',   | %s\n" % myPython
+    usage += "                        :                        'MP312', 'MP312',                         |\n"
     usage += "                        :                        'MP311', 'HB311', 'HBAuto']               |\n"
     usage += "                        :    nil: don't bind Python                                        |\n"
     usage += "                        :    Sys: use [Sequoia|Sonoma|Ventura|Monterey]-bundled Python 3.9 |\n"
+    usage += "                        :  MP313: use Python 3.13 from MacPorts                            |\n"
+    usage += "                        :  HB313: use Python 3.13 from Homebrew                            |\n"
+    usage += "                        :   Ana3: use Python 3.13 from Anaconda3                           |\n"
     usage += "                        :  MP312: use Python 3.12 from MacPorts                            |\n"
     usage += "                        :  HB312: use Python 3.12 from Homebrew                            |\n"
-    usage += "                        :   Ana3: use Python 3.12 from Anaconda3                           |\n"
     usage += "                        :  MP311: use Python 3.11 from MacPorts                            |\n"
     usage += "                        :  HB311: use Python 3.11 from Homebrew (+)                        |\n"
     usage += "                        :               (+) required to provide the legacy pip in HW-*.dmg |\n"
@@ -278,11 +281,11 @@ def Parse_CLI_Args(config):
 
     p.add_option( '-r', '--ruby',
                     dest='type_ruby',
-                    help="Ruby type=['nil', 'Sys', 'MP33', 'HB34', 'Ana3']" )
+                    help="Ruby type=['nil', 'Sys', 'MP34', 'HB34', 'Ana3']" )
 
     p.add_option( '-p', '--python',
                     dest='type_python',
-                    help="Python type=['nil', 'Sys', 'MP312', 'HB312', 'Ana3', 'MP311', 'HB311', 'HBAuto']" )
+                    help="Python type=['nil', 'Sys', 'MP313', 'HB313', 'Ana3', 'MP312', 'HB312', 'MP311', 'HB311', 'HBAuto']" )
 
     p.add_option( '-P', '--buildPymod',
                     action='store_true',
@@ -414,7 +417,7 @@ def Parse_CLI_Args(config):
     candidates         = dict()
     candidates['NIL']  = 'nil'
     candidates['SYS']  = 'Sys'
-    candidates['MP33'] = 'MP33'
+    candidates['MP34'] = 'MP34'
     candidates['HB34'] = 'HB34'
     candidates['ANA3'] = 'Ana3'
     try:
@@ -437,8 +440,8 @@ def Parse_CLI_Args(config):
                 ModuleRuby = 'RubyVentura'
             elif Platform == "Monterey":
                 ModuleRuby = 'RubyMonterey'
-        elif choiceRuby == "MP33":
-            ModuleRuby   = 'Ruby33MacPorts'
+        elif choiceRuby == "MP34":
+            ModuleRuby   = 'Ruby34MacPorts'
             NonOSStdLang = True
         elif choiceRuby == "HB34":
             ModuleRuby   = 'Ruby34Brew'
@@ -457,9 +460,11 @@ def Parse_CLI_Args(config):
     candidates           = dict()
     candidates['NIL']    = 'nil'
     candidates['SYS']    = 'Sys'
+    candidates['MP313']  = 'MP313'
+    candidates['HB313']  = 'HB313'
+    candidates['ANA3']   = 'Ana3'
     candidates['MP312']  = 'MP312'
     candidates['HB312']  = 'HB312'
-    candidates['ANA3']   = 'Ana3'
     candidates['MP311']  = 'MP311'
     candidates['HB311']  = 'HB311'
     candidates['HBAUTO'] = 'HBAuto'
@@ -489,16 +494,24 @@ def Parse_CLI_Args(config):
             elif Platform == "Monterey":
                 ModulePython = 'PythonMonterey'
                 OSPython3FW  = MontereyPy3FW
+        elif choicePython == "MP313":
+            ModulePython = 'Python313MacPorts'
+            OSPython3FW  = None
+            NonOSStdLang = True
+        elif choicePython == "HB313":
+            ModulePython = 'Python313Brew'
+            OSPython3FW  = None
+            NonOSStdLang = True
+        elif choicePython == "Ana3":
+            ModulePython = 'PythonAnaconda3'
+            OSPython3FW  = None
+            NonOSStdLang = True
         elif choicePython == "MP312":
             ModulePython = 'Python312MacPorts'
             OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "HB312":
             ModulePython = 'Python312Brew'
-            OSPython3FW  = None
-            NonOSStdLang = True
-        elif choicePython == "Ana3":
-            ModulePython = 'PythonAnaconda3'
             OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "HB311":
@@ -696,7 +709,7 @@ def Get_Build_Parameters(config):
     parameters['qt_lib_root'] = Qt56Dictionary[ModuleQt]['libdir']
 
     # (E) rpath
-    if OSPython3FW in [ MontereyPy3FW, VenturaPy3FW, SonomaPy3FW, SequoiaPy3FW ]:
+    if OSPython3FW in [ MontereyPy3FW, VenturaPy3FW, SonomaPy3FW, SequoiaPy3FW, TahoePy3FW ]:
         parameters['rpath'] = OSPython3FW
     else:
         parameters['rpath'] = "@executable_path/../Frameworks"
@@ -744,10 +757,10 @@ def Get_Build_Parameters(config):
     # (L) Extra parameters needed for <pymod>
     #     <pymod> will be built if:
     #       BuildPymodWhl = True
-    #       Platform      = [ 'Sequoia', 'Sonoma', 'Ventura', 'Monterey']
-    #       ModuleRuby    = [ 'Ruby33MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
-    #       ModulePython  = [ 'Python312MacPorts', 'Python311MacPorts',
-    #                         'Python311Brew',
+    #       Platform      = [ 'Tahoe', 'Sequoia', 'Sonoma', 'Ventura', 'Monterey' ]
+    #       ModuleRuby    = [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
+    #       ModulePython  = [ 'Python313MacPorts', 'Python312MacPorts', 'Python311MacPorts',
+    #                         'Python313Brew',     'Python312Brew',     'Python311Brew',
     #                         'PythonAnaconda3' ]
     parameters['BuildPymodWhl'] = BuildPymodWhl
     parameters['Platform']      = Platform
@@ -756,10 +769,10 @@ def Get_Build_Parameters(config):
 
     PymodDistDir = dict()
     if Platform in [ 'Tahoe', 'Sequoia', 'Sonoma', 'Ventura', 'Monterey' ]:
-        if ModuleRuby in [ 'Ruby33MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]:
-            if ModulePython in [ 'Python312MacPorts', 'Python311MacPorts' ]:
+        if ModuleRuby in [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]:
+            if ModulePython in [ 'Python313MacPorts', 'Python312MacPorts', 'Python311MacPorts' ]:
                 PymodDistDir[ModulePython] = 'dist-MP3-%s' % ModuleQt
-            elif ModulePython in [ 'Python311Brew' ]:
+            elif ModulePython in [ 'Python313Brew', 'Python312Brew', 'Python311Brew' ]:
                 PymodDistDir[ModulePython] = 'dist-HB3-%s' % ModuleQt
             elif ModulePython in [ 'PythonAnaconda3' ]:
                 PymodDistDir[ModulePython] = 'dist-ana3-%s' % ModuleQt
@@ -778,10 +791,10 @@ def Build_pymod_wheel(parameters):
     #-----------------------------------------------------------------------------------------------------------
     # [1] <pymod> will be built if:
     #       BuildPymodWhl = True
-    #       Platform      = [ 'Sequoia', 'Sonoma', 'Ventura', 'Monterey']
-    #       ModuleRuby    = [ 'Ruby33MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
-    #       ModulePython  = [ 'Python312MacPorts', 'Python311MacPorts',
-    #                         'Python311Brew',
+    #       Platform      = [ 'Tahoe', 'Sequoia', 'Sonoma', 'Ventura', 'Monterey' ]
+    #       ModuleRuby    = [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
+    #       ModulePython  = [ 'Python313MacPorts', 'Python312MacPorts', 'Python311MacPorts',
+    #                         'Python313Brew',     'Python312Brew',     'Python311Brew',
     #                         'PythonAnaconda3' ]
     #-----------------------------------------------------------------------------------------------------------
     BuildPymodWhl = parameters['BuildPymodWhl']
@@ -792,10 +805,10 @@ def Build_pymod_wheel(parameters):
         return 0
     if not Platform in [ 'Tahoe', 'Sequoia', 'Sonoma', 'Ventura', 'Monterey' ]:
         return 0
-    elif not ModuleRuby in [ 'Ruby33MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]:
+    elif not ModuleRuby in [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]:
         return 0
-    elif not ModulePython in [ 'Python312MacPorts', 'Python311MacPorts', \
-                               'Python311Brew', \
+    elif not ModulePython in [ 'Python313MacPorts', 'Python312MacPorts', 'Python311MacPorts', \
+                               'Python313Brew',     'Python312Brew',     'Python311Brew', \
                                'PythonAnaconda3' ]:
         return 0
 
@@ -819,9 +832,9 @@ def Build_pymod_wheel(parameters):
         whlTarget  = "HB3"
     # Using Anaconda3
     elif  PymodDistDir[ModulePython].find('dist-ana3') >= 0:
-        addBinPath = "/Applications/anaconda3/bin"
-        addIncPath = "/Applications/anaconda3/include"
-        addLibPath = "/Applications/anaconda3/lib"
+        addBinPath = "%s/bin" % Ana3VirEnv
+        addIncPath = "%s/include" % Ana3VirEnv
+        addLibPath = "%s/lib" % Ana3VirEnv
         whlTarget  = "ana3"
     else:
         addBinPath = ""
@@ -974,7 +987,7 @@ def Build_pymod_wheel(parameters):
     #               V
     #              new: klayout-0.30.2-cp312-cp312-macosx_10_9_x86_64.whl
     #------------------------------------------------------------------------
-    if whlTarget == "ana3":
+    if whlTarget == "ana3" and Platform in ['Sequoia', 'Sonoma', 'Ventura', 'Monterey']:
         wheels = glob.glob( "dist/*.whl" )  # like ['dist/klayout-0.30.2-cp312-cp312-macosx_10_15_x86_64.whl']
         if not len(wheels) == 1:
             print( "", file=sys.stderr )
@@ -1054,12 +1067,9 @@ def Run_Build_Command(config, parameters):
             addIncPath = "%s/include" % DefaultHomebrewRoot  # defined in "build4mac_env.py"
             addLibPath = "%s/lib"     % DefaultHomebrewRoot  # -- ditto --
         # Using Anaconda3
-        elif ModuleQt.upper() in [ 'QT5ANA3' ]:
-            addIncPath = "%s/include" % Ana3VE5
-            addLibPath = "%s/lib" % Ana3VE5
-        elif ModuleQt.upper() in [ 'QT6ANA3' ]:
-            addIncPath = "%s/include" % Ana3VE6
-            addLibPath = "%s/lib" % Ana3VE6
+        elif ModuleQt.upper() in [ 'QT5ANA3', 'QT6ANA3' ]:
+            addIncPath = "%s/include" % Ana3VirEnv
+            addLibPath = "%s/lib" % Ana3VirEnv
         else:
             addIncPath = ""
             addLibPath = ""
