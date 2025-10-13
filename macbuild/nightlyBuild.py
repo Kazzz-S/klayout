@@ -610,7 +610,7 @@ def Run_QATest( excludeList ):
     dirQAT      = Get_QAT_Directory( Get_Build_Target_Dict(), myPlatform )
 
     for qttype, key, bdType in QtTarget:
-        if key == "ana3" and (qttype == 6 or bdType == 'd'): # anaconda3 does not provide Qt6 | debug_lib
+        if key == "ana3" and bdType == 'd': # anaconda3 does not provide debug_lib
             continue
 
         if key == "ana3":
