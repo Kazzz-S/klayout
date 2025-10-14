@@ -399,9 +399,9 @@ Python312Brew     = { 'exe': '%s/Versions/3.12/bin/python3.12' % HBPython312Fram
 #   install with 'brew install python@3.13'
 # [Key Type Name] = 'HB313'
 HBPython313FrameworkPath = '%s/opt/python@3.13/Frameworks/Python.framework' % DefaultHomebrewRoot
-Python313Brew     = { 'exe': '%s/Versions/3.13/bin/python3.13' % HBPython312FrameworkPath,
-                      'inc': '%s/Versions/3.13/include/python3.13' % HBPython312FrameworkPath,
-                      'lib': '%s/Versions/3.13/lib/libpython3.13.dylib' % HBPython312FrameworkPath
+Python313Brew     = { 'exe': '%s/Versions/3.13/bin/python3.13' % HBPython313FrameworkPath,
+                      'inc': '%s/Versions/3.13/include/python3.13' % HBPython313FrameworkPath,
+                      'lib': '%s/Versions/3.13/lib/libpython3.13.dylib' % HBPython313FrameworkPath
                     }
 
 # Python 3.13 installed under /opt/anaconda3/klayout-qt[5|6]
