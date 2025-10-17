@@ -1813,6 +1813,10 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         for item in glob.glob( pymodDistDir + "/*.whl" ):
             shutil.copy2( item,  targetDirP )
 
+    # (D) Without the following, the plugin cocoa would not be found properly.
+    shutil.copy2( sourceDir2 + "/qt.conf", targetDirR )
+    os.chmod( targetDirR + "/qt.conf", 0o0644 )
+
     print( " [7] Setting and changing the identification names of KLayout's libraries in each executable ..." )
     #------------------------------------------------------------------------------------
     # [7] Set and change the library identification name(s) of different executable(s)
