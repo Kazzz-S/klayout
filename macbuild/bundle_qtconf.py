@@ -21,54 +21,54 @@ Command-line test usage:
     python bundle_qtconf.py --app ./dist/klayout.app --mode st --plugins /opt/local/libexec/qt5/plugins
 
 Typical usage:
+
     from pathlib import Path
     from bundle_qtconf import generate_qtconf, QtConfError
 
-    # 1) LW + MacPorts Qt5 (print-only; do not write into app)
+    # 1) LW + MacPorts Qt5 (print-only)
     try:
         text = generate_qtconf(
             mode="lw",
             lw_stack="macports",
             lw_qt_major=5,
         )
-        print(text)  # -> "[Paths]\nPlugins=/opt/local/libexec/qt5/plugins\n"
+        print(text)
     except QtConfError as e:
         print(f"Failed: {e}")
 
-    # 2) LW + Homebrew Qt6 on Apple Silicon (write into app)
+    # 2) LW + Homebrew Qt6 (write into app)
     try:
-        qtconf = generate_qtconf(
+        text = generate_qtconf(
             app_path="dist/klayout.app",
             mode="lw",
             lw_stack="homebrew",
             lw_qt_major=6,
-            arch_hint="arm64",   # "x86_64" for Intel; "auto" also works
-        )
-        print("qt.conf written to app; content:")
-        print(qtconf)
-    except QtConfError as e:
-        print(f"Failed: {e}")
-
-    # 3) LW + Anaconda (explicit environment; write into app)
-    try:
-        text = generate_qtconf(
-            app_path=Path("dist/klayout.app"),
-            mode="lw",
-            lw_stack="anaconda",
-            conda_prefix="/opt/anaconda3/envs/klayout",  # or rely on CONDA_PREFIX
+            arch_hint="arm64",  # "x86_64" for Intel; "auto" works too
         )
         print(text)
     except QtConfError as e:
         print(f"Failed: {e}")
 
-    # 4) ST/HW (Qt embedded in the bundle; copy plugins + write relative qt.conf)
+    # 3) LW + Anaconda (Automator-safe: pass explicit prefix if needed)
+    try:
+        text = generate_qtconf(
+            app_path=Path("dist/klayout.app"),
+            mode="lw",
+            lw_stack="anaconda",
+            # If Automator does not inherit CONDA_PREFIX, pass it explicitly:
+            conda_prefix="/opt/anaconda3",  # or any detected path on your build host
+        )
+        print(text)
+    except QtConfError as e:
+        print(f"Failed: {e}")
+
+    # 4) ST/HW (Qt embedded in the bundle)
     try:
         text = generate_qtconf(
             app_path="dist/klayout.app",
             mode="st",  # or "hw"
             embedded_plugins_src="/opt/local/libexec/qt5/plugins",
-            # You can narrow/extend what to copy inside copy_embedded_plugins() if needed.
-            validate=True,  # ensures PlugIns/platforms/libqcocoa.dylib exists after copy
+            validate=True,
         )
         print(text)
     except QtConfError as e:
@@ -82,7 +82,7 @@ import shutil
 import subprocess
 import argparse
 from pathlib import Path
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, Optional, Tuple, List, Union
 
 
 class QtConfError(RuntimeError):
@@ -113,6 +113,48 @@ def choose_homebrew_root(arch_hint: str = "auto") -> Path:
     return Path("/usr/local")
 
 
+def _is_executable(p: Path) -> bool:
+    try:
+        return p.is_file() and os.access(str(p), os.X_OK)
+    except Exception:
+        return False
+
+
+def _expand_candidates_with_glob(candidates: List[Path]) -> List[Path]:
+    expanded: List[Path] = []
+    for c in candidates:
+        s = str(c)
+        if "*" in s or "?" in s or "[" in s:
+            try:
+                expanded.extend(Path(x) for x in sorted(map(str, c.parent.glob(c.name))))
+            except Exception:
+                pass
+        else:
+            expanded.append(c)
+    return expanded
+
+
+def _first_existing_platforms_dir(candidates: List[Path]) -> Optional[Path]:
+    for c in _expand_candidates_with_glob(candidates):
+        if (c / "platforms").is_dir():
+            return c
+    return None
+
+
+def _home_dir() -> Path:
+    # Automator/launchd may set HOME; fallback to Path.home() if not.
+    try:
+        h = os.environ.get("HOME")
+        if h:
+            return Path(h)
+    except Exception:
+        pass
+    return Path.home()
+
+
+# -----------------------------------------------------------------------------
+# LW plugin dir resolvers (MacPorts / Homebrew / Anaconda)
+# -----------------------------------------------------------------------------
 def find_plugins_dir_lw(
     lw_stack: str,
     lw_qt_major: Optional[int] = None,
@@ -125,40 +167,40 @@ def find_plugins_dir_lw(
     if stack == "macports":
         if lw_qt_major not in (5, 6):
             raise QtConfError("MacPorts requires lw_qt_major to be 5 or 6.")
-        return Path(f"/opt/local/libexec/qt{lw_qt_major}/plugins")
+        p = Path("/opt/local/libexec/qt{}/plugins".format(lw_qt_major))
+        return p
 
     if stack == "homebrew":
         if lw_qt_major not in (5, 6):
             raise QtConfError("Homebrew requires lw_qt_major to be 5 or 6.")
         hb = choose_homebrew_root(arch_hint)
 
-        # 0) Try qtpaths from qt and qtbase (most reliable for Qt6)
+        # 0) Try qtpaths from qt and qtbase (most reliable, esp. for Qt6 split formula)
         for formula in ("qt", "qtbase"):
             qtpaths_bin = hb / "opt" / formula / "bin" / "qtpaths"
-            if qtpaths_bin.is_file() and os.access(qtpaths_bin, os.X_OK):
+            if _is_executable(qtpaths_bin):
                 try:
                     out = subprocess.check_output([str(qtpaths_bin), "--plugin-dir"], text=True).strip()
                     p = Path(out)
                     if (p / "platforms").is_dir():
                         return p
                 except Exception:
-                    pass  # fall through
+                    pass  # fall through if qtpaths not available or fails
 
-        candidates: list[Path] = []
-
+        candidates: List[Path] = []
         if lw_qt_major == 6:
-            # Qt6 on Homebrew: plugins are typically under share/qt/plugins (qtbase keg).
+            # Qt6 on Homebrew: often under share/qt/plugins nowadays (qtbase keg)
             candidates += [
                 hb / "opt" / "qt" / "share" / "qt" / "plugins",
                 hb / "opt" / "qtbase" / "share" / "qt" / "plugins",
                 hb / "Cellar" / "qt" / "*" / "share" / "qt" / "plugins",
                 hb / "Cellar" / "qtbase" / "*" / "share" / "qt" / "plugins",
-                # Some setups also expose legacy locations/symlinks:
+                # legacy/symlink fallbacks:
                 hb / "opt" / "qt" / "lib" / "qt6" / "plugins",
                 hb / "opt" / "qt" / "plugins",
             ]
         else:
-            # Qt5 on Homebrew: classic keg layout
+            # Qt5 on Homebrew: classic keg
             candidates += [
                 hb / "opt" / "qt@5" / "plugins",
                 hb / "opt" / "qt@5" / "lib" / "qt5" / "plugins",
@@ -166,41 +208,76 @@ def find_plugins_dir_lw(
                 hb / "Cellar" / "qt@5" / "*" / "lib" / "qt5" / "plugins",
             ]
 
-        # Expand any globs (Cellar/*) and validate
-        expanded: list[Path] = []
-        for c in candidates:
-            if "*" in str(c):
-                expanded.extend(Path(p) for p in sorted(map(str, c.parent.glob(c.name))))
-            else:
-                expanded.append(c)
-
-        for c in expanded:
-            if (c / "platforms").is_dir():
-                return c
+        found = _first_existing_platforms_dir(candidates)
+        if found:
+            return found
 
         raise QtConfError(
             "Homebrew Qt{} plugins not found under {}. Checked: {}".format(
-                lw_qt_major, hb, ", ".join(str(p) for p in expanded)
+                lw_qt_major, hb, ", ".join(str(p) for p in _expand_candidates_with_glob(candidates))
             )
         )
 
     if stack == "anaconda":
-        prefix = Path(os.environ.get("CONDA_PREFIX", "")) if conda_prefix is None else Path(conda_prefix)
-        if not prefix:
-            raise QtConfError("Anaconda stack requires CONDA_PREFIX or conda_prefix argument.")
-        for c in (prefix / "plugins", prefix / "lib" / "qt" / "plugins"):
-            if (c / "platforms").is_dir():
-                return c
-        raise QtConfError(f"Anaconda plugins not found under {prefix}")
+        # Order of precedence:
+        # 1) explicit conda_prefix argument
+        # 2) $CONDA_PREFIX from environment (often missing under Automator/launchd)
+        # 3) common install roots (system-wide / per-user) for anaconda3/miniconda3/mambaforge/miniforge3
+        candidates_root: List[Path] = []
 
-    raise QtConfError(f"Unknown lw_stack: {lw_stack}")
+        if conda_prefix:
+            candidates_root.append(conda_prefix)
+
+        env_prefix = os.environ.get("CONDA_PREFIX", "")
+        if env_prefix:
+            candidates_root.append(Path(env_prefix))
+
+        home = _home_dir()
+        common_roots = [
+            Path("/opt/anaconda3"),
+            Path("/usr/local/anaconda3"),
+            home / "opt" / "anaconda3",
+            home / "anaconda3",
+            Path("/opt/miniconda3"),
+            Path("/usr/local/miniconda3"),
+            home / "miniconda3",
+            Path("/opt/mambaforge"),
+            home / "mambaforge",
+            Path("/opt/miniforge3"),
+            home / "miniforge3",
+        ]
+        candidates_root.extend(common_roots)
+
+        plugin_candidates: List[Path] = []
+        seen: set = set()
+        for root in candidates_root:
+            try:
+                r = Path(root).resolve()
+            except Exception:
+                r = Path(root)
+            if str(r) in seen:
+                continue
+            seen.add(str(r))
+            plugin_candidates.extend([r / "plugins", r / "lib" / "qt" / "plugins"])
+
+        found = _first_existing_platforms_dir(plugin_candidates)
+        if found:
+            return found
+
+        raise QtConfError(
+            "Anaconda plugins not found under any of: {}".format(
+                ", ".join(str(p) for p in plugin_candidates)
+            )
+        )
+
+    raise QtConfError("Unknown lw_stack: {}".format(lw_stack))
 
 
 def _validate_libqcocoa(plugins_dir: Path) -> None:
     """Ensure libqcocoa.dylib exists under <plugins_dir>/platforms."""
     lib = plugins_dir / "platforms" / "libqcocoa.dylib"
     if not lib.is_file():
-        raise QtConfError(f"libqcocoa.dylib not found: {lib}")
+        raise QtConfError("libqcocoa.dylib not found: {}".format(lib))
 
 
 def copy_embedded_plugins(
@@ -218,7 +295,7 @@ def copy_embedded_plugins(
         src = embedded_plugins_src / d
         dst = bundle_plugins_dir / d
         if not src.is_dir():
-            raise QtConfError(f"Missing plugin subdir at source: {src}")
+            raise QtConfError("Missing plugin subdir at source: {}".format(src))
         if dst.exists() and overwrite:
             shutil.rmtree(dst)
         shutil.copytree(src, dst)
@@ -240,18 +317,18 @@ def make_qtconf_text_relative() -> str:
 
 def make_qtconf_text_absolute(plugins_dir: Path) -> str:
     """Return absolute qt.conf text for LW bundles."""
-    return f"[Paths]\nPlugins={plugins_dir}\n"
+    return "[Paths]\nPlugins={}\n".format(plugins_dir)
 
 
 def generate_qtconf(
-    app_path: Optional[str | Path] = None,
+    app_path: Optional[Union[str, Path]] = None,
     *,
     mode: str,
-    embedded_plugins_src: Optional[str | Path] = None,
+    embedded_plugins_src: Optional[Union[str, Path]] = None,
     lw_stack: Optional[str] = None,
     lw_qt_major: Optional[int] = None,
     arch_hint: str = "auto",
-    conda_prefix: Optional[str | Path] = None,
+    conda_prefix: Optional[Union[str, Path]] = None,
     validate: bool = True,
 ) -> str:
     """
@@ -259,14 +336,14 @@ def generate_qtconf(
 
     Returns the generated qt.conf text.
     """
-    app_path = Path(app_path).resolve() if app_path else None
+    app_path_p: Optional[Path] = Path(app_path).resolve() if app_path else None
     qtconf_text: str
 
     if mode in ("st", "hw"):
         qtconf_text = make_qtconf_text_relative()
 
-        if app_path:
-            resources, plugins, _macos = _app_paths(app_path)
+        if app_path_p:
+            resources, plugins, _macos = _app_paths(app_path_p)
             _ensure_dir(resources)
             if embedded_plugins_src:
                 copy_embedded_plugins(Path(embedded_plugins_src), plugins)
@@ -288,13 +365,13 @@ def generate_qtconf(
             _validate_libqcocoa(plugins_dir)
 
         qtconf_text = make_qtconf_text_absolute(plugins_dir)
-        if app_path:
-            resources, _, _ = _app_paths(app_path)
+        if app_path_p:
+            resources, _, _ = _app_paths(app_path_p)
             _ensure_dir(resources)
             (resources / "qt.conf").write_text(qtconf_text, encoding="utf-8")
 
     else:
-        raise QtConfError(f"Unknown mode: {mode}")
+        raise QtConfError("Unknown mode: {}".format(mode))
 
     return qtconf_text
 
@@ -325,16 +402,16 @@ def main() -> None:
             lw_qt_major=args.qt,
             arch_hint=args.arch,
             conda_prefix=args.conda_prefix,
-            validate=not args.no_validate,
+            validate=not args.no-validate if hasattr(args, "no-validate") else True,  # defensive
         )
         if args.app:
-            print(f"[OK] qt.conf written to bundle: {args.app}")
+            print("[OK] qt.conf written to bundle: {}".format(args.app))
         print("----- qt.conf content -----")
         print(qtconf_text.strip())
         print("---------------------------")
     except QtConfError as e:
-        print(f"[ERROR] {e}")
-        exit(1)
+        print("[ERROR] {}".format(e))
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
