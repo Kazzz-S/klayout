@@ -17,6 +17,7 @@ import platform
 import optparse
 import subprocess
 import pprint
+from   pathlib import Path
 
 #-------------------------------------------------------------------------------
 ## To import global dictionaries of different modules and utility functions
@@ -25,6 +26,7 @@ mydir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append( mydir + "/macbuild" )
 from build4mac_env  import *
 from build4mac_util import *
+from bundle_qtconf  import generate_qtconf, QtConfError
 
 #-------------------------------------------------------------------------------
 ## To generate the OS-wise usage strings and the default module set
@@ -1244,6 +1246,8 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     NonOSStdLang   = config['NonOSStdLang']
     DeploymentF    = config['DeploymentF']
     DeploymentP    = config['DeploymentP']
+    PackagePrefix  = config['PackagePrefix']
+    ModuleQt       = config['ModuleQt']
     MacPkgDir      = config['MacPkgDir']
     Version        = config['Version']
     DeployVerbose  = config['DeployVerbose']
@@ -1813,9 +1817,44 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         for item in glob.glob( pymodDistDir + "/*.whl" ):
             shutil.copy2( item,  targetDirP )
 
-    # (D) Without the following, the plugin cocoa would not be found properly.
-    shutil.copy2( sourceDir2 + "/qt.conf", targetDirR )
-    os.chmod( targetDirR + "/qt.conf", 0o0644 )
+    #------------------------------------------------------------------------
+    # (D) generate a proper "qt.conf" using the "bundle_qtconf.py" module
+    #------------------------------------------------------------------------
+    mode        = None      # ["st", "hw", "lw"]
+    lw_qt_major = None      # [5, 6]
+    lw_stack    = None      # ["macports", "homebrew", "anaconda"]
+    arch_hint   = "auto"
+    if PackagePrefix == "ST-":
+        mode = "st"
+    elif PackagePrefix == "HW-":
+        mode = "hw"
+    elif PackagePrefix == "LW-":
+        mode = "lw"
+    else:
+        raise Exception( f"! unsupported PackagePrefix {PackagePrefix}" )
+
+    # ModuleQt = ["Qt5MacPorts", "Qt5Brew", "Qt5Ana3", "Qt6MacPorts", "Qt6Brew", "Qt6Ana3"]
+    lw_qt_major = int(ModuleQt[2])
+    rest        = ModuleQt[3:].lower()
+    if rest == "macports":
+        lw_stack = "macports"
+    elif rest == "brew":
+        lw_stack = "homebrew"
+    elif rest == "ana3":
+        lw_stack = "anaconda"
+    else:
+        raise Exception( f"! unknown ModuleQt {ModuleQt}" )
+
+    try:
+        text = generate_qtconf( mode=mode, lw_stack=lw_stack, lw_qt_major=lw_qt_major )
+        # print(text)  # -> "[Paths]\nPlugins=/opt/local/libexec/qt5/plugins\n"
+    except QtConfError as e:
+        raise Exception(f"Failed: {e}")
+
+    qtconf = targetDirR + "/qt.conf"
+    with open( qtconf, "w", encoding="utf-8" ) as f:
+        f.write(text)
+    os.chmod( qtconf, 0o0644 )
 
     print( " [7] Setting and changing the identification names of KLayout's libraries in each executable ..." )
     #------------------------------------------------------------------------------------
@@ -1851,10 +1890,6 @@ def Deploy_Binaries_For_Bundle(config, parameters):
         app_bundle = "klayout.app"
         options    = macdepQtOpt + verbose
         deploytool = parameters['deploy_tool']
-
-        # Without the following, the plugin cocoa would not be found properly.
-        shutil.copy2( sourceDir2 + "/qt.conf", targetDirR )
-        os.chmod( targetDirR + "/qt.conf", 0o0644 )
 
         os.chdir(ProjectDir)
         os.chdir(MacPkgDir)
