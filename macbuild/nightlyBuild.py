@@ -651,7 +651,7 @@ def Check_QATest_Results( lines ):
     dirQAT      = Get_QAT_Directory( Get_Build_Target_Dict(), myPlatform )
 
     for qttype, key, bdType in QtTarget:
-        if key == "ana3" and (qttype == 6 or bdType == 'd'): # anaconda3 does not provide Qt6 | debug_lib
+        if key == "ana3" and bdType == 'd': # anaconda3 does not provide debug_lib
             continue
 
         os.chdir( dirQAT[(qttype, key, bdType)] )
@@ -692,7 +692,7 @@ def DMG_Make( srlDMG ):
     os.mkdir( stashDMG )
 
     for qttype, key, bdType in QtTarget:
-        if key == "ana3" and (qttype == 6 or bdType == 'd'): # anaconda3 does not provide Qt6 | debug_lib
+        if key == "ana3" and bdType == 'd': # anaconda3 does not provide debug_lib
             continue
 
         command1 = [ pyDMGmaker ] + packOp[(qttype, key, bdType)]
@@ -732,7 +732,7 @@ def DMG_Clean( srlDMG ):
         shutil.rmtree( stashDMG )
 
     for qttype, key, bdType in QtTarget:
-        if key == "ana3" and (qttype == 6 or bdType == 'd'): # anaconda3 does not provide Qt6 | debug_lib
+        if key == "ana3" and bdType == 'd': # anaconda3 does not provide debug_lib
             continue
 
         command1 = [ pyDMGmaker ] + packOp[(qttype, key, bdType)]

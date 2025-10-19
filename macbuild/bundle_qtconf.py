@@ -219,21 +219,76 @@ def find_plugins_dir_lw(
         )
 
     if stack == "anaconda":
-        # Order of precedence:
-        # 1) explicit conda_prefix argument
-        # 2) $CONDA_PREFIX from environment (often missing under Automator/launchd)
-        # 3) common install roots (system-wide / per-user) for anaconda3/miniconda3/mambaforge/miniforge3
-        candidates_root: List[Path] = []
+        # Priority:
+        # 1) If conda_prefix points to an ENV, use it directly.
+        # 2) If conda_prefix points to BASE, prefer well-known env names per Qt major:
+        #       Qt5 -> envs/klayout-qt5/plugins
+        #       Qt6 -> envs/klayout-qt6/lib/qt6/plugins
+        #    and then scan all envs under BASE for the expected layout.
+        # 3) If neither is set, probe common BASE roots (/opt, /usr/local, $HOME, forge flavors)
+        #    and repeat the same env-first then full scan strategy.
+        #
+        # This is Automator-safe (no CONDA_PREFIX needed) and conda-forge friendly.
 
+        def _env_plugins_candidates(env_root, qt_major):
+            # env_root: .../envs/<envname>
+            if qt_major == 6:
+                return [Path(env_root) / "lib" / "qt6" / "plugins"]
+            else:
+                return [Path(env_root) / "plugins"]
+
+        def _base_preferred_envs(base_root, qt_major):
+            # preferred env names used in your setup
+            names = ["klayout-qt6"] if qt_major == 6 else ["klayout-qt5"]
+            env_roots = [Path(base_root) / "envs" / n for n in names]
+            cands = []
+            for er in env_roots:
+                cands.extend(_env_plugins_candidates(er, qt_major))
+            return cands
+
+        def _scan_all_envs(base_root, qt_major):
+            cands = []
+            envs_dir = Path(base_root) / "envs"
+            if envs_dir.is_dir():
+                for er in sorted(envs_dir.iterdir()):
+                    if not er.is_dir():
+                        continue
+                    # Favor env names that mention qt major (e.g., *qt6*), but include all as fallback
+                    if qt_major == 6 and "qt6" in er.name.lower():
+                        cands.extend(_env_plugins_candidates(er, 6))
+                    elif qt_major == 5 and "qt5" in er.name.lower():
+                        cands.extend(_env_plugins_candidates(er, 5))
+                # full fallback: every env regardless of name
+                for er in sorted(envs_dir.iterdir()):
+                    if er.is_dir():
+                        cands.extend(_env_plugins_candidates(er, qt_major))
+            return cands
+
+        def _base_generic_candidates(base_root):
+            # Rare layouts (not env-specific); keep as very last resort
+            return [
+                Path(base_root) / "plugins",
+                Path(base_root) / "lib" / "qt" / "plugins",
+                Path(base_root) / "lib" / "qt5" / "plugins",
+                Path(base_root) / "lib" / "qt6" / "plugins",
+            ]
+
+        qt_major = lw_qt_major or 6  # default bias to Qt6 if not specified
+
+        # Collect possible BASE roots in priority order
+        roots = []
+        # 1) explicit conda_prefix (could be ENV or BASE)
         if conda_prefix:
-            candidates_root.append(conda_prefix)
+            roots.append(Path(conda_prefix))
 
+        # 2) environment (may be absent under Automator)
         env_prefix = os.environ.get("CONDA_PREFIX", "")
         if env_prefix:
-            candidates_root.append(Path(env_prefix))
+            roots.append(Path(env_prefix))
 
+        # 3) common base installs (system & user; includes forge flavors)
         home = _home_dir()
-        common_roots = [
+        roots += [
             Path("/opt/anaconda3"),
             Path("/usr/local/anaconda3"),
             home / "opt" / "anaconda3",
@@ -246,27 +301,38 @@ def find_plugins_dir_lw(
             Path("/opt/miniforge3"),
             home / "miniforge3",
         ]
-        candidates_root.extend(common_roots)
 
-        plugin_candidates: List[Path] = []
-        seen: set = set()
-        for root in candidates_root:
+        # Build plugin-directory candidates in descending priority
+        plugin_candidates = []
+
+        # Case A: conda_prefix points directly to an ENV (has 'conda-meta' and not 'envs')
+        # → honor it strictly
+        if conda_prefix:
+            cp = Path(conda_prefix)
+            if (cp / "conda-meta").is_dir() and not (cp / "envs").is_dir():
+                plugin_candidates.extend(_env_plugins_candidates(cp, qt_major))
+
+        # Case B: roots treated as BASE → prefer known env names, then scan all envs
+        for base in roots:
+            b = Path(base)
             try:
-                r = Path(root).resolve()
+                b = b.resolve()
             except Exception:
-                r = Path(root)
-            if str(r) in seen:
-                continue
-            seen.add(str(r))
-            plugin_candidates.extend([r / "plugins", r / "lib" / "qt" / "plugins"])
+                pass
+            # Prefer well-known env names (klayout-qt5 / klayout-qt6)
+            plugin_candidates.extend(_base_preferred_envs(b, qt_major))
+            # Then scan every env under this base
+            plugin_candidates.extend(_scan_all_envs(b, qt_major))
+            # Finally, generic non-env locations under base
+            plugin_candidates.extend(_base_generic_candidates(b))
 
         found = _first_existing_platforms_dir(plugin_candidates)
         if found:
             return found
 
         raise QtConfError(
-            "Anaconda plugins not found under any of: {}".format(
-                ", ".join(str(p) for p in plugin_candidates)
+            "Anaconda plugins not found. Checked: {}".format(
+                ", ".join(str(p) for p in _expand_candidates_with_glob(plugin_candidates))
             )
         )
 
