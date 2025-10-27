@@ -175,43 +175,72 @@ def find_plugins_dir_lw(
             raise QtConfError("Homebrew requires lw_qt_major to be 5 or 6.")
         hb = choose_homebrew_root(arch_hint)
 
-        # 0) Try qtpaths from qt and qtbase (most reliable, esp. for Qt6 split formula)
-        for formula in ("qt", "qtbase"):
-            qtpaths_bin = hb / "opt" / formula / "bin" / "qtpaths"
-            if _is_executable(qtpaths_bin):
-                try:
-                    out = subprocess.check_output([str(qtpaths_bin), "--plugin-dir"], text=True).strip()
-                    p = Path(out)
-                    if (p / "platforms").is_dir():
-                        return p
-                except Exception:
-                    pass  # fall through if qtpaths not available or fails
+        def _looks_like_qt6(p):
+            s = str(p)
+            return "/qt6/" in s or s.endswith("/share/qt/plugins") or "/qtbase/" in s
 
-        candidates: List[Path] = []
+        def _looks_like_qt5(p):
+            s = str(p)
+            return "/qt@5/" in s or "/qt5/" in s
+
+        candidates = []  # type: List[Path]
+
         if lw_qt_major == 6:
-            # Qt6 on Homebrew: often under share/qt/plugins nowadays (qtbase keg)
+            # Prefer qtpaths from qt or qtbase (Qt6 formula split)
+            for formula in ("qt", "qtbase"):
+                qtpaths_bin = hb / "opt" / formula / "bin" / "qtpaths"
+                if _is_executable(qtpaths_bin):
+                    try:
+                        out = subprocess.check_output([str(qtpaths_bin), "--plugin-dir"], text=True).strip()
+                        p = Path(out)
+                        if (p / "platforms").is_dir():
+                            return p
+                    except Exception:
+                        pass  # fall through
+
+            # Fallbacks: share/qt/plugins first, then legacy/symlinks
             candidates += [
                 hb / "opt" / "qt" / "share" / "qt" / "plugins",
                 hb / "opt" / "qtbase" / "share" / "qt" / "plugins",
                 hb / "Cellar" / "qt" / "*" / "share" / "qt" / "plugins",
                 hb / "Cellar" / "qtbase" / "*" / "share" / "qt" / "plugins",
-                # legacy/symlink fallbacks:
                 hb / "opt" / "qt" / "lib" / "qt6" / "plugins",
                 hb / "opt" / "qt" / "plugins",
             ]
+            found = _first_existing_platforms_dir(candidates)
+            if found:
+                # extra safety: ensure it looks like a Qt6 layout
+                if _looks_like_qt6(found):
+                    return found
+                # if not, keep searching below (unlikely)
         else:
-            # Qt5 on Homebrew: classic keg
+            # --- Qt5 path resolution: DO NOT call qtpaths from Qt6 ---
+            # Try qt@5/bin/qtpaths if present
+            qtpaths_bin = hb / "opt" / "qt@5" / "bin" / "qtpaths"
+            if _is_executable(qtpaths_bin):
+                try:
+                    out = subprocess.check_output([str(qtpaths_bin), "--plugin-dir"], text=True).strip()
+                    p = Path(out)
+                    if (p / "platforms").is_dir() and _looks_like_qt5(p):
+                        return p
+                except Exception:
+                    pass
+
+            # Canonical Qt5 locations on Homebrew
             candidates += [
-                hb / "opt" / "qt@5" / "plugins",
-                hb / "opt" / "qt@5" / "lib" / "qt5" / "plugins",
+                hb / "opt" / "qt@5" / "plugins",                 # primary
+                hb / "opt" / "qt@5" / "lib" / "qt5" / "plugins", # alt layout
                 hb / "Cellar" / "qt@5" / "*" / "plugins",
                 hb / "Cellar" / "qt@5" / "*" / "lib" / "qt5" / "plugins",
             ]
+            # DO NOT include share/qt/plugins here (that is Qt6's qtbase layout)
 
-        found = _first_existing_platforms_dir(candidates)
-        if found:
-            return found
+            # Pick first existing that looks like Qt5
+            for c in _expand_candidates_with_glob(candidates):
+                if (c / "platforms").is_dir() and _looks_like_qt5(c):
+                    return c
 
+        # If we reached here, nothing matched
         raise QtConfError(
             "Homebrew Qt{} plugins not found under {}. Checked: {}".format(
                 lw_qt_major, hb, ", ".join(str(p) for p in _expand_candidates_with_glob(candidates))
