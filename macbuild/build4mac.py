@@ -449,7 +449,10 @@ def Parse_CLI_Args(config):
             ModuleRuby   = 'Ruby34Brew'
             NonOSStdLang = True
         elif choiceRuby == "Ana3":
-            ModuleRuby   = 'RubyAnaconda3'
+            if choiceQt56 == 'qt5Ana3':
+                ModuleRuby = 'RubyAnaconda3V5'
+            else: # 'qt6Ana3'
+                ModuleRuby = 'RubyAnaconda3V6'
             NonOSStdLang = True
     if ModuleRuby == '':
         print("")
@@ -505,7 +508,10 @@ def Parse_CLI_Args(config):
             OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "Ana3":
-            ModulePython = 'PythonAnaconda3'
+            if choiceQt56 == 'qt5Ana3':
+                ModulePython = 'PythonAnaconda3V5'
+            else: # 'qt6Ana3'
+                ModulePython = 'PythonAnaconda3V6'
             OSPython3FW  = None
             NonOSStdLang = True
         elif choicePython == "MP312":
@@ -1069,9 +1075,12 @@ def Run_Build_Command(config, parameters):
             addIncPath = "%s/include" % DefaultHomebrewRoot  # defined in "build4mac_env.py"
             addLibPath = "%s/lib"     % DefaultHomebrewRoot  # -- ditto --
         # Using Anaconda3
-        elif ModuleQt.upper() in [ 'QT5ANA3', 'QT6ANA3' ]:
-            addIncPath = "%s/include" % Ana3VirEnv
-            addLibPath = "%s/lib" % Ana3VirEnv
+        elif ModuleQt.upper() in [ 'QT5ANA3' ]:
+            addIncPath = "%s/include" % Ana3VirEnv5
+            addLibPath = "%s/lib" % Ana3VirEnv5
+        elif ModuleQt.upper() in [ 'QT6ANA3' ]:
+            addIncPath = "%s/include" % Ana3VirEnv6
+            addLibPath = "%s/lib" % Ana3VirEnv6
         else:
             addIncPath = ""
             addLibPath = ""

@@ -29,7 +29,8 @@ XcodeToolChain = { 'nameID': '/usr/bin/install_name_tool -id ',
 if Machine == "arm64": # Apple Silicon!
   DefaultHomebrewRoot  = '/opt/homebrew'
   DefaultAnaconda3Root = '/opt/anaconda3'
-  Ana3VirEnv           = '%s/envs/klayout-qt6' % DefaultAnaconda3Root
+  Ana3VirEnv5          = '%s/envs/klayout-qt5' % DefaultAnaconda3Root
+  Ana3VirEnv6          = '%s/envs/klayout-qt6' % DefaultAnaconda3Root
   HomebrewSearchPathFilter1 = '\t+%s/opt' % DefaultHomebrewRoot
   HomebrewSearchPathFilter2 = '\t+@loader_path/../../../../../../../../../../opt'
   HomebrewSearchPathFilter3 =    '@loader_path/../../../../../../../../../../opt' # no leading white space
@@ -38,7 +39,8 @@ if Machine == "arm64": # Apple Silicon!
 else: # x86_64|Intel
   DefaultHomebrewRoot  = '/usr/local'
   DefaultAnaconda3Root = '/Applications/anaconda3'
-  Ana3VirEnv           = '%s/envs/klayout-qt5' % DefaultAnaconda3Root
+  Ana3VirEnv5          = '%s/envs/klayout-qt5' % DefaultAnaconda3Root
+  Ana3VirEnv6          = '%s/envs/klayout-qt6' % DefaultAnaconda3Root
   HomebrewSearchPathFilter1 = '\t+%s/opt' % DefaultHomebrewRoot
   HomebrewSearchPathFilter2 = '\t+@loader_path/../../../../../../../../../../opt'
   HomebrewSearchPathFilter3 =    '@loader_path/../../../../../../../../../../opt' # no leading white space
@@ -88,8 +90,10 @@ Qt5Brew = { 'qmake' : '%s/opt/qt@5/bin/qmake' % DefaultHomebrewRoot,
             'libdir': '%s/opt/qt@5/lib' % DefaultHomebrewRoot
           }
 
-# Qt5 installed under /opt/anaconda3/envs/klayout-qt5
-#   using "Anaconda3-2025.06-0-MacOSX-arm64.pkg", then
+#---------------------------------------------------------------------------------------------------
+# [Apple Silicon]
+#   Qt5 is to be installed under /opt/anaconda3/envs/klayout-qt5
+#   after installing "Anaconda3-2025.06-0-MacOSX-arm64.pkg" under /opt/anaconda3/.
 #
 #   1) Create a new env "klayout-qt5" (with stable solver & channels)
 #      switch solver to libmamba for faster/more stable resolves
@@ -107,14 +111,46 @@ Qt5Brew = { 'qmake' : '%s/opt/qt@5/bin/qmake' % DefaultHomebrewRoot,
 #        $ conda install -n base -y conda-libmamba-solver
 #        $ conda config --set solver libmamba
 #
-#   2) Install Qt5 (qt-main) from conda-forge only
+#   2) Install Qt5 (qt-main) only from conda-forge
 #      Qt5 core (builds that typically include Designer/UiTools)
 #        $ conda install -y --override-channels -c conda-forge "qt-main=5.15.15"
 #
+#   3) Additionally, install Ruby and libgit2 only from conda-forge
+#        $ conda install -y --override-channels -c conda-forge "ruby=3.4.7"
+#        $ conda install -y --override-channels -c conda-forge "libgit2=1.9.1"
+#---------------------------------------------------------------------------------------------------
+# [x86_64|Intel]
+#   Qt5 is to be installed under /Applications/anaconda3/envs/klayout-qt5
+#   after installing "Anaconda3-2025.06-0-MacOSX-x86_64.pkg" under /Applications/anaconda3/.
+#
+#   1) Create a new env "klayout-qt5" (with stable solver & channels)
+#      switch solver to libmamba for faster/more stable resolves
+#        $ conda install -n base -y conda-libmamba-solver
+#        $ conda config --set solver libmamba
+#
+#      Create the environment (on this x86_64 machine it will pull osx-64 builds)
+#        $ conda create -n klayout-qt5 python=3.13 -y
+#        $ conda activate klayout-qt5
+#
+#      In this env only, prefer conda-forge strictly (to avoid mixing)
+#        $ conda config --env --add channels conda-forge
+#        $ conda config --env --add channels defaults
+#        $ conda config --env --set channel_priority strict
+#        $ conda install -n base -y conda-libmamba-solver
+#        $ conda config --set solver libmamba
+#
+#   2) Install Qt5 (qt-main) only from conda-forge
+#      Qt5 core (builds that typically include Designer/UiTools)
+#        $ conda install -y --override-channels -c conda-forge "qt-main=5.15.15"
+#
+#   3) Additionally, install Ruby and libgit2 only from conda-forge
+#        $ conda install -y --override-channels -c conda-forge "ruby=3.4.7"
+#        $ conda install -y --override-channels -c conda-forge "libgit2=1.9.1"
+#---------------------------------------------------------------------------------------------------
 # [Key Type Name] = 'Qt5Ana3'
-Qt5Ana3 = { 'qmake' : '%s/bin/qmake' % Ana3VirEnv,
-            'deploy': '%s/bin/macdeployqt' % Ana3VirEnv,
-            'libdir': '%s/lib' % Ana3VirEnv
+Qt5Ana3 = { 'qmake' : '%s/bin/qmake' % Ana3VirEnv5,
+            'deploy': '%s/bin/macdeployqt' % Ana3VirEnv5,
+            'libdir': '%s/lib' % Ana3VirEnv5
           }
 
 #-------------------------------------------------------------------------
@@ -136,10 +172,12 @@ Qt6Brew = { 'qmake' : '%s/opt/qt@6/bin/qmake' % DefaultHomebrewRoot,
             'libdir': '%s/opt/qt@6/lib' % DefaultHomebrewRoot
           }
 
-# Qt6 installed under /opt/anaconda3/envs/klayout-qt6
-#   using "Anaconda3-2025.06-0-MacOSX-arm64.pkg", then
+#---------------------------------------------------------------------------------------------------
+# [Apple Silicon]
+#   Qt6 is to be installed under /opt/anaconda3/envs/klayout-qt6
+#   after installing "Anaconda3-2025.06-0-MacOSX-arm64.pkg" under /opt/anaconda3/.
 #
-#   1) Create a new env "klayout-qt5" (with stable solver & channels)
+#   1) Create a new env "klayout-qt6" (with stable solver & channels)
 #      switch solver to libmamba for faster/more stable resolves
 #        $ conda install -n base -y conda-libmamba-solver
 #        $ conda config --set solver libmamba
@@ -155,14 +193,46 @@ Qt6Brew = { 'qmake' : '%s/opt/qt@6/bin/qmake' % DefaultHomebrewRoot,
 #        $ conda install -n base -y conda-libmamba-solver
 #        $ conda config --set solver libmamba
 #
-#   2) Install Qt6 (qt-main) from conda-forge only
-#      Qt5 core (builds that typically include Designer/UiTools)
+#   2) Install Qt6 (qt-main) only from conda-forge
+#      Qt6 core (builds that typically include Designer/UiTools)
 #        $ conda install -y --override-channels -c conda-forge "qt6-main=6.9.3"
 #
+#   3) Additionally, install Ruby and libgit2 only from conda-forge
+#        $ conda install -y --override-channels -c conda-forge "ruby=3.4.7"
+#        $ conda install -y --override-channels -c conda-forge "libgit2=1.9.1"
+#---------------------------------------------------------------------------------------------------
+# [x86_64|Intel]
+#   Qt6 is to be installed under /Applications/anaconda3/envs/klayout-qt6
+#   after installing "Anaconda3-2025.06-0-MacOSX-x86_64.pkg" under /Applications/anaconda3/.
+#
+#   1) Create a new env "klayout-qt6" (with stable solver & channels)
+#      switch solver to libmamba for faster/more stable resolves
+#        $ conda install -n base -y conda-libmamba-solver
+#        $ conda config --set solver libmamba
+#
+#      Create the environment (on this x86_64 machine it will pull osx-64 builds)
+#        $ conda create -n klayout-qt6 python=3.13 -y
+#        $ conda activate klayout-qt6
+#
+#      In this env only, prefer conda-forge strictly (to avoid mixing)
+#        $ conda config --env --add channels conda-forge
+#        $ conda config --env --add channels defaults
+#        $ conda config --env --set channel_priority strict
+#        $ conda install -n base -y conda-libmamba-solver
+#        $ conda config --set solver libmamba
+#
+#   2) Install Qt6 (qt-main) only from conda-forge
+#      Qt6 core (builds that typically include Designer/UiTools)
+#        $ conda install -y --override-channels -c conda-forge "qt6-main=6.9.3"
+#
+#   3) Additionally, install Ruby and libgit2 only from conda-forge
+#        $ conda install -y --override-channels -c conda-forge "ruby=3.4.7"
+#        $ conda install -y --override-channels -c conda-forge "libgit2=1.9.1"
+#---------------------------------------------------------------------------------------------------
 # [Key Type Name] = 'Qt6Ana3'
-Qt6Ana3 = { 'qmake' : '%s/bin/qmake6' % Ana3VirEnv,
-            'deploy': '%s/bin/macdeployqt6' % Ana3VirEnv,
-            'libdir': '%s/lib' % Ana3VirEnv
+Qt6Ana3 = { 'qmake' : '%s/bin/qmake6' % Ana3VirEnv6,
+            'deploy': '%s/bin/macdeployqt6' % Ana3VirEnv6,
+            'libdir': '%s/lib' % Ana3VirEnv6
           }
 
 # Consolidated dictionary kit for Qt[5|6]
@@ -269,25 +339,30 @@ Ruby34Brew      = { 'exe': '%s/bin/ruby' % HBRuby34Path,
                     'lib': '%s/lib/libruby.3.4.dylib' % HBRuby34Path
                   }
 
-# Ruby 3.4 installed under /opt/anaconda3/envs/klayout-qt[5|6]
-#   using "Anaconda3-2025.06-0-MacOSX-arm64.pkg", then...
+# Ruby 3.4 installed under [/opt|/Applications]/anaconda3/envs/klayout-qt[5|6]
 #   See the [Qt5] [Qt6] section above.
 # [Key Type Name] = 'Ana3'
-RubyAnaconda3   = { 'exe': '%s/bin/ruby' % Ana3VirEnv,
-                    'inc': '%s/include/ruby-3.4.0' % Ana3VirEnv,
-                    'lib': '%s/lib/libruby.3.4.dylib' % Ana3VirEnv
-                  }
+RubyAnaconda3V5   = { 'exe': '%s/bin/ruby' % Ana3VirEnv5,
+                      'inc': '%s/include/ruby-3.4.0' % Ana3VirEnv5,
+                      'lib': '%s/lib/libruby.3.4.dylib' % Ana3VirEnv5
+                    }
+
+RubyAnaconda3V6   = { 'exe': '%s/bin/ruby' % Ana3VirEnv6,
+                      'inc': '%s/include/ruby-3.4.0' % Ana3VirEnv6,
+                      'lib': '%s/lib/libruby.3.4.dylib' % Ana3VirEnv6
+                    }
 
 # Consolidated dictionary kit for Ruby
-RubyDictionary  = { 'nil'           : None,
-                    'RubyMonterey'  : RubyMonterey,
-                    'RubyVentura'   : RubyVentura,
-                    'RubySonoma'    : RubySonoma,
-                    'RubySequoia'   : RubySequoia,
-                    'RubyTahoe'     : RubyTahoe,
-                    'Ruby34MacPorts': Ruby34MacPorts,
-                    'Ruby34Brew'    : Ruby34Brew,
-                    'RubyAnaconda3' : RubyAnaconda3
+RubyDictionary  = { 'nil'             : None,
+                    'RubyMonterey'    : RubyMonterey,
+                    'RubyVentura'     : RubyVentura,
+                    'RubySonoma'      : RubySonoma,
+                    'RubySequoia'     : RubySequoia,
+                    'RubyTahoe'       : RubyTahoe,
+                    'Ruby34MacPorts'  : Ruby34MacPorts,
+                    'Ruby34Brew'      : Ruby34Brew,
+                    'RubyAnaconda3V5' : RubyAnaconda3V5,
+                    'RubyAnaconda3V6' : RubyAnaconda3V6
                   }
 
 #-----------------------------------------------------
@@ -404,14 +479,18 @@ Python313Brew     = { 'exe': '%s/Versions/3.13/bin/python3.13' % HBPython313Fram
                       'lib': '%s/Versions/3.13/lib/libpython3.13.dylib' % HBPython313FrameworkPath
                     }
 
-# Python 3.13 installed under /opt/anaconda3/klayout-qt[5|6]
-#   using "Anaconda3-2025.06-0-MacOSX-arm64.pkg", then...
+# Python 3.13 installed under [/opt|/Applications]/anaconda3/klayout-qt[5|6]
 #   See the [Qt5] [Qt6] section above.
 # [Key Type Name] = 'Ana3'
-PythonAnaconda3 = { 'exe': '%s/bin/python3.13' % Ana3VirEnv,
-                    'inc': '%s/include/python3.13' % Ana3VirEnv,
-                    'lib': '%s/lib/libpython3.13.dylib' % Ana3VirEnv
-                  }
+PythonAnaconda3V5 = { 'exe': '%s/bin/python3.13' % Ana3VirEnv5,
+                      'inc': '%s/include/python3.13' % Ana3VirEnv5,
+                      'lib': '%s/lib/libpython3.13.dylib' % Ana3VirEnv5
+                    }
+
+PythonAnaconda3V6 = { 'exe': '%s/bin/python3.13' % Ana3VirEnv6,
+                      'inc': '%s/include/python3.13' % Ana3VirEnv6,
+                      'lib': '%s/lib/libpython3.13.dylib' % Ana3VirEnv6
+                    }
 
 # Latest Python from Homebrew
 #   install with 'brew install python'
@@ -464,19 +543,20 @@ else:
     _have_Homebrew_Python = True
 
 # Consolidated dictionary kit for Python
-PythonDictionary = { 'nil'              : None,
-                     'PythonMonterey'   : PythonMonterey,
-                     'PythonVentura'    : PythonVentura,
-                     'PythonSonoma'     : PythonSonoma,
-                     'PythonSequoia'    : PythonSequoia,
-                     'PythonTahoe'      : PythonTahoe,
-                     'Python313MacPorts': Python313MacPorts,
-                     'Python313Brew'    : Python313Brew,
-                     'PythonAnaconda3'  : PythonAnaconda3,
-                     'Python312MacPorts': Python312MacPorts,
-                     'Python312Brew'    : Python312Brew,
-                     'Python311MacPorts': Python311MacPorts,
-                     'Python311Brew'    : Python311Brew
+PythonDictionary = { 'nil'                : None,
+                     'PythonMonterey'     : PythonMonterey,
+                     'PythonVentura'      : PythonVentura,
+                     'PythonSonoma'       : PythonSonoma,
+                     'PythonSequoia'      : PythonSequoia,
+                     'PythonTahoe'        : PythonTahoe,
+                     'Python313MacPorts'  : Python313MacPorts,
+                     'Python313Brew'      : Python313Brew,
+                     'PythonAnaconda3V5'  : PythonAnaconda3V5,
+                     'PythonAnaconda3V6'  : PythonAnaconda3V6,
+                     'Python312MacPorts'  : Python312MacPorts,
+                     'Python312Brew'      : Python312Brew,
+                     'Python311MacPorts'  : Python311MacPorts,
+                     'Python311Brew'      : Python311Brew
                    }
 if _have_Homebrew_Python:
     PythonDictionary['PythonAutoBrew'] = PythonAutoBrew
