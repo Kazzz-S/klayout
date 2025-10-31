@@ -777,12 +777,12 @@ def Get_Build_Parameters(config):
 
     PymodDistDir = dict()
     if Platform in [ 'Tahoe', 'Sequoia', 'Sonoma', 'Ventura', 'Monterey' ]:
-        if ModuleRuby in [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]:
+        if ModuleRuby in [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3V5', 'RubyAnaconda3V6' ]:
             if ModulePython in [ 'Python313MacPorts', 'Python312MacPorts', 'Python311MacPorts' ]:
                 PymodDistDir[ModulePython] = 'dist-MP3-%s' % ModuleQt
             elif ModulePython in [ 'Python313Brew', 'Python312Brew', 'Python311Brew' ]:
                 PymodDistDir[ModulePython] = 'dist-HB3-%s' % ModuleQt
-            elif ModulePython in [ 'PythonAnaconda3' ]:
+            elif ModulePython in [ 'PythonAnaconda3V5', 'PythonAnaconda3V6' ]:
                 PymodDistDir[ModulePython] = 'dist-ana3-%s' % ModuleQt
     parameters['pymod_dist'] = PymodDistDir
     return parameters
@@ -800,10 +800,10 @@ def Build_pymod_wheel(parameters):
     # [1] <pymod> will be built if:
     #       BuildPymodWhl = True
     #       Platform      = [ 'Tahoe', 'Sequoia', 'Sonoma', 'Ventura', 'Monterey' ]
-    #       ModuleRuby    = [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
+    #       ModuleRuby    = [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3V5', 'RubyAnaconda3V6' ]
     #       ModulePython  = [ 'Python313MacPorts', 'Python312MacPorts', 'Python311MacPorts',
     #                         'Python313Brew',     'Python312Brew',     'Python311Brew',
-    #                         'PythonAnaconda3' ]
+    #                         'PythonAnaconda3V5', 'PythonAnaconda3V6' ]
     #-----------------------------------------------------------------------------------------------------------
     BuildPymodWhl = parameters['BuildPymodWhl']
     Platform      = parameters['Platform']
@@ -813,11 +813,11 @@ def Build_pymod_wheel(parameters):
         return 0
     if not Platform in [ 'Tahoe', 'Sequoia', 'Sonoma', 'Ventura', 'Monterey' ]:
         return 0
-    elif not ModuleRuby in [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]:
+    elif not ModuleRuby in [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3V5', 'RubyAnaconda3V6' ]:
         return 0
     elif not ModulePython in [ 'Python313MacPorts', 'Python312MacPorts', 'Python311MacPorts', \
                                'Python313Brew',     'Python312Brew',     'Python311Brew', \
-                               'PythonAnaconda3' ]:
+                               'PythonAnaconda3V5', 'PythonAnaconda3V6' ]:
         return 0
 
     #--------------------------------------------------------------------
@@ -839,10 +839,15 @@ def Build_pymod_wheel(parameters):
         addLibPath = "%s/lib"     % DefaultHomebrewRoot  # -- ditto --
         whlTarget  = "HB3"
     # Using Anaconda3
-    elif  PymodDistDir[ModulePython].find('dist-ana3') >= 0:
-        addBinPath = "%s/bin" % Ana3VirEnv
-        addIncPath = "%s/include" % Ana3VirEnv
-        addLibPath = "%s/lib" % Ana3VirEnv
+    elif  PymodDistDir[ModulePython].find('dist-ana3-Qt5Ana3') >= 0:
+        addBinPath = "%s/bin" % Ana3VirEnv5
+        addIncPath = "%s/include" % Ana3VirEnv5
+        addLibPath = "%s/lib" % Ana3VirEnv5
+        whlTarget  = "ana3"
+    elif  PymodDistDir[ModulePython].find('dist-ana3-Qt6Ana3') >= 0:
+        addBinPath = "%s/bin" % Ana3VirEnv6
+        addIncPath = "%s/include" % Ana3VirEnv6
+        addLibPath = "%s/lib" % Ana3VirEnv6
         whlTarget  = "ana3"
     else:
         addBinPath = ""
