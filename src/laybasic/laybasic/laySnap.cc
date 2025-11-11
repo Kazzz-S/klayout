@@ -258,13 +258,18 @@ class ContourFinder
 public:
   /**
    *  @brief Constructor
+   *
+   *  "vertex_mode" is:
+   *    0: no snapping to vertexes
+   *    1: snapping to edge vertexes
+   *    2: also snapping to centers
    */
-  ContourFinder (const db::DPoint &original, const db::DVector &grid, const std::vector <db::DEdge> &cutlines, bool with_vertex = true, bool directed = false)
+  ContourFinder (const db::DPoint &original, const db::DVector &grid, const std::vector <db::DEdge> &cutlines, int vertex_mode = 2, bool directed = false)
     : m_any (false), m_any_exact (false), 
       m_original (original), m_is_vertex (false), m_is_vertex_exact (false),
       m_tests (10000 /* max. number of tests, TODO: make variable? */),
       mp_layout (0), m_cutlines (cutlines), mp_prop_sel (0), m_inv_prop_sel (false),
-      m_with_vertex (with_vertex), m_directed (directed)
+      m_vertex_mode (vertex_mode), m_directed (directed)
   {
     m_projection_constraint = ! m_cutlines.empty ();
 
@@ -444,7 +449,10 @@ private:
   void 
   find_closest_exact (const db::DPoint &p, const db::DEdge &e)
   {
-    if (! m_any_exact || m_original.distance (p) < m_original.distance (m_closest_exact)) {
+    bool was_vertex = m_edge1_exact.is_degenerate () && m_edge2_exact.is_degenerate ();
+    bool is_vertex = e.is_degenerate ();
+
+    if (! m_any_exact || (! (was_vertex && ! is_vertex) && (m_original.distance (p) < m_original.distance (m_closest_exact) || (! was_vertex && is_vertex)))) {
 
       if (m_directed) {
         for (std::vector<db::DEdge>::const_iterator cl = m_cutlines.begin (); cl != m_cutlines.end (); ++cl) {
@@ -465,7 +473,10 @@ private:
   void 
   find_closest (const db::DPoint &p, const db::DEdge &e)
   {
-    if (! m_any || m_original.distance (p) < m_original.distance (m_closest)) {
+    bool was_vertex = m_edge1.is_degenerate () && m_edge2.is_degenerate ();
+    bool is_vertex = e.is_degenerate ();
+
+    if (! m_any || (! (was_vertex && ! is_vertex) && (m_original.distance (p) < m_original.distance (m_closest) || (! was_vertex && is_vertex)))) {
 
       if (m_directed) {
         for (std::vector<db::DEdge>::const_iterator cl = m_cutlines.begin (); cl != m_cutlines.end (); ++cl) {
@@ -485,7 +496,7 @@ private:
 
   void closest (const db::DPoint &p)
   {
-    if (! m_with_vertex) {
+    if (m_vertex_mode == 0) {
 
       //  Only edges are considered for snapping.
 
@@ -662,7 +673,9 @@ private:
           test_edge_with_center (t * db::Edge (db::Point (box.right (), box.bottom ()), box.p1 ()));
 
           //  test for box center
-          test_edge (t * db::Edge (box.center (), box.center ()));
+          if (m_vertex_mode > 1) {
+            test_edge (t * db::Edge (box.center (), box.center ()));
+          }
 
         } else if (shape->is_point ()) {
 
@@ -704,7 +717,7 @@ private:
   void
   test_edge_with_center (const db::DEdge &edg)
   {
-    if (m_with_vertex && ! edg.is_degenerate ()) {
+    if (m_vertex_mode > 1 && ! edg.is_degenerate ()) {
 
       db::DPoint c = edg.p1 () + (edg.p2 () - edg.p1 ()) * 0.5;
 
@@ -720,7 +733,7 @@ private:
   void
   test_edge (const db::DEdge &edg)
   {
-    if (m_with_vertex) {
+    if (m_vertex_mode > 0) {
 
       //  vertex snap is just annoying when trying to measure the width of simulation contours ..
       //  But: when measuring corner-to-corner distances it is very valuable ..
@@ -755,7 +768,7 @@ private:
   const std::set<db::properties_id_type> *mp_prop_sel;
   bool m_inv_prop_sel;
   bool m_projection_constraint;
-  bool m_with_vertex;
+  int m_vertex_mode;
   bool m_directed;
 };
 
@@ -830,7 +843,7 @@ do_obj_snap2 (lay::LayoutViewBase *view, const db::DPoint &pt1, const db::DPoint
   db::DPoint dp1 (pt1);
   db::DPoint dp2 (pt2);
 
-  ContourFinder finder (dp1, grid, cutlines, cutlines.empty () /*vertex snap on "any direction"*/);
+  ContourFinder finder (dp1, grid, cutlines, cutlines.empty () ? 1 : 0 /*vertex snap on "any direction", edge vertexes*/);
 
   double sr = min_search_range;
   while (sr < max_search_range + 1e-6) {
@@ -874,7 +887,7 @@ do_obj_snap2 (lay::LayoutViewBase *view, const db::DPoint &pt1, const db::DPoint
 
       }
 
-      ContourFinder finder2 (dp2, grid, cl, false /*no vertex snap*/, true /*directional cutlines*/);
+      ContourFinder finder2 (dp2, grid, cl, 0 /*no vertex snap*/, true /*directional cutlines*/);
 
       double sr2 = min_search_range;
       while (sr2 < max_search_range + 1e-6) {
