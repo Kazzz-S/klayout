@@ -1050,6 +1050,17 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
             steps_log.append(("chmod_so", False, f"{p}: {e}"))
     result["so_execbits_dropped"] = so_execbits_dropped
 
+    # --- MINIMAL FIX: collect framework bundle directories and sign them first
+    framework_dirs = []
+    fw_root = app / "Contents" / "Frameworks"
+    if fw_root.exists():
+        for p in fw_root.iterdir():
+            try:
+                if p.is_dir() and p.suffix == ".framework":
+                    framework_dirs.append(p)
+            except Exception:
+                pass
+
     # 3) Collect inner targets (exclude main)
     inner = []
     for sub in ("Contents/MacOS", "Contents/Buddy"):
@@ -1080,8 +1091,15 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
             seen.add(sp)
             inner_unique.append(p)
 
-    # 4) Sign inner
+    # 4) Sign frameworks (directories) FIRST
     sign_errors = []
+    for fw in framework_dirs:
+        ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(fw)])
+        steps_log.append(("codesign_framework_dir", ok, f"{fw}\n{out}"))
+        if not ok:
+            sign_errors.append(str(fw))
+
+    # 5) Sign inner files
     for p in inner_unique:
         ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(p)])
         steps_log.append(("codesign_inner", ok, f"{p}\n{out}"))
@@ -1089,7 +1107,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
             sign_errors.append(str(p))
     result["sign_errors"] = sign_errors
 
-    # 5) Sign main
+    # 6) Sign main
     if not main_bin.exists():
         result["log"] = steps_log
         result["error"] = f"Main executable not found: {main_bin}"
@@ -1101,7 +1119,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
         result["error"] = "Failed to sign main executable"
         return result
 
-    # 6) Deep-sign app
+    # 7) Deep-sign app
     ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", "--deep", str(app)])
     steps_log.append(("codesign_app_deep", ok, out))
     if not ok:
@@ -1109,7 +1127,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
         result["error"] = "Deep codesign failed"
         return result
 
-    # 7) Verify
+    # 8) Verify
     ok1, out1 = _run(["codesign", "--verify", "--deep", "--strict", "--verbose=4", str(app)])
     ok2, out2 = _run(["spctl", "--assess", "--type", "execute", "--verbose=4", str(app)])
     steps_log.append(("verify_codesign", ok1, out1))
