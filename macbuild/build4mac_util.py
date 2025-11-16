@@ -930,7 +930,7 @@ def Append_qmake_Flags():
         _append(var, extra)
 
 #------------------------------------------------------------------------------------------------
-## Sign a macOS application bundle (ad-hoc) after all post-build edits (install_name_tool/strip).
+# Sign a macOS application bundle (ad-hoc) after all post-build edits (install_name_tool/strip).
 #  [ChatGPT]
 #
 # What it does:
@@ -989,7 +989,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
         except FileNotFoundError as e:
             return False, str(e)
 
-    # Tools
+    # [0] Tool availability
     for tool in ("codesign", "spctl", "xattr"):
         if not shutil.which(tool):
             return _blank(f"Required tool not found: {tool}")
@@ -1002,7 +1002,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
     if not info_plist.exists():
         return _blank(f"Info.plist not found: {info_plist}")
 
-    # CFBundleExecutable
+    # Read CFBundleExecutable
     try:
         with info_plist.open("rb") as f:
             info = plistlib.load(f)
@@ -1018,11 +1018,11 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
     result = _blank()
     result["main_executable"] = str(main_bin)
 
-    # 0) Clear quarantine
+    # [1] Clear quarantine on the whole bundle
     ok, out = _run(["xattr", "-dr", "com.apple.quarantine", str(app)])
     steps_log.append(("xattr_clear_quarantine", ok, out))
 
-    # 1) Ensure qt.conf is under Resources (harmless if already correct)
+    # [2] Ensure qt.conf lives under Contents/Resources (never under Contents/MacOS)
     macos_qtconf = app / "Contents" / "MacOS" / "qt.conf"
     if macos_qtconf.exists():
         try:
@@ -1036,7 +1036,101 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
         except Exception as e:
             steps_log.append(("relocate_qt_conf", False, f"{e}"))
 
-    # 2) Drop exec bits on *.so
+    # [3] Relocate third-party docs from Contents/Frameworks to Resources/ThirdParty/*
+    #     Keep OSS compliance while avoiding text files under Frameworks confusing --deep --strict.
+    thirdparty_dst_root = app / "Contents" / "Resources" / "ThirdParty"
+    patterns_to_move = [
+        "COPYRIGHT*", "LICENSE*", "LICENCE*", "COPYING*", "README*", "NEWS*", "AUTHORS*",
+        "CHANGELOG*", "CHANGES*", "NOTICE*", "INSTALL_RECEIPT.json", "sbom*.json",
+        "*.md", "*.rst", "*.txt",
+    ]
+    dirs_to_remove = [".brew", "include", "Headers", "share", "doc", "docs", "metainfo", "man", "pkgconfig", "cmake"]
+
+    fw_root = app / "Contents" / "Frameworks"
+    if fw_root.exists():
+        for child in fw_root.iterdir():
+            try:
+                # Skip true .framework bundles and plain dylibs
+                if child.suffix == ".framework" or child.suffix == ".dylib":
+                    continue
+                if child.is_file() or not child.is_dir():
+                    continue
+
+                # Heuristic: vendor dir if it has lib/include/share or obvious doc files
+                looks_like_vendor = any((child / d).exists() for d in ("lib", "include", "Headers", "share"))
+                looks_like_vendor = looks_like_vendor or any(child.glob("*.txt")) or any(child.glob("LICENSE*")) or any(child.glob("COPYING*"))
+                if not looks_like_vendor:
+                    continue
+
+                # Move docs/licenses/readmes to Resources/ThirdParty/<name>/
+                dst = thirdparty_dst_root / child.name
+                dst.mkdir(parents=True, exist_ok=True)
+                for pat in patterns_to_move:
+                    for f in child.glob(pat):
+                        if f.is_file():
+                            dst_file = dst / f.name
+                            try:
+                                if dst_file.exists():
+                                    dst_file.unlink()
+                                f.replace(dst_file)
+                                steps_log.append(("relocate_thirdparty_doc", True, f"{f} -> {dst_file}"))
+                            except Exception as e:
+                                steps_log.append(("relocate_thirdparty_doc", False, f"{f}: {e}"))
+
+                # Remove non-runtime directories inside vendor tree
+                import shutil as _shutil
+                for dname in dirs_to_remove:
+                    dpath = child / dname
+                    if dpath.exists():
+                        try:
+                            _shutil.rmtree(dpath)
+                            steps_log.append(("prune_vendor_dir", True, str(dpath)))
+                        except Exception as e:
+                            steps_log.append(("prune_vendor_dir", False, f"{dpath}: {e}"))
+
+            except Exception as e:
+                steps_log.append(("relocate_thirdparty_error", False, f"{child}: {e}"))
+
+    # [4] Recursively prune build-time metadata under vendor trees (not needed at runtime)
+    recursive_dirs_to_prune = ["pkgconfig", "cmake", "man", "metainfo", "gtk-doc", "gdb", "aclocal", "docs", "doc"]
+    recursive_files_to_prune = ["*.pc", "*.cmake", "*.la", "*.a"]  # keep *.dylib
+
+    if fw_root.exists():
+        for child in fw_root.iterdir():
+            try:
+                if child.suffix == ".framework" or child.suffix == ".dylib":
+                    continue
+                if not child.is_dir():
+                    continue
+
+                looks_like_vendor = any((child / d).exists() for d in ("lib", "include", "Headers", "share"))
+                looks_like_vendor = looks_like_vendor or any(child.glob("*.txt")) or any(child.glob("LICENSE*")) or any(child.glob("COPYING*"))
+                if not looks_like_vendor:
+                    continue
+
+                import shutil as _shutil
+                for dname in recursive_dirs_to_prune:
+                    for dpath in child.rglob(dname):
+                        if dpath.is_dir():
+                            try:
+                                _shutil.rmtree(dpath)
+                                steps_log.append(("prune_vendor_dir_recursive", True, str(dpath)))
+                            except Exception as e:
+                                steps_log.append(("prune_vendor_dir_recursive", False, f"{dpath}: {e}"))
+
+                for pat in recursive_files_to_prune:
+                    for f in child.rglob(pat):
+                        try:
+                            if f.is_file():
+                                f.unlink()
+                                steps_log.append(("prune_vendor_file", True, str(f)))
+                        except Exception as e:
+                            steps_log.append(("prune_vendor_file", False, f"{f}: {e}"))
+
+            except Exception as e:
+                steps_log.append(("relocate_thirdparty_recursive_error", False, f"{child}: {e}"))
+
+    # [5] Drop exec bits on *.so (Python extension modules etc.)
     so_execbits_dropped = []
     for p in app.rglob("*.so"):
         try:
@@ -1050,9 +1144,8 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
             steps_log.append(("chmod_so", False, f"{p}: {e}"))
     result["so_execbits_dropped"] = so_execbits_dropped
 
-    # --- MINIMAL FIX: collect framework bundle directories and sign them first
+    # [6] Collect framework bundle directories for early signing
     framework_dirs = []
-    fw_root = app / "Contents" / "Frameworks"
     if fw_root.exists():
         for p in fw_root.iterdir():
             try:
@@ -1061,7 +1154,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
             except Exception:
                 pass
 
-    # 3) Collect inner targets (exclude main)
+    # [7] Collect inner targets (exclude main)
     inner = []
     for sub in ("Contents/MacOS", "Contents/Buddy"):
         root = app / sub
@@ -1091,7 +1184,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
             seen.add(sp)
             inner_unique.append(p)
 
-    # 4) Sign frameworks (directories) FIRST
+    # [8] Sign frameworks first
     sign_errors = []
     for fw in framework_dirs:
         ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(fw)])
@@ -1099,7 +1192,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
         if not ok:
             sign_errors.append(str(fw))
 
-    # 5) Sign inner files
+    # [9] Sign inner files
     for p in inner_unique:
         ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", str(p)])
         steps_log.append(("codesign_inner", ok, f"{p}\n{out}"))
@@ -1107,7 +1200,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
             sign_errors.append(str(p))
     result["sign_errors"] = sign_errors
 
-    # 6) Sign main
+    # [10] Sign main executable
     if not main_bin.exists():
         result["log"] = steps_log
         result["error"] = f"Main executable not found: {main_bin}"
@@ -1119,7 +1212,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
         result["error"] = "Failed to sign main executable"
         return result
 
-    # 7) Deep-sign app
+    # [11] Deep-sign the .app
     ok, out = _run(["codesign", "-f", "-s", "-", "--timestamp=none", "--deep", str(app)])
     steps_log.append(("codesign_app_deep", ok, out))
     if not ok:
@@ -1127,7 +1220,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
         result["error"] = "Deep codesign failed"
         return result
 
-    # 8) Verify
+    # [12] Verify (codesign + Gatekeeper assessment)
     ok1, out1 = _run(["codesign", "--verify", "--deep", "--strict", "--verbose=4", str(app)])
     ok2, out2 = _run(["spctl", "--assess", "--type", "execute", "--verbose=4", str(app)])
     steps_log.append(("verify_codesign", ok1, out1))
@@ -1139,7 +1232,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
     result["verify_spctl_out"] = out2
     result["log"] = steps_log
 
-    # Overall result: choose policy based on gatekeeper_required
+    # [13] Overall policy
     result["ok"] = bool(ok1 and ok2) if gatekeeper_required else bool(ok1)
     return result
 
