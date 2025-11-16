@@ -966,6 +966,20 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
     import os, subprocess, plistlib, shutil
     from pathlib import Path
 
+    # --- helper: detect Mach-O (to avoid trying to sign text files with exec bit) ---
+    def _is_macho(p: Path) -> bool:
+        try:
+            with p.open("rb") as f:
+                magic = int.from_bytes(f.read(4), "big", signed=False)
+            # fat binaries + mach-o (big/little, 32/64)
+            return magic in {
+                0xCAFEBABE, 0xCAFEBABF,          # fat (32/64)
+                0xFEEDFACE, 0xFEEDFACF,          # mach-o (big endian 32/64)
+                0xCEFAEDFE, 0xCFFAEDFE,          # mach-o (little endian 32/64)
+            }
+        except Exception:
+            return False
+
     def _blank(error_msg=""):
         return {
             "ok": False,
@@ -1039,12 +1053,24 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
     # [3] Relocate third-party docs from Contents/Frameworks to Resources/ThirdParty/*
     #     Keep OSS compliance while avoiding text files under Frameworks confusing --deep --strict.
     thirdparty_dst_root = app / "Contents" / "Resources" / "ThirdParty"
+
+    # Case-insensitive coverage by listing common variants (UPPER/lower/Camel) + recursive scan (rglob)
     patterns_to_move = [
-        "COPYRIGHT*", "LICENSE*", "LICENCE*", "COPYING*", "README*", "NEWS*", "AUTHORS*",
-        "CHANGELOG*", "CHANGES*", "NOTICE*", "INSTALL_RECEIPT.json", "sbom*.json",
+        # licenses / notices
+        "LICENSE*", "License*", "LICENCE*", "Licence*", "COPYING*", "Copying*", "NOTICE*", "Notice*",
+        # readme / authors / news / change logs (various casings)
+        "README*", "Readme*", "AUTHORS*", "Authors*", "NEWS*", "News*",
+        "CHANGELOG*", "Changelog*", "ChangeLog*", "CHANGES*", "Changes*", "TODO*", "ToDo*",
+        # misc meta
+        "INSTALL_RECEIPT.json", "sbom*.json",
+        # generic text docs
         "*.md", "*.rst", "*.txt",
     ]
-    dirs_to_remove = [".brew", "include", "Headers", "share", "doc", "docs", "metainfo", "man", "pkgconfig", "cmake"]
+    dirs_to_remove = [
+        ".brew", ".bottle",
+        "include", "Headers", "share", "doc", "docs",
+        "metainfo", "man", "pkgconfig", "cmake",
+    ]
 
     fw_root = app / "Contents" / "Frameworks"
     if fw_root.exists():
@@ -1058,15 +1084,17 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
 
                 # Heuristic: vendor dir if it has lib/include/share or obvious doc files
                 looks_like_vendor = any((child / d).exists() for d in ("lib", "include", "Headers", "share"))
-                looks_like_vendor = looks_like_vendor or any(child.glob("*.txt")) or any(child.glob("LICENSE*")) or any(child.glob("COPYING*"))
+                looks_like_vendor = looks_like_vendor or any(child.glob("*.txt")) \
+                                    or any(child.glob("LICENSE*")) or any(child.glob("COPYING*")) \
+                                    or any(child.glob("ChangeLog*")) or any(child.glob("CHANGELOG*"))
                 if not looks_like_vendor:
                     continue
 
-                # Move docs/licenses/readmes to Resources/ThirdParty/<name>/
+                # Move docs/licenses/readmes recursively to Resources/ThirdParty/<name>/
                 dst = thirdparty_dst_root / child.name
                 dst.mkdir(parents=True, exist_ok=True)
                 for pat in patterns_to_move:
-                    for f in child.glob(pat):
+                    for f in child.rglob(pat):  # RECURSIVE
                         if f.is_file():
                             dst_file = dst / f.name
                             try:
@@ -1077,7 +1105,7 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
                             except Exception as e:
                                 steps_log.append(("relocate_thirdparty_doc", False, f"{f}: {e}"))
 
-                # Remove non-runtime directories inside vendor tree
+                # Remove non-runtime directories inside vendor tree (top-level only)
                 import shutil as _shutil
                 for dname in dirs_to_remove:
                     dpath = child / dname
@@ -1092,8 +1120,14 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
                 steps_log.append(("relocate_thirdparty_error", False, f"{child}: {e}"))
 
     # [4] Recursively prune build-time metadata under vendor trees (not needed at runtime)
-    recursive_dirs_to_prune = ["pkgconfig", "cmake", "man", "metainfo", "gtk-doc", "gdb", "aclocal", "docs", "doc"]
-    recursive_files_to_prune = ["*.pc", "*.cmake", "*.la", "*.a"]  # keep *.dylib
+    recursive_dirs_to_prune = [
+        "pkgconfig", "cmake", "man", "metainfo", "gtk-doc", "gdb",
+        "aclocal", "docs", "doc", ".bottle",
+    ]
+    recursive_files_to_prune = [
+        "*.pc", "*.cmake", "*.la", "*.a",
+        ".brew*", ".bottle*",
+    ]  # keep *.dylib
 
     if fw_root.exists():
         for child in fw_root.iterdir():
@@ -1104,7 +1138,8 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
                     continue
 
                 looks_like_vendor = any((child / d).exists() for d in ("lib", "include", "Headers", "share"))
-                looks_like_vendor = looks_like_vendor or any(child.glob("*.txt")) or any(child.glob("LICENSE*")) or any(child.glob("COPYING*"))
+                looks_like_vendor = looks_like_vendor or any(child.glob("*.txt")) \
+                                    or any(child.glob("LICENSE*")) or any(child.glob("COPYING*"))
                 if not looks_like_vendor:
                     continue
 
@@ -1156,19 +1191,122 @@ def Sign_App_Bundle(app_path: str, gatekeeper_required: bool = False) -> dict:
 
     # [7] Collect inner targets (exclude main)
     inner = []
+
+    # (A) Under Contents/MacOS and Contents/Buddy:
+    #     - Mach-O executables -> sign
+    #     - Non-Mach-O executables (scripts) -> move to Resources/klayout/bin + leave symlink
     for sub in ("Contents/MacOS", "Contents/Buddy"):
         root = app / sub
         if root.exists():
             for p in root.rglob("*"):
                 try:
-                    if p.is_symlink() or not p.is_file():
+                    if p == main_bin or p.is_symlink() or not p.is_file():
                         continue
-                    if p == main_bin:
+                    if not os.access(p, os.X_OK):
                         continue
-                    if os.access(p, os.X_OK):
+                    if _is_macho(p):
                         inner.append(p)
+                    else:
+                        dst_dir = app / "Contents" / "Resources" / "klayout" / "bin"
+                        dst_dir.mkdir(parents=True, exist_ok=True)
+                        dst = dst_dir / p.name
+                        try:
+                            if dst.exists():
+                                dst.unlink()
+                            # Move while keeping exec bit; then create relative symlink back
+                            p.replace(dst)
+                            rel_target = os.path.relpath(dst, start=p.parent)
+                            try:
+                                if p.exists() or p.is_symlink():
+                                    p.unlink()
+                            except Exception:
+                                pass
+                            os.symlink(rel_target, p)
+                            steps_log.append((
+                                "relocate_macOS_script_with_symlink",
+                                True,
+                                f"{p} -> {dst}; symlink {p} -> {rel_target}"
+                            ))
+                        except Exception as e:
+                            # Fallback: drop exec bit so it won't be treated as a subcomponent
+                            try:
+                                mode = p.stat().st_mode
+                                if mode & 0o111:
+                                    os.chmod(p, mode & ~0o111)
+                                steps_log.append((
+                                    "macOS_script_fallback_chmod",
+                                    False,
+                                    f"{p}: {e}; fallback chmod 0644"
+                                ))
+                            except Exception as e2:
+                                steps_log.append((
+                                    "macOS_script_fallback_error",
+                                    False,
+                                    f"{p}: {e}; chmod failed: {e2}"
+                                ))
+                except Exception as e:
+                    steps_log.append(("scan_macOS_bin_error", False, f"{p}: {e}"))
+
+    # (B) Executables under vendor bins like Contents/Frameworks/**/bin/*
+    if fw_root.exists():
+        for p in fw_root.rglob("**/bin/*"):
+            try:
+                if p.is_symlink() or not p.is_file():
+                    continue
+                if not os.access(p, os.X_OK):
+                    continue
+
+                # infer vendor name: Frameworks/<vendor>/.../bin/<name>
+                try:
+                    parts = p.relative_to(fw_root).parts
+                    vendor = parts[0] if parts else "vendor"
                 except Exception:
-                    pass
+                    vendor = "vendor"
+
+                if _is_macho(p):
+                    inner.append(p)
+                else:
+                    dst_dir = app / "Contents" / "Resources" / "ThirdParty" / vendor / "bin"
+                    dst_dir.mkdir(parents=True, exist_ok=True)
+                    dst = dst_dir / p.name
+
+                    try:
+                        if dst.exists():
+                            dst.unlink()
+                        p.replace(dst)
+                        rel_target = os.path.relpath(dst, start=p.parent)
+                        try:
+                            if p.exists() or p.is_symlink():
+                                p.unlink()
+                        except Exception:
+                            pass
+                        os.symlink(rel_target, p)
+                        steps_log.append((
+                            "relocate_vendor_bin_script_with_symlink",
+                            True,
+                            f"{p} -> {dst}; symlink {p} -> {rel_target}"
+                        ))
+                    except Exception as e:
+                        # Fallback: drop exec bit in place
+                        try:
+                            mode = p.stat().st_mode
+                            if mode & 0o111:
+                                os.chmod(p, mode & ~0o111)
+                            steps_log.append((
+                                "vendor_bin_script_fallback_chmod",
+                                False,
+                                f"{p}: {e}; fallback chmod 0644"
+                            ))
+                        except Exception as e2:
+                            steps_log.append((
+                                "vendor_bin_script_fallback_error",
+                                False,
+                                f"{p}: {e}; chmod failed: {e2}"
+                            ))
+            except Exception as e:
+                steps_log.append(("scan_vendor_bin_error", False, f"{p}: {e}"))
+
+    # Also collect dynamic libraries everywhere
     for ext in ("*.dylib", "*.so"):
         for p in app.rglob(ext):
             if p.is_symlink() or not p.is_file():
