@@ -3,7 +3,7 @@
 KLayout standalone Python module setup script
 
 
-    Copyright (C) 2006-2025 Matthias Koefferlein
+    Copyright (C) 2006-2026 Matthias Koefferlein
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -540,7 +540,7 @@ class Config(object):
                     "-Wl,-dylib",
                     "-Wl,-install_name,@rpath/%s" % self.libname_of(mod, is_lib=True),
                 ]
-            args += ["-Wl,-rpath,@loader_path/"]
+            args += ["-Wl,-rpath,@loader_path/", "-Wl,-headerpad_max_install_names"]
             args += options.get("ldflags-gcc", [])
             args += options.get("ldflags-darwin", [])
         else:
