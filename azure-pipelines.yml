@@ -146,9 +146,14 @@ jobs:
   displayName: 'Combine Windows wheels and deploy to PyPI'
   dependsOn: Build
   pool:
-    vmImage: 'windows-2019' # other options: 'macOS-10.13', 'ubuntu-16.04'
+    vmImage: 'windows-2022' # other options: 'macOS-10.13', 'ubuntu-16.04'
   steps:
     - checkout: none #skip checking out the default repository resource
+    - task: DownloadBuildArtifacts@0
+      displayName: 'Download Build Artifacts wheel-3.14.x64'
+      inputs:
+        artifactName: 'wheel-3.14.x64'
+        downloadPath: '$(System.DefaultWorkingDirectory)'
     - task: DownloadBuildArtifacts@0
       displayName: 'Download Build Artifacts wheel-3.13.x64'
       inputs:
