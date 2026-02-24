@@ -188,7 +188,7 @@ void render_cell_inst (const db::Layout &layout, const db::CellInstArray &inst, 
 
 MarkerBase::MarkerBase (lay::LayoutViewBase *view)
   : lay::ViewObject (view ? view->canvas () : 0),
-    m_line_width (-1), m_vertex_size (-1), m_halo (-1), m_text_enabled (true), m_vertex_shape (lay::ViewOp::Rect), m_line_style (-1), m_dither_pattern (-1), m_frame_pattern (0), mp_view (view)
+    m_line_width (-1), m_vertex_size (-1), m_halo (-1), m_text_enabled (true), m_text_frame_enabled (true), m_vertex_shape (lay::ViewOp::Rect), m_line_style (-1), m_dither_pattern (-1), m_frame_pattern (0), mp_view (view)
 { 
   // .. nothing yet ..
 }
@@ -262,6 +262,15 @@ MarkerBase::set_text_enabled (bool en)
 {
   if (m_text_enabled != en) {
     m_text_enabled = en;
+    redraw ();
+  }
+}
+
+void
+MarkerBase::set_text_frame_enabled (bool en)
+{
+  if (m_text_frame_enabled != en) {
+    m_text_frame_enabled = en;
     redraw ();
   }
 }
@@ -638,7 +647,7 @@ ShapeMarker::render (const Viewport &vp, ViewObjectCanvas &canvas)
   if (trans_vector ()) {
     for (std::vector<db::DCplxTrans>::const_iterator tr = trans_vector ()->begin (); tr != trans_vector ()->end (); ++tr) {
       db::CplxTrans t = vp.trans () * *tr * trans ();
-      if (m_shape.is_text () && text) {
+      if (m_shape.is_text () && text && is_text_frame_enabled ()) {
         //  draw a frame around the text
         lay::TextInfo ti (view ());
         db::DCplxTrans vp_trans = vp.trans () * *tr;
@@ -654,7 +663,7 @@ ShapeMarker::render (const Viewport &vp, ViewObjectCanvas &canvas)
     }
   } else {
     db::CplxTrans t = vp.trans () * trans ();
-    if (m_shape.is_text () && text) {
+    if (m_shape.is_text () && text && is_text_frame_enabled ()) {
       //  draw a frame around the text
       lay::TextInfo ti (view ());
       db::Text t;
@@ -1118,7 +1127,7 @@ Marker::draw (lay::Renderer &r, const db::CplxTrans &t, lay::CanvasPlane *fill, 
     //  TODO: in order to draw the box we'd need a separation of dbu-to-micron and micron-to-pixel transformations ...
     r.draw (*m_object.text, t, fill, contour, vertex, text);
   } else if (m_type == DText) {
-    if (view () && text) {
+    if (view () && text && is_text_frame_enabled ()) {
       //  draw a frame around the text
       lay::TextInfo ti (view ());
       db::DCplxTrans dt (t);
@@ -1323,7 +1332,7 @@ DMarker::render (const Viewport &vp, ViewObjectCanvas &canvas)
   } else if (m_type == Path) {
     r.draw (*m_object.path, t, fill, contour, vertex, text);
   } else if (m_type == Text) {
-    if (view () && text) {
+    if (view () && text && is_text_frame_enabled ()) {
       //  draw a frame around the text
       lay::TextInfo ti (view ());
       db::DBox box = ti.bbox (*m_object.text, t).enlarged (text_box_enlargement (t));
