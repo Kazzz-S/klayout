@@ -1091,7 +1091,7 @@ ApplicationBase::usage ()
   r += tl::to_string (QObject::tr ("  -t                  Don't update the configuration file on exit")) + "\n";
   r += tl::to_string (QObject::tr ("  -nt                 Update the configuration file on exit (default, overrides previous -t option)")) + "\n";
   r += tl::to_string (QObject::tr ("  -u <file name>      Restore session from given file")) + "\n";
-  r += tl::to_string (QObject::tr ("  -v                  Print program version and exit")) + "\n";
+  r += tl::to_string (QObject::tr ("  -v                  Print program version and exit (also available as --version)")) + "\n";
   r += tl::to_string (QObject::tr ("  -wd <name>=<value>  Define a variable within expressions")) + "\n";
   r += tl::to_string (QObject::tr ("  -x                  Synchronous drawing mode")) + "\n";
   r += tl::to_string (QObject::tr ("  -y <package>        Package installation: install package(s) and exit - can be used more than once")) + "\n";
