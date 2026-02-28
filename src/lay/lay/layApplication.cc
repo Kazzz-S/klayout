@@ -992,6 +992,8 @@ ApplicationBase::exit (int result)
   ::exit (result);
 }
 
+const int number_of_config_file_backups = 10;
+
 void 
 ApplicationBase::finish ()
 {
@@ -1001,7 +1003,7 @@ ApplicationBase::finish ()
       if (tl::verbosity () >= 20) {
         tl::info << tl::to_string (QObject::tr ("Updating configuration file ")) << m_config_file_to_write;
       }
-      dispatcher ()->write_config (m_config_file_to_write);
+      dispatcher ()->write_config (m_config_file_to_write, number_of_config_file_backups);
     }
     if (! m_config_file_to_delete.empty () && m_config_file_to_delete != m_config_file_to_write) {
       if (tl::verbosity () >= 20) {
@@ -1419,9 +1421,9 @@ ApplicationBase::process_events_impl (QEventLoop::ProcessEventsFlags /*flags*/, 
 }
 
 bool 
-ApplicationBase::write_config (const std::string &config_file)
+ApplicationBase::write_config (const std::string &config_file, int keep_backups)
 {
-  return dispatcher () ? dispatcher ()->write_config (config_file) : 0;
+  return dispatcher () ? dispatcher ()->write_config (config_file, keep_backups) : 0;
 }
 
 void 
