@@ -183,8 +183,11 @@ public:
    *
    *  If the configuration file cannot be written, false
    *  is returned but no exception is thrown.
+   *
+   *  "keep_backups" controls how many backups are kept for
+   *  the configuration file.
    */
-  bool write_config (const std::string &config_file);
+  bool write_config (const std::string &config_file, int keep_backups = 0);
 
   /**
    *  @brief Read the configuration from a file
