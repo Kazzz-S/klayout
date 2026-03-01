@@ -147,9 +147,12 @@ public:
    *  If the configuration file cannot be written, false
    *  is returned but no exception is thrown.
    *
+   *  "keep_backups" is the number of backup files kept.
+   *  By default, no backups are kept.
+   *
    *  @return false, if an error occurred.
    */
-  bool write_config (const std::string &config_file);
+  bool write_config (const std::string &config_file, int keep_backups = 0);
 
   /**
    *  @brief Read the configuration from a file

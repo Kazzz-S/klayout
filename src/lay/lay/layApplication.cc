@@ -992,6 +992,8 @@ ApplicationBase::exit (int result)
   ::exit (result);
 }
 
+const int number_of_config_file_backups = 10;
+
 void 
 ApplicationBase::finish ()
 {
@@ -1001,7 +1003,7 @@ ApplicationBase::finish ()
       if (tl::verbosity () >= 20) {
         tl::info << tl::to_string (QObject::tr ("Updating configuration file ")) << m_config_file_to_write;
       }
-      dispatcher ()->write_config (m_config_file_to_write);
+      dispatcher ()->write_config (m_config_file_to_write, number_of_config_file_backups);
     }
     if (! m_config_file_to_delete.empty () && m_config_file_to_delete != m_config_file_to_write) {
       if (tl::verbosity () >= 20) {
@@ -1091,7 +1093,7 @@ ApplicationBase::usage ()
   r += tl::to_string (QObject::tr ("  -t                  Don't update the configuration file on exit")) + "\n";
   r += tl::to_string (QObject::tr ("  -nt                 Update the configuration file on exit (default, overrides previous -t option)")) + "\n";
   r += tl::to_string (QObject::tr ("  -u <file name>      Restore session from given file")) + "\n";
-  r += tl::to_string (QObject::tr ("  -v                  Print program version and exit")) + "\n";
+  r += tl::to_string (QObject::tr ("  -v                  Print program version and exit (also available as --version)")) + "\n";
   r += tl::to_string (QObject::tr ("  -wd <name>=<value>  Define a variable within expressions")) + "\n";
   r += tl::to_string (QObject::tr ("  -x                  Synchronous drawing mode")) + "\n";
   r += tl::to_string (QObject::tr ("  -y <package>        Package installation: install package(s) and exit - can be used more than once")) + "\n";
@@ -1419,9 +1421,9 @@ ApplicationBase::process_events_impl (QEventLoop::ProcessEventsFlags /*flags*/, 
 }
 
 bool 
-ApplicationBase::write_config (const std::string &config_file)
+ApplicationBase::write_config (const std::string &config_file, int keep_backups)
 {
-  return dispatcher () ? dispatcher ()->write_config (config_file) : 0;
+  return dispatcher () ? dispatcher ()->write_config (config_file, keep_backups) : 0;
 }
 
 void 
