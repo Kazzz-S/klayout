@@ -351,6 +351,7 @@ LayoutViewBase::init (db::Manager *mgr)
   m_bitmap_caching = true;
   m_show_properties = false;
   m_apply_text_trans = true;
+  m_apply_text_trans_mode = 3;
   m_default_text_size = 0.1;
   m_text_point_mode = false;
   m_text_font = 0;
@@ -1027,6 +1028,13 @@ LayoutViewBase::configure (const std::string &name, const std::string &value)
     bool flag;
     tl::from_string (value, flag);
     apply_text_trans (flag);
+    return true;
+
+  } else if (name == cfg_apply_text_trans_mode) {
+
+    unsigned int mode;
+    tl::from_string (value, mode);
+    apply_text_trans_mode (mode);
     return true;
 
   } else if (name == cfg_markers_visible) {
@@ -3912,18 +3920,34 @@ LayoutViewBase::full_box () const
   db::DBox bbox;
 
   auto tv = cv_transform_variants_with_empty ();
+
+  //  first, use the bounding box of actual drawn layout (issue #2326)
   for (auto i = tv.begin (); i != tv.end (); ++i) {
     const lay::CellView &cv = cellview (i->second);
     if (cv.is_valid ()) {
       double dbu = cv->layout ().dbu ();
-      bbox += (i->first * db::CplxTrans (dbu) * cv.context_trans ()) * cv.cell ()->bbox_with_empty ();
+      bbox += (i->first * db::CplxTrans (dbu) * cv.context_trans ()) * cv.cell ()->bbox ();
     }
   }
 
+  //  if that is empty, use the bounding box computed while treating empty cells as
+  //  dots at the origin of the cells
+  if (bbox.empty ()) {
+    for (auto i = tv.begin (); i != tv.end (); ++i) {
+      const lay::CellView &cv = cellview (i->second);
+      if (cv.is_valid ()) {
+        double dbu = cv->layout ().dbu ();
+        bbox += (i->first * db::CplxTrans (dbu) * cv.context_trans ()) * cv.cell ()->bbox_with_empty ();
+      }
+    }
+  }
+
+  //  add annotations
   for (lay::AnnotationShapes::iterator a = annotation_shapes ().begin (); ! a.at_end (); ++a) {
     bbox += a->box ();
   }
 
+  //  produce a default if still empty and enlarge by some small amount to have a border
   if (bbox.empty ()) {
     bbox = db::DBox (0, 0, 0, 0); // default box
   } else {
@@ -5541,7 +5565,16 @@ LayoutViewBase::apply_text_trans (bool f)
   }
 }
   
-void 
+void
+LayoutViewBase::apply_text_trans_mode (unsigned int m)
+{
+  if (m_apply_text_trans_mode != m) {
+    m_apply_text_trans_mode = m;
+    redraw ();
+  }
+}
+
+void
 LayoutViewBase::offset_stipples (bool f)
 {
   if (m_stipple_offset != f) {
