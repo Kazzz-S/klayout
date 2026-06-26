@@ -36,7 +36,7 @@ from bundle_qtconf  import generate_qtconf, QtConfError
 # @return (usage, moduleset)-tuple
 #-------------------------------------------------------------------------------
 def GenerateUsage(platform):
-    if platform.upper() in [ "TAHOE", "SEQUOIA", "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
+    if platform.upper() in [ "GOLDENGATE", "TAHOE", "SEQUOIA", "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
         myQt56    = "qt5macports"
         myRuby    = "sys"
         myPython  = "sys"
@@ -123,7 +123,9 @@ def Get_Default_Config():
     # Dropped [ElCapitan - BigSur] (2023-10-24).
     # See 415b5aa2efca04928f1148a69e77efd5d76f8c1d for the previous states.
     #----------------------------------------------------------------------------
-    if   release == 25:
+    if   release == 27:
+        Platform = "GoldenGate"
+    elif release == 25:
         Platform = "Tahoe"
     elif release == 24:
         Platform = "Sequoia"
@@ -142,7 +144,7 @@ def Get_Default_Config():
 
     if not Machine == "x86_64":
 		# with an Apple Silicon Chip?
-        if Machine == "arm64" and Platform in ["Tahoe", "Sequoia", "Sonoma", "Ventura", "Monterey"]:
+        if Machine == "arm64" and Platform in ["GoldenGate", "Tahoe", "Sequoia", "Sonoma", "Ventura", "Monterey"]:
             print("")
             print( "### Your Mac equips an Apple Silicon Chip ###" )
             print( "    Setting QMAKE_APPLE_DEVICE_ARCHS=arm64\n")
@@ -160,7 +162,11 @@ def Get_Default_Config():
     ToolDebug = list()
 
     # Set the default modules
-    if   Platform == "Tahoe":
+    if   Platform == "GoldenGate":
+        ModuleQt     = "Qt5MacPorts"
+        ModuleRuby   = "Sys"
+        ModulePython = "Sys"
+    elif Platform == "Tahoe":
         ModuleQt     = "Qt5MacPorts"
         ModuleRuby   = "Sys"
         ModulePython = "Sys"
@@ -356,7 +362,7 @@ def Parse_CLI_Args(config):
                     default=False,
                     help='check usage' )
 
-    if Platform.upper() in [ "TAHOE", "SEQUOIA", "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
+    if Platform.upper() in [ "GOLDENGATE", "TAHOE", "SEQUOIA", "SONOMA", "VENTURA", "MONTEREY" ]: # with Xcode [13.1 .. ]
         p.set_defaults( type_qt         = "qt5macports",
                         type_ruby       = "sys",
                         type_python     = "sys",
@@ -432,7 +438,9 @@ def Parse_CLI_Args(config):
         if choiceRuby == "nil":
             ModuleRuby = 'nil'
         elif choiceRuby == "Sys":
-            if Platform == "Tahoe":
+            if Platform == "GoldenGate":
+                ModuleRuby = 'RubyGoldenGate'
+            elif Platform == "Tahoe":
                 ModuleRuby = 'RubyTahoe'
             elif Platform == "Sequoia":
                 ModuleRuby = 'RubySequoia'
@@ -484,7 +492,10 @@ def Parse_CLI_Args(config):
             ModulePython = 'nil'
             OSPython3FW  = None
         elif choicePython == "Sys":
-            if Platform == "Tahoe":
+            if Platform == "GoldenGate":
+                ModulePython = 'PythonGoldenGate'
+                OSPython3FW  = GoldenGatePy3FW
+            elif Platform == "Tahoe":
                 ModulePython = 'PythonTahoe'
                 OSPython3FW  = TahoePy3FW
             elif Platform == "Sequoia":

@@ -255,7 +255,7 @@ Qt56Dictionary  = { 'Qt5MacPorts': Qt5MacPorts,
 #           for the previous states.
 #-----------------------------------------------------
 RubyNil  = [ 'nil' ]
-RubySys  = [ 'RubyMonterey', 'RubyVentura', 'RubySonoma', 'RubySequoia', 'RubyTahoe' ]
+RubySys  = [ 'RubyMonterey', 'RubyVentura', 'RubySonoma', 'RubySequoia', 'RubyTahoe', 'RubyGoldenGate' ]
 RubyExt  = [ 'Ruby34MacPorts', 'Ruby34Brew', 'RubyAnaconda3' ]
 Rubies   = RubyNil + RubySys + RubyExt
 
@@ -324,6 +324,16 @@ RubyTahoe        = { 'exe':  '/System/Library/Frameworks/Ruby.framework/Versions
                      'lib':  '%s/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/lib/libruby.tbd' % TahoeXcSDK
                    }
 
+# Bundled with Golden Gate (27.x)
+# [Key Type Name] = 'Sys'
+GoldenGateXcSDK  = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+GoldenGateCLTSDK = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+RubyGoldenGate   = { 'exe':  '/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/bin/ruby',
+                     'inc':  '%s/System/Library/Frameworks/Ruby.framework/Headers' % GoldenGateXcSDK,
+                     'inc2': '%s/System/Library/Frameworks/Ruby.framework/Headers/ruby' % GoldenGateXcSDK,
+                     'lib':  '%s/System/Library/Frameworks/Ruby.framework/Versions/2.6/usr/lib/libruby.tbd' % GoldenGateXcSDK
+                   }
+
 # Ruby 3.4 from MacPorts (https://www.macports.org/)
 #  install with 'sudo port install ruby34'
 # [Key Type Name] = 'MP34'
@@ -361,6 +371,7 @@ RubyDictionary  = { 'nil'             : None,
                     'RubySonoma'      : RubySonoma,
                     'RubySequoia'     : RubySequoia,
                     'RubyTahoe'       : RubyTahoe,
+                    'RubyGoldenGate'  : RubyGoldenGate,
                     'Ruby34MacPorts'  : Ruby34MacPorts,
                     'Ruby34Brew'      : Ruby34Brew,
                     'RubyAnaconda3V5' : RubyAnaconda3V5,
@@ -376,7 +387,7 @@ RubyDictionary  = { 'nil'             : None,
 #           for the previous states.
 #-----------------------------------------------------
 PythonNil  = [ 'nil' ]
-PythonSys  = [ 'PythonMonterey', 'PythonVentura', 'PythonSonoma', 'PythonSequoia', 'PythonTahoe' ]
+PythonSys  = [ 'PythonMonterey', 'PythonVentura', 'PythonSonoma', 'PythonSequoia', 'PythonTahoe', 'PythonGoldenGate' ]
 PythonExt  = [ 'Python311MacPorts', 'Python312MacPorts', 'Python313MacPorts' ]
 PythonExt += [ 'Python311Brew', 'Python312Brew', 'Python313Brew', 'PythonAutoBrew' ]
 PythonExt += [ 'PythonAnaconda3' ]
@@ -429,6 +440,15 @@ PythonTahoe      = { 'exe': '%s/Python3.framework/Versions/3.9/bin/python3.9' % 
                      'inc': '%s/Python3.framework/Versions/3.9/include/python3.9' % TahoePy3FW,
                      'lib': '%s/Python3.framework/Versions/3.9/lib/libpython3.9.dylib' % TahoePy3FW
                    }
+
+# Bundled with Golden Gate (27.x)
+# [Key Type Name] = 'Sys'
+GoldenGatePy3FWXc = "/Applications/Xcode.app/Contents/Developer/Library/Frameworks"
+GoldenGatePy3FW   = "/Library/Developer/CommandLineTools/Library/Frameworks"
+PythonGoldenGate  = { 'exe': '%s/Python3.framework/Versions/3.9/bin/python3.9' % GoldenGatePy3FW,
+                      'inc': '%s/Python3.framework/Versions/3.9/include/python3.9' % GoldenGatePy3FW,
+                      'lib': '%s/Python3.framework/Versions/3.9/lib/libpython3.9.dylib' % GoldenGatePy3FW
+                    }
 
 # Python 3.11 from MacPorts (https://www.macports.org/)
 #   install with 'sudo port install python311'
@@ -551,6 +571,7 @@ PythonDictionary = { 'nil'                : None,
                      'PythonSonoma'       : PythonSonoma,
                      'PythonSequoia'      : PythonSequoia,
                      'PythonTahoe'        : PythonTahoe,
+                     'PythonGoldenGate'   : PythonGoldenGate,
                      'Python313MacPorts'  : Python313MacPorts,
                      'Python313Brew'      : Python313Brew,
                      'PythonAnaconda3V5'  : PythonAnaconda3V5,
