@@ -2296,7 +2296,7 @@ def Deploy_Binaries_For_Bundle(config, parameters):
     #-------------------------------------------------------------
     # [11] Sign the application bundle
     #-------------------------------------------------------------
-    if Platform in ['Tahoe']:
+    if Platform in ['GoldenGate', 'Tahoe']:
         print( " [11] Signing the macOS application bundle (ad-hoc) after all post-build edits (install_name_tool/strip)..." )
         appbundle = "%s/klayout.app" % AbsMacPkgDir
         res = Sign_App_Bundle(appbundle)
