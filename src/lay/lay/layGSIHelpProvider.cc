@@ -932,7 +932,10 @@ GSIHelpProvider::produce_class_doc (const std::string &cls) const
   const gsi::ClassBase *cls_obj = 0;
 
   auto cl = gsi::ClassBase::classes_in_definition_order ();
-  for (auto c = cl.begin (); c != cl.end (); ++c) {
+  //  NOTE: using reverse order makes sure that internal base class are not
+  //  found first as they share the same formal name with the public
+  //  class.
+  for (auto c = cl.rbegin (); c != cl.rend (); ++c) {
     if (make_qualified_name (*c) == cls) {
       cls_obj = *c;
       break;
