@@ -3165,6 +3165,26 @@ class Basic_TestClass < TestBase
 
   end
 
+  def test_variant_formation
+
+    assert_equal(RBA::A::var2s(1.5), "##1.5")
+    assert_equal(RBA::A::var2s(-17), "#-17")
+    assert_equal(RBA::A::var2s("abc"), "'abc'")
+    assert_equal(RBA::A::var2s(nil), "nil")
+    assert_equal(RBA::A::var2s(true), "true")
+    assert_equal(RBA::A::var2s(false), "false")
+    assert_equal(RBA::A::var2s(RBA::DBox::new(0, 0, 10, 20)), "[dbox:(0,0;10,20)]")
+    assert_equal(RBA::A::var2s([ 0.5, "hello" ]), "(##0.5,'hello')")
+    assert_equal(RBA::A::var2s([ 0.5, [ 1, 2 ] ]), "(##0.5,(#1,#2))")
+    assert_equal(RBA::A::var2s({ 1 => 'one', 'two' => 17 }), "{#1=>'one','two'=>#17}")
+    if RBA::A::ll_size == 4
+      assert_equal(RBA::A::var2s(100000000000), "#l100000000000")
+    else
+      assert_equal(RBA::A::var2s(100000000000), "#100000000000")
+    end
+
+  end
+
   def test_optional
 
     if RBA::B.respond_to?(:int_to_optional)

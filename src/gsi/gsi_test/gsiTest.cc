@@ -1278,7 +1278,9 @@ static gsi::Class<A> decl_a ("", "A",
   gsi::method ("ft_str", &A::ft_str) +
   gsi::method ("ft_cv", &A::ft_cv) +
   gsi::method ("ft_cptr", &A::ft_cptr) +
-  gsi::method ("ft_var", &A::ft_var)
+  gsi::method ("ft_var", &A::ft_var) +
+  gsi::method ("var2s", &A::var2s) +
+  gsi::method ("ll_size", &A::ll_size)
 );
 
 static gsi::Class<A_NC> decl_a_nc (decl_a, "", "A_NC");

@@ -419,6 +419,11 @@ struct A
   static int sp_i_get ();
   static void sp_i_set (int v);
 
+  //  Variant to parsable string for Variant generation tests
+  static std::string var2s (const tl::Variant &v) { return v.to_parsable_string (); }
+  //  platform specifics: length of "long long"
+  static size_t ll_size () { return sizeof (long long); }
+
   //  feed-through values for full cycle tests
   //  (mainly for string encoding and binary strings)
   static std::string ft_str (const std::string &v) { return v; }
