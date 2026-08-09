@@ -8,10 +8,6 @@
  <doc>@class [db] PCellDeclarationHelper &lt; PCellDeclaration
 @brief A helper class to simplify the declaration of a PCell (Python version)
 
-NOTE: in the following, "pya" can be replaced by "klayout.db" which is
-the canonical module and the preferred way of addressing the 
-external Python library.
-
 This class provides adds some convenience to the PCell declaration based
 on PCellDeclaration. PCellDeclaration is a C++ object which is less
 convenient to use than a Ruby-based approach. In particular this class
@@ -22,10 +18,10 @@ The basic usage of this class is the following:
 
 @code
 
-import pya 
+import klayout.db as kdb 
 
 # Derive your PCell from PCellDeclarationHelper
-class MyPCell(pya.PCellDeclarationHelper):
+class MyPCell(kdb.PCellDeclarationHelper):
 
   def __init__(self):
 
@@ -35,7 +31,7 @@ class MyPCell(pya.PCellDeclarationHelper):
     # your initialization: add parameters with name, type, description and
     # optional other values
     self.param("p", self.TypeInt, "The parameter", default = 1)
-    self.param("l", self.TypeLayer, "The layer", default = pya.LayerInfo(1, 0))
+    self.param("l", self.TypeLayer, "The layer", default = kdb.LayerInfo(1, 0))
     # add other parameters ..
 
   # reimplement display_text_impl
@@ -71,7 +67,7 @@ we can access the layer index with the "l_layer" method:
 
 @code
   def produce_impl(self):
-    cell.shapes(self.l_layer).insert(pya.Box(0, 0, self.p*100, self.p*200))
+    cell.shapes(self.l_layer).insert(kdb.Box(0, 0, self.p*100, self.p*200))
 @/code
 
 Again in this sample, we used "p" to access the parameter "p".

@@ -7,7 +7,8 @@
  <shortcut/>
  <interpreter>python</interpreter>
  <category>pymacro</category>
- <text>import pya
+ <text>import klayout.db as kdb
+import klayout.lay as klay
 
 # Enter your Python code here ..
 

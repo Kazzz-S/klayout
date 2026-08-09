@@ -78,6 +78,13 @@ module PCellLibModule
     #   In lazy mode, the user has to acknowledge parameter changes before 
     #   they are executed.
     # end
+    # 
+    # optional:
+    # def callback_impl(name)
+    #   TODO: implement functionality to change user interface element
+    #   states for PCell parameter editors based on certain events
+    #   like value changes.
+    # end
     
   end
   

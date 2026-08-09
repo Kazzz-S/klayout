@@ -14,9 +14,11 @@
  <menu-path/>
  <interpreter>python</interpreter>
  <dsl-interpreter-name/>
- <text>import pya
+ <text>from klayout.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton
+from klayout.QtGui import QPixmap, QFont
+from klayout.lay import Application
 
-class ScreenshotDialog(pya.QDialog):
+class ScreenshotDialog(QDialog):
   """
   This class implements a dialog with a screenshot display area and a
   screenshot button
@@ -25,11 +27,11 @@ class ScreenshotDialog(pya.QDialog):
   def button_clicked(self, checked):
     """ Event handler: "Screenshot" button clicked """
 
-    view = pya.Application.instance().main_window().current_view()
+    view = Application.instance().main_window().current_view()
 
     # get the screenshot and place it in the image label
     if not view is None:
-      self.image.setPixmap(pya.QPixmap.fromImage(view.get_image(400, 400)))
+      self.image.setPixmap(QPixmap.fromImage(view.get_image(400, 400)))
     else:
       self.image.setText("No layout opened to take screenshot from")
 
@@ -42,14 +44,14 @@ class ScreenshotDialog(pya.QDialog):
 
     self.resize(400, 120)
 
-    layout = pya.QVBoxLayout(self)
+    layout = QVBoxLayout(self)
     self.setLayout(layout)
 
-    self.image = pya.QLabel("Press the button to fetch a screenshot", self)
+    self.image = QLabel("Press the button to fetch a screenshot", self)
     layout.addWidget(self.image)
 
-    button = pya.QPushButton('Screenshot', self)
-    button.setFont(pya.QFont('Times', 18, int(pya.QFont.Bold)))
+    button = QPushButton('Screenshot', self)
+    button.setFont(QFont('Times', 18, int(QFont.Bold)))
     layout.addWidget(button)
     
     # attach the event handler
@@ -57,7 +59,7 @@ class ScreenshotDialog(pya.QDialog):
 
 # Instantiate the dialog and make it visible initially.
 # Passing the main_window will make it stay on top of the main window.
-dialog = ScreenshotDialog(pya.Application.instance().main_window())
+dialog = ScreenshotDialog(Application.instance().main_window())
 dialog.show()
 </text>
 </klayout-macro>

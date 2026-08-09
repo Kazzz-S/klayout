@@ -14,10 +14,12 @@
  <menu-path/>
  <interpreter>python</interpreter>
  <dsl-interpreter-name/>
- <text>import pya
-import re
+ <text>import re
+from klayout.QtNetwork import QTcpServer, QTcpSocket, QHostAddress
+from klayout.QtCore import QUrl, QBuffer, QIODevice, QObject, qt_signal, qt_slot
+from klayout.lay import Application
 
-class MyServer(pya.QTcpServer):
+class MyServer(QTcpServer):
   """
   Implements a TCP server listening on port 8082
   This server will accept HTTP requests and deliver a HTML page containing an image
@@ -39,7 +41,7 @@ class MyServer(pya.QTcpServer):
       connection = self.nextPendingConnection()
 
       # Read the request header
-      while connection.isOpen() and connection.state() == pya.QTcpSocket.ConnectedState:
+      while connection.isOpen() and connection.state() == QTcpSocket.ConnectedState:
         if connection.canReadLine():
           line = connection.readLine().decode("utf-8")
           if line.rstrip('\n').rstrip('\r') == "":
@@ -47,19 +49,19 @@ class MyServer(pya.QTcpServer):
           else:
             m = re.match("GET\\s+(.*)\\s+HTTP", line)
             if not m is None:
-              url = pya.QUrl(m.groups()[0])
+              url = QUrl(m.groups()[0])
         else:
           connection.waitForReadyRead(100)
 
-      view = pya.Application.instance().main_window().current_view()
+      view = Application.instance().main_window().current_view()
 
       if url is None:
         pass
-      elif url.path == "/screenshot.png":
+      elif url.path() == "/screenshot.png":
         # Deliver the image
         if not view is None:
-          b = pya.QBuffer()
-          b.open(pya.QIODevice.WriteOnly)
+          b = QBuffer()
+          b.open(QIODevice.WriteOnly)
           view.get_image(800, 800).save(b, "PNG")
           b.close()
           connection.write(b.buffer())
@@ -70,13 +72,13 @@ class MyServer(pya.QTcpServer):
         connection.write("HTTP/1.0 200 OK\nContent-Type: text/html\n\n" + '&lt;html&gt;&lt;body&gt;No view open to take screenshot from&lt;/body&gt;&lt;/html&gt;\n\n')
 
       # automatically delete when disconnected
-      # Note: we cannot use RBA signal bindings for that purpose because the Ruby object might get 
+      # Note: we cannot use native Python signal bindings for that purpose because the Python object might get 
       # deleted before the C++ object is. Hence we do it explicitly. 
       connection.disconnectFromHost()
       #connection.destroy()
-      signal = pya.qt_signal("disconnected()")
-      slot = pya.qt_slot("deleteLater()")
-      pya.QObject.connect(connection, signal, connection, slot)
+      signal = qt_signal("disconnected()")
+      slot = qt_slot("deleteLater()")
+      QObject.connect(connection, signal, connection, slot)
 
     except Exception as ex: 
       print("ERROR " + str(ex))
@@ -89,7 +91,7 @@ class MyServer(pya.QTcpServer):
   
     super(MyServer, self).__init__(parent)
     
-    ha = pya.QHostAddress("0.0.0.0")
+    ha = QHostAddress("0.0.0.0")
     self.listen(ha, 8082)
   
     # install an event on a new connection

@@ -10,14 +10,16 @@
  <group-name/>
  <menu-path/>
  <interpreter>python</interpreter>
- <text>import pya
+ <text>from klayout.QtUiTools import QUiLoader
+from klayout.QtCore import QFile, QIODevice
+from klayout.lay import Application
 import types
 
 # Create the form object from the uic file:
 
-ui_file = pya.QFile(":/macro-templates/qt_designer.ui")
-ui_file.open(pya.QIODevice.ReadOnly)
-form = pya.QUiLoader().load(ui_file, pya.Application.instance().main_window())
+ui_file = QFile(":/macro-templates/qt_designer.ui")
+ui_file.open(QIODevice.ReadOnly)
+form = QUiLoader().load(ui_file, Application.instance().main_window())
 ui_file.close()
 
 # Install an event handler for the button clicked event

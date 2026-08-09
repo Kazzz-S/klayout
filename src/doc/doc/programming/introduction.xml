@@ -9,16 +9,17 @@
   <keyword name="Ruby scripts"/>
   <keyword name="Python"/>
   <keyword name="pya"/>
+  <keyword name="Python module"/>
   <keyword name="Python scripts"/>
 
   <p>
-  This chapter is about programming extensions for KLayout using the integrated Ruby API (RBA) or Python API (pya). 
+  This chapter is about programming extensions for KLayout using the integrated Ruby API (RBA) or Python API (klayout.db, klayout.layer etc.). 
   </p>
 
   <p>
   To use RBA scripts, KLayout must be compiled with the Ruby interpreter. Check under "Help/About" whether 
   support is available. If there is, the "Build options" will include a "Ruby" or "Python" interpreter or both.
-  RBA scripts require a Ruby interpreter. To use pya scripts, Python support must be included.
+  RBA scripts require a Ruby interpreter. To use Python scripts, Python support must be compiled in.
   </p>
 
   <p>
