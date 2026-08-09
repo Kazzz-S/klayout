@@ -645,36 +645,59 @@ ShapeMarker::render (const Viewport &vp, ViewObjectCanvas &canvas)
   r.set_precise (true);
 
   if (trans_vector ()) {
+
     for (std::vector<db::DCplxTrans>::const_iterator tr = trans_vector ()->begin (); tr != trans_vector ()->end (); ++tr) {
+
       db::CplxTrans t = vp.trans () * *tr * trans ();
-      if (m_shape.is_text () && text && is_text_frame_enabled ()) {
+      if (m_shape.is_text ()) {
+
+        if ((fill || contour) && is_text_frame_enabled ()) {
+          //  draw a frame around the text
+          lay::TextInfo ti (view ());
+          db::DCplxTrans vp_trans = vp.trans () * *tr;
+          db::Text t;
+          m_shape.text (t);
+          db::DBox box = ti.bbox (trans () * t, vp_trans).enlarged (text_box_enlargement (vp_trans));
+          if (! box.is_point ()) {
+            r.draw (box, vp_trans, fill, contour, 0, 0);
+          }
+        }
+
+        r.draw (m_shape, t, 0, 0, vertex, text);
+
+      } else {
+        r.draw (m_shape, t, fill, contour, vertex, text);
+      }
+
+      r.draw_propstring (m_shape, text, t);
+
+    }
+
+  } else {
+
+    db::CplxTrans t = vp.trans () * trans ();
+
+    if (m_shape.is_text ()) {
+
+      if ((fill || contour) && is_text_frame_enabled ()) {
         //  draw a frame around the text
         lay::TextInfo ti (view ());
-        db::DCplxTrans vp_trans = vp.trans () * *tr;
         db::Text t;
         m_shape.text (t);
-        db::DBox box = ti.bbox (trans () * t, vp_trans).enlarged (text_box_enlargement (vp_trans));
+        db::DBox box = ti.bbox (trans () * t, vp.trans ()).enlarged (text_box_enlargement (vp.trans ()));
         if (! box.is_point ()) {
-          r.draw (box, vp_trans, 0, text, 0, 0);
+          r.draw (box, vp.trans (), fill, contour, 0, 0);
         }
       }
+
+      r.draw (m_shape, t, 0, 0, vertex, text);
+
+    } else {
       r.draw (m_shape, t, fill, contour, vertex, text);
-      r.draw_propstring (m_shape, text, t);
     }
-  } else {
-    db::CplxTrans t = vp.trans () * trans ();
-    if (m_shape.is_text () && text && is_text_frame_enabled ()) {
-      //  draw a frame around the text
-      lay::TextInfo ti (view ());
-      db::Text t;
-      m_shape.text (t);
-      db::DBox box = ti.bbox (trans () * t, vp.trans ()).enlarged (text_box_enlargement (vp.trans ()));
-      if (! box.is_point ()) {
-        r.draw (box, vp.trans (), 0, text, 0, 0);
-      }
-    }
-    r.draw (m_shape, t, fill, contour, vertex, text);
+
     r.draw_propstring (m_shape, text, t);
+
   }
 }
 
@@ -1127,16 +1150,16 @@ Marker::draw (lay::Renderer &r, const db::CplxTrans &t, lay::CanvasPlane *fill, 
     //  TODO: in order to draw the box we'd need a separation of dbu-to-micron and micron-to-pixel transformations ...
     r.draw (*m_object.text, t, fill, contour, vertex, text);
   } else if (m_type == DText) {
-    if (view () && text && is_text_frame_enabled ()) {
+    if (view () && (fill || contour) && is_text_frame_enabled ()) {
       //  draw a frame around the text
       lay::TextInfo ti (view ());
       db::DCplxTrans dt (t);
       db::DBox box = ti.bbox (*m_object.dtext, dt).enlarged (text_box_enlargement (dt));
       if (! box.is_point ()) {
-        r.draw (box, dt, 0, text, 0, 0);
+        r.draw (box, dt, fill, contour, 0, 0);
       }
     }
-    r.draw (*m_object.dtext, db::DCplxTrans (t), fill, contour, vertex, text);
+    r.draw (*m_object.dtext, db::DCplxTrans (t), 0, 0, vertex, text);
   } else if (m_type == Edge) {
     r.draw (*m_object.edge, t, fill, contour, vertex, text);
   } else if (m_type == DEdge) {
@@ -1332,15 +1355,15 @@ DMarker::render (const Viewport &vp, ViewObjectCanvas &canvas)
   } else if (m_type == Path) {
     r.draw (*m_object.path, t, fill, contour, vertex, text);
   } else if (m_type == Text) {
-    if (view () && text && is_text_frame_enabled ()) {
+    if (view () && (fill || contour) && is_text_frame_enabled ()) {
       //  draw a frame around the text
       lay::TextInfo ti (view ());
       db::DBox box = ti.bbox (*m_object.text, t).enlarged (text_box_enlargement (t));
       if (! box.is_point ()) {
-        r.draw (box, t, 0, text, 0, 0);
+        r.draw (box, t, fill, contour, 0, 0);
       }
     }
-    r.draw (*m_object.text, t, fill, contour, vertex, text);
+    r.draw (*m_object.text, t, 0, 0, vertex, text);
   } else if (m_type == Edge) {
     r.draw (*m_object.edge, t, fill, contour, vertex, text);
   } else if (m_type == EdgePair) {
