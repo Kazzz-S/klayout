@@ -316,6 +316,12 @@ static std::string make_qualified_name (const gsi::ClassBase *cls)
 
   }
 
+  if (! cls->interpreter_name ().empty ()) {
+    qname += "(";
+    qname += cls->interpreter_name ();
+    qname += ")";
+  }
+
   return qname;
 }
 
@@ -925,49 +931,22 @@ GSIHelpProvider::produce_class_doc (const std::string &cls) const
 
   const gsi::ClassBase *cls_obj = 0;
 
-  std::vector<std::string> comp = tl::split (cls, "::");
-  if (comp.empty ()) {
-    return "Invalid class name: " + cls;
-  }
-
-  std::vector<std::string> cp = comp;
-
-  for (gsi::ClassBase::class_iterator c = gsi::ClassBase::begin_classes (); c != gsi::ClassBase::end_classes (); ++c) {
-    if (c->name () == cp.front ()) {
-      cls_obj = &*c;
-      cp.erase (cp.begin ());
+  auto cl = gsi::ClassBase::classes_in_definition_order ();
+  for (auto c = cl.begin (); c != cl.end (); ++c) {
+    if (make_qualified_name (*c) == cls) {
+      cls_obj = *c;
       break;
     }
   }
 
   if (! cls_obj) {
-    return "Unknown class: " + cls;
-  }
 
-  while (! cp.empty ()) {
+    os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl
+       << "<!DOCTYPE language SYSTEM \"klayout_doc.dtd\">" << std::endl
+       << "<doc><title>Error</title><p><tt>Unknown class: " << escape_xml (cls) << "</tt></p></doc>"
+       << std::endl;
 
-    const gsi::ClassBase *pc = cls_obj;
-
-    cls_obj = 0;
-    while (pc && !cls_obj) {
-
-      for (tl::weak_collection<gsi::ClassBase>::const_iterator sc = pc->begin_child_classes (); sc != pc->end_child_classes (); ++sc) {
-        if (sc->name () == cp.front ()) {
-          cls_obj = sc.operator-> ();
-          cp.erase (cp.begin ());
-          break;
-        }
-      }
-
-      //  Try the base classes too - since we might have skipped some of the classes in the 
-      //  inheritance hierarchy, the child may be in a base class.
-      pc = pc->base ();
-
-    }
-
-    if (! cls_obj) {
-      return "Unknown class: " + cls;
-    }
+    return os.str ();
 
   }
 
