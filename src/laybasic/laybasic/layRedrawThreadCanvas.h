@@ -97,7 +97,7 @@ public:
   virtual void prepare (unsigned int /*nlayers*/, unsigned int width, unsigned int height, double resolution, double font_resolution, const db::Vector * /*shift_vector*/, const std::vector<int> * /*planes*/, const lay::Drawings * /*drawings*/)
   {
     m_resolution = resolution;
-    m_resolution = font_resolution;
+    m_font_resolution = font_resolution;
     m_width = width;
     m_height = height;
   }

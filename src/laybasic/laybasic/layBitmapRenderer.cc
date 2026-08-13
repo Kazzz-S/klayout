@@ -23,6 +23,7 @@
 
 #include "layBitmapRenderer.h"
 #include "layBitmap.h"
+#include "layFixedFont.h"
 
 namespace lay
 {
@@ -396,6 +397,13 @@ BitmapRenderer::draw (const db::Shape &shape, const db::CplxTrans &trans,
         if ((m_apply_text_trans_mode & 1) != 0) {
           h = trans.mag () * (shape.text_size () > 0 ? shape.text_size () : m_default_text_size);
         }
+      }
+
+      if (h == 0.0) {
+        //  for the special case of zero effective height, borrow the height
+        //  from the default font in an unscaling fashion.
+        const lay::FixedFont &ff = lay::FixedFont::get_font (m_font_resolution);
+        h = ff.height ();
       }
 
       db::HAlign halign = shape.text_halign ();
