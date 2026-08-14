@@ -1,0 +1,25 @@
+source $drc_test_source
+target $drc_test_target
+
+if $drc_test_deep
+  deep
+end
+
+deep
+
+l1 = input(1, 0, enable_props)
+l1.output(1, 0)
+
+l2 = input(2, 0, enable_props)
+l2.output(2, 0)
+
+l1.sep(l2, 1.um, props_ne).output(100, 0)
+l1.sep(l2, 1.um, props_eq).output(101, 0)
+l1.sep(l2, 1.um).output(102, 0)
+l2.sep(l1, 1.um, props_ne).output(110, 0)
+l2.sep(l1, 1.um, props_eq).output(111, 0)
+l2.sep(l1, 1.um).output(112, 0)
+l1.space(1.um, props_ne).output(120, 0)
+l1.space(1.um, props_eq).output(121, 0)
+l1.space(1.um).output(122, 0)
+
