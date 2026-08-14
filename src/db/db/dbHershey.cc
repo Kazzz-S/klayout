@@ -95,9 +95,19 @@ hershey_font_names ()
   return ff;
 }
 
+static unsigned int safe_font (unsigned int f)
+{
+  if (f >= (unsigned int) (sizeof (fonts) / sizeof (fonts [0]))) {
+    return 0;
+  } else {
+    return f;
+  }
+}
+
 size_t
 hershey_count_edges (const std::string &s, unsigned int f)
 {
+  f = safe_font (f);
   HersheyFont *fp = fonts [f];
   size_t n = 0;
 
@@ -127,18 +137,21 @@ hershey_count_edges (const std::string &s, unsigned int f)
 int
 hershey_font_width (unsigned int f)
 {
+  f = safe_font (f);
   return fonts [f]->width;
 }
 
 int
 hershey_font_height (unsigned int f)
 {
+  f = safe_font (f);
   return fonts [f]->height;
 }
 
 db::DBox 
 hershey_text_box (const std::string &s, unsigned int f)
 {
+  f = safe_font (f);
   HersheyFont *fp = fonts [f];
 
   int wl = 0;
@@ -183,6 +196,8 @@ hershey_text_box (const std::string &s, unsigned int f)
 void
 hershey_justify (const std::string &s, unsigned int f, db::DBox bx, HAlign halign, VAlign valign, std::vector<db::DPoint> &linestarts, double &left, double &bottom)
 {
+  f = safe_font (f);
+
   left = 0.0;
   bottom = 0.0;
 
@@ -253,6 +268,8 @@ hershey_justify (const std::string &s, unsigned int f, db::DBox bx, HAlign halig
 basic_hershey_edge_iterator::basic_hershey_edge_iterator (const std::string &s, unsigned int f, const std::vector<db::DPoint> &line_starts)
   : m_line (0), m_string (s), m_edge (0), m_edge_end (0), m_linestarts (line_starts)
 {
+  f = safe_font (f);
+
   m_fp = fonts [f];
   mp_cp = m_string.c_str ();
 
