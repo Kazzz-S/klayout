@@ -421,8 +421,9 @@ struct A
 
   //  Variant to parsable string for Variant generation tests
   static std::string var2s (const tl::Variant &v) { return v.to_parsable_string (); }
-  //  platform specifics: length of "long long"
+  //  platform specifics: length of "long long" and "long"
   static size_t ll_size () { return sizeof (long long); }
+  static size_t l_size () { return sizeof (long); }
 
   //  feed-through values for full cycle tests
   //  (mainly for string encoding and binary strings)

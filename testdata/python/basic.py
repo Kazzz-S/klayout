@@ -3222,7 +3222,7 @@ class BasicTest(unittest.TestCase):
     self.assertEqual(pya.A.var2s(( 0.5, "hello" )), "(##0.5,'hello')")
     self.assertEqual(pya.A.var2s([ 0.5, [ 1, 2 ] ]), "(##0.5,(#1,#2))")
     self.assertEqual(pya.A.var2s({ 1: 'one', 'two': 17 }), "{#1=>'one','two'=>#17}")
-    if pya.A.ll_size() == 4:
+    if pya.A.l_size() == 4:
       self.assertEqual(pya.A.var2s(100000000000), "#l100000000000")
     else:
       self.assertEqual(pya.A.var2s(100000000000), "#100000000000")
