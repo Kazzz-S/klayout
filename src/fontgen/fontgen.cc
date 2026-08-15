@@ -84,7 +84,11 @@ main (int argc, char *argv [])
 
       printf ("\n// Font: %s\n", f.toString ().toLatin1 ().constData ());
       printf ("const unsigned int ff%d_height = %d;\n", os, fm.height ());
+#if QT_VERSION < 0x050800
+      printf ("const unsigned int ff%d_cap_height = %d;\n", os, fm.ascent ());
+#else
       printf ("const unsigned int ff%d_cap_height = %d;\n", os, fm.capHeight ());
+#endif
       printf ("const unsigned int ff%d_ascent = %d;\n", os, fm.ascent ());
       printf ("const unsigned int ff%d_descent = %d;\n", os, fm.descent ());
       printf ("const unsigned int ff%d_line_height = %d;\n", os, fm.lineSpacing ());
