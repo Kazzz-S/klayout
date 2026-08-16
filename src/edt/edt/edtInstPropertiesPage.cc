@@ -1035,7 +1035,7 @@ InstPropertiesPage::update_pcell_parameters ()
       //  Hint: we shall not delete the page immediately. This gives a segmentation fault in some cases.
       if (mp_pcell_parameters) {
         mp_pcell_parameters->hide ();
-        mp_pcell_parameters->deleteLater ();
+        mp_pcell_parameters->delete_later ();
       }
 
       mp_pcell_parameters = new PCellParametersPage (pcell_tab, mp_service->view ()->dispatcher ());
@@ -1052,7 +1052,7 @@ InstPropertiesPage::update_pcell_parameters ()
     //  Hint: we shall not delete the page immediately. This gives a segmentation fault in some cases.
     if (mp_pcell_parameters) {
       mp_pcell_parameters->hide ();
-      mp_pcell_parameters->deleteLater ();
+      mp_pcell_parameters->delete_later ();
     }
 
     mp_pcell_parameters = 0;

@@ -869,7 +869,7 @@ EditorOptionsInstPCellParam::update_pcell_parameters (const std::vector <tl::Var
   if (mp_pcell_parameters) {
     pcp_state = mp_pcell_parameters->get_state ();
     mp_pcell_parameters->hide ();
-    mp_pcell_parameters->deleteLater ();
+    mp_pcell_parameters->delete_later ();
   }
 
   if (mp_placeholder_label) {

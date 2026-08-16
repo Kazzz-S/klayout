@@ -826,6 +826,13 @@ public:
   }
 
   /**
+   *  @brief Gets the parameter declaration object by parameter name
+   *
+   *  If the name is not valid, a null pointer is returned.
+   */
+  const PCellParameterDeclaration *parameter_by_name (const std::string &name) const;
+
+  /**
    *  @brief Map a indexed parameter set to a parameter vector
    */
   pcell_parameters_type map_parameters (const std::map<size_t, tl::Variant> &indexed_parameters) const;

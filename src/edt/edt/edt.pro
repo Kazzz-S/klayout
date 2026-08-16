@@ -43,6 +43,7 @@ HEADERS = \
     edtInstService.h \
     edtMoveTrackerService.h \
     edtPCellParametersPage.h \
+    edtPCellParametersPageBase.h \
     edtPathService.h \
     edtPointService.h \
     edtPolygonService.h \
@@ -61,6 +62,7 @@ SOURCES = \
     edtInstService.cc \
     edtMoveTrackerService.cc \
     edtPCellParametersPage.cc \
+    edtPCellParametersPageBase.cc \
     edtPathService.cc \
     edtPointService.cc \
     edtPolygonService.cc \
