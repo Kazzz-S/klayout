@@ -27,9 +27,11 @@
 
 #include "dbPCellDeclaration.h"
 #include "tlDeferredExecution.h"
+#include "tlEvents.h"
 
 #include <QFrame>
 #include <QPixmap>
+#include <QPointer>
 
 class QGroupBox;
 class QCheckBox;
@@ -48,13 +50,77 @@ namespace edt
 {
 
 /**
- *  @brief A QScrollArea that displays and allows editing PCell parameters
+ *  @brief A helper object to translate between a (parameterless) Qt signal and an event
+ *
+ *  TODO: this is generic, move it somewhere else
  */
-class PCellParametersPageBase
-  : public QFrame, public tl::Object, public db::PCellParametersPageBase
+class SignalToEvent
+  : public QObject
 {
 Q_OBJECT
+public:
+  SignalToEvent () : QObject () { }
 
+  tl::Event triggered;
+
+public slots:
+  void trigger () { triggered (); }
+};
+
+/**
+ *  @brief A helper object to translate between a (bool argument) Qt signal and an event
+ *
+ *  TODO: this is generic, move it somewhere else
+ */
+class SignalToEventBool
+  : public QObject
+{
+Q_OBJECT
+public:
+  SignalToEventBool () : QObject () { }
+
+  tl::event<bool> triggered;
+
+public slots:
+  void trigger (bool f) { triggered (f); }
+};
+
+/**
+ *  @brief A helper object to translate between a (parameterless) Qt signal and an event with a single int argument
+ *
+ *  TODO: this is generic, move it somewhere else
+ */
+class SignalToEventAddInt
+  : public QObject
+{
+Q_OBJECT
+public:
+  SignalToEventAddInt (int v) : QObject (), m_v (v) { }
+
+  tl::event<int> triggered;
+
+public slots:
+  void trigger () { triggered (m_v); }
+
+private:
+  int m_v;
+};
+
+/**
+ *  @brief A proxy for a PCell parameters editing page
+ *
+ *  NOTE: Internally the page is a QFrame, but for GSI binding, we have
+ *  to derive first from db::PCellParametersPageBase, so the first
+ *  base class can't be QFrame.
+ *
+ *  Instead, the QFrame object is embedded and can be accessed by
+ *  "page_widget". Lifetime management is twofold: the page widget
+ *  is managed by Qt and uses a QPointer to track the lifetime.
+ *  The proxy object is managed explictly by the client code.
+ */
+class PCellParametersPageBase
+  : public db::PCellParametersPageBase, public tl::Object
+{
 public:
   struct State
   {
@@ -76,6 +142,22 @@ public:
    *  3.) "setup"
    */
   PCellParametersPageBase ();
+
+  /**
+   *  @brief Destructor
+   */
+  ~PCellParametersPageBase ();
+
+  /**
+   *  @brief Gets the page widget
+   *
+   *  The page widget is the QFrame object that is the page to embed
+   */
+  QFrame *page_widget ()
+  {
+    tl_assert (mp_page_widget);
+    return mp_page_widget.data ();
+  }
 
   /**
    *  @brief Sets the parent widget
@@ -232,6 +314,11 @@ public:
    */
   static QPixmap info_pixmap ();
 
+  /**
+   *  @brief An event triggered when a parameter was edited
+   */
+  tl::Event edited;
+
 protected:
   virtual tl::Variant get_user_state ();
   virtual void set_user_state (const tl::Variant &user_state);
@@ -248,20 +335,10 @@ protected:
    */
   void parameter_changed (const std::string &name);
 
-signals:
-  void edited ();
-
-public slots:
-  void show_parameter_names (bool f);
-  void lazy_eval_mode (int);
-
-private slots:
-  void update_button_pressed ();
-  void lazy_eval_mode_slot ();
-
 private:
   bool m_parameter_changed_enabled;
   bool m_dense;
+  QPointer<QFrame> mp_page_widget;
   lay::Dispatcher *mp_dispatcher;
   QScrollArea *mp_parameters_area;
   QFrame *mp_main_frame;
@@ -281,18 +358,27 @@ private:
   bool m_show_parameter_names;
   int m_lazy_evaluation;
   tl::DeferredMethod<PCellParametersPageBase> dm_parameter_changed;
+  tl::DeferredMethod<PCellParametersPageBase> dm_delete_me;
   db::ParameterStates m_current_states, m_initial_states;
   db::ParameterStates m_states;
 
+  SignalToEvent m_s2s_update_button_pressed;
+  SignalToEventAddInt m_s2s_lazy_eval_mode_slotm1, m_s2s_lazy_eval_mode_slot0, m_s2s_lazy_eval_mode_slot1;
+  SignalToEventBool m_s2s_show_parameter_names_slot;
+
   void init ();
   void do_parameter_changed ();
+  void do_delete_me ();
   bool lazy_evaluation ();
+  void lazy_eval_mode (int);
   bool update_current_parameters ();
   void update_widgets_from_states (const db::ParameterStates &states, bool tentatively);
   void get_parameters_internal (db::ParameterStates &states, bool &edit_error);
   void set_parameters_internal (const db::ParameterStates &states, bool tentatively);
   std::vector<tl::Variant> parameter_from_states (const db::ParameterStates &states) const;
   void states_from_parameters (db::ParameterStates &states, const std::vector<tl::Variant> &parameters);
+  void update_button_pressed_slot ();
+  void show_parameter_names_slot (bool f);
 };
 
 }

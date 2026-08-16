@@ -864,7 +864,7 @@ public:
   /**
    *  @brief Creates the PCell parameters page or returns nil if there is no specific one
    */
-  virtual db::PCellParametersPageBase *create_parameter_page () const
+  virtual db::PCellParametersPageBase *create_parameters_page () const
   {
     return 0;
   }

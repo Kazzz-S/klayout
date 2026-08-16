@@ -33,6 +33,7 @@
 #include <QFrame>
 #include <vector>
 #include <string>
+#include <memory>
 
 class QTabWidget;
 class QLabel;
@@ -156,7 +157,6 @@ private slots:
 
 private:
   Ui::EditorOptionsInst *mp_ui;
-  edt::PCellParametersPageBase *mp_pcell_parameters;
   int m_cv_index;
 
   virtual void technology_changed (const std::string &);
@@ -185,13 +185,14 @@ private slots:
 
 private:
   Ui::EditorOptionsInstPCellParam *mp_ui;
-  edt::PCellParametersPageBase *mp_pcell_parameters;
+  std::unique_ptr<edt::PCellParametersPageBase> mp_pcell_parameters;
   QLabel *mp_placeholder_label;
   int m_cv_index;
   std::string m_lib_name, m_cell_name;
 
   void update_pcell_parameters (const std::vector <tl::Variant> &parameters);
   virtual void technology_changed (const std::string &);
+  void parameters_page_edited ();
 };
 
 /**

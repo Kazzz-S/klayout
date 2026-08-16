@@ -71,7 +71,8 @@ SOURCES = \
     edtRecentConfigurationPage.cc \
     edtShapeService.cc \
     edtTextService.cc \
-    gsiDeclEdtEditorHooks.cc
+    gsiDeclEdtEditorHooks.cc \
+    gsiDeclEdtPCellParametersPage.cc
 
 # Enabled without Qt:
 

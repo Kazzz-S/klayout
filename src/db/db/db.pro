@@ -146,6 +146,7 @@ SOURCES = \
   gsiDeclDbMatrix.cc \
   gsiDeclDbMeasureHelpers.cc \
   gsiDeclDbMetaInfo.cc \
+  gsiDeclDbPCellDeclaration.cc \
   gsiDeclDbPath.cc \
   gsiDeclDbPoint.cc \
   gsiDeclDbPolygon.cc \

@@ -40,30 +40,53 @@ namespace edt
 {
 
 PCellParametersPageBase::PCellParametersPageBase ()
-  : QFrame (0),
-    m_parameter_changed_enabled (false),
+  : m_parameter_changed_enabled (false),
     m_dense (false),
     mp_dispatcher (0),
     m_show_parameter_names (false),
     m_lazy_evaluation (-1),
-    dm_parameter_changed (this, &PCellParametersPageBase::do_parameter_changed)
+    dm_parameter_changed (this, &PCellParametersPageBase::do_parameter_changed),
+    dm_delete_me (this, &PCellParametersPageBase::do_delete_me),
+    m_s2s_lazy_eval_mode_slotm1 (-1),
+    m_s2s_lazy_eval_mode_slot0 (0),
+    m_s2s_lazy_eval_mode_slot1 (1)
 {
-  //  .. nothing yet ..
+  mp_page_widget = new QFrame (0);
+  mp_page_widget->setFrameShape (QFrame::NoFrame);
+
+  m_s2s_update_button_pressed.triggered.add (this, &PCellParametersPageBase::update_button_pressed_slot);
+  m_s2s_lazy_eval_mode_slotm1.triggered.add (this, &PCellParametersPageBase::lazy_eval_mode);
+  m_s2s_lazy_eval_mode_slot0.triggered.add (this, &PCellParametersPageBase::lazy_eval_mode);
+  m_s2s_lazy_eval_mode_slot1.triggered.add (this, &PCellParametersPageBase::lazy_eval_mode);
+  m_s2s_show_parameter_names_slot.triggered.add (this, &PCellParametersPageBase::show_parameter_names_slot);
+}
+
+PCellParametersPageBase::~PCellParametersPageBase ()
+{
+  if (mp_page_widget) {
+    delete mp_page_widget.data ();
+  }
+}
+
+void
+PCellParametersPageBase::do_delete_me ()
+{
+  delete this;
 }
 
 void
 PCellParametersPageBase::set_parent (QWidget *p)
 {
-  tl_assert (parent () == 0);
+  tl_assert (mp_page_widget->parent () == 0);
   tl_assert (p != 0);
-  setParent (p);
+  mp_page_widget->setParent (p);
   init ();
 }
 
 void
 PCellParametersPageBase::set_dense (bool d)
 {
-  tl_assert (parent () == 0);
+  tl_assert (mp_page_widget->parent () == 0);
   m_dense = d;
 }
 
@@ -82,6 +105,8 @@ PCellParametersPageBase::set_user_state (const tl::Variant & /*user_state*/)
 void
 PCellParametersPageBase::init ()
 {
+  tl_assert (mp_page_widget);
+
   QPalette palette;
   QFont font;
 
@@ -90,14 +115,14 @@ PCellParametersPageBase::init ()
   m_cv_index = 0;
   mp_parameters_area = 0;
 
-  QGridLayout *frame_layout = new QGridLayout (this);
+  QGridLayout *frame_layout = new QGridLayout (mp_page_widget.data ());
   //  spacing and margin for tool windows
   frame_layout->setContentsMargins (0, 0, 0, 0);
   frame_layout->setHorizontalSpacing (0);
   frame_layout->setVerticalSpacing (0);
-  setLayout (frame_layout);
+  mp_page_widget->setLayout (frame_layout);
 
-  mp_update_frame = new QFrame (this);
+  mp_update_frame = new QFrame (mp_page_widget.data ());
   mp_update_frame->setFrameShape (QFrame::NoFrame);
   frame_layout->addWidget (mp_update_frame, 0, 0, 1, 1);
 
@@ -115,7 +140,7 @@ PCellParametersPageBase::init ()
 
   mp_update_button = new QToolButton (mp_update_frame);
   mp_update_button->setText (tr ("Update"));
-  connect (mp_update_button, SIGNAL (clicked()), this, SLOT (update_button_pressed ()));
+  QObject::connect (mp_update_button, SIGNAL (clicked()), &m_s2s_update_button_pressed, SLOT (trigger ()));
   update_frame_layout->addWidget (mp_update_button, 0, 1, 1, 1);
 
   mp_changed_label = new QLabel (mp_update_frame);
@@ -124,7 +149,7 @@ PCellParametersPageBase::init ()
 
   update_frame_layout->setColumnStretch (2, 1);
 
-  mp_error_frame = new QFrame (this);
+  mp_error_frame = new QFrame (mp_page_widget.data ());
   mp_error_frame->setFrameShape (QFrame::NoFrame);
   frame_layout->addWidget (mp_error_frame, 1, 0, 1, 1);
 
@@ -152,7 +177,7 @@ PCellParametersPageBase::init ()
 
   error_frame_layout->setColumnStretch (2, 1);
 
-  QFrame *options_frame = new QFrame (this);
+  QFrame *options_frame = new QFrame (mp_page_widget.data ());
   options_frame->setFrameShape (QFrame::NoFrame);
   frame_layout->addWidget (options_frame, 3, 0, 1, 1);
 
@@ -177,7 +202,7 @@ PCellParametersPageBase::init ()
   mp_show_parameter_names_action->setText (tr ("Show parameter names"));
   mp_show_parameter_names_action->setCheckable (true);
   mp_show_parameter_names_action->setChecked (m_show_parameter_names);
-  connect (mp_show_parameter_names_action, SIGNAL (triggered (bool)), this, SLOT (show_parameter_names (bool)));
+  QObject::connect (mp_show_parameter_names_action, SIGNAL (triggered (bool)), &m_s2s_show_parameter_names_slot, SLOT (trigger (bool)));
 
   QMenu *lazy_eval_menu = new QMenu (dot_menu);
   lazy_eval_menu->setTitle (tr ("Lazy PCell evaluation"));
@@ -188,21 +213,21 @@ PCellParametersPageBase::init ()
   mp_auto_lazy_eval_action->setText (tr ("As requested by PCell"));
   mp_auto_lazy_eval_action->setCheckable (true);
   mp_auto_lazy_eval_action->setChecked (m_lazy_evaluation < 0);
-  connect (mp_auto_lazy_eval_action, SIGNAL (triggered ()), this, SLOT (lazy_eval_mode_slot ()));
+  QObject::connect (mp_auto_lazy_eval_action, SIGNAL (triggered ()), &m_s2s_lazy_eval_mode_slotm1, SLOT (trigger ()));
 
   mp_always_lazy_eval_action = new QAction (lazy_eval_menu);
   lazy_eval_menu->addAction (mp_always_lazy_eval_action);
   mp_always_lazy_eval_action->setText (tr ("Always"));
   mp_always_lazy_eval_action->setCheckable (true);
   mp_always_lazy_eval_action->setChecked (m_lazy_evaluation > 0);
-  connect (mp_always_lazy_eval_action, SIGNAL (triggered ()), this, SLOT (lazy_eval_mode_slot ()));
+  QObject::connect (mp_always_lazy_eval_action, SIGNAL (triggered ()), &m_s2s_lazy_eval_mode_slot1, SLOT (trigger ()));
 
   mp_never_lazy_eval_action = new QAction (lazy_eval_menu);
   lazy_eval_menu->addAction (mp_never_lazy_eval_action);
   mp_never_lazy_eval_action->setText (tr ("Never"));
   mp_never_lazy_eval_action->setCheckable (true);
   mp_never_lazy_eval_action->setChecked (m_lazy_evaluation == 0);
-  connect (mp_never_lazy_eval_action, SIGNAL (triggered ()), this, SLOT (lazy_eval_mode_slot ()));
+  QObject::connect (mp_never_lazy_eval_action, SIGNAL (triggered ()), &m_s2s_lazy_eval_mode_slot0, SLOT (trigger ()));
 }
 
 void
@@ -218,18 +243,6 @@ PCellParametersPageBase::lazy_evaluation ()
     return mp_pcell_decl.get () && mp_pcell_decl->wants_lazy_evaluation ();
   } else {
     return m_lazy_evaluation > 0;
-  }
-}
-
-void
-PCellParametersPageBase::lazy_eval_mode_slot ()
-{
-  if (sender () == mp_always_lazy_eval_action) {
-    lazy_eval_mode (1);
-  } else if (sender () == mp_never_lazy_eval_action) {
-    lazy_eval_mode (0);
-  } else if (sender () == mp_auto_lazy_eval_action) {
-    lazy_eval_mode (-1);
   }
 }
 
@@ -254,7 +267,7 @@ PCellParametersPageBase::lazy_eval_mode (int mode)
 }
 
 void
-PCellParametersPageBase::show_parameter_names (bool f)
+PCellParametersPageBase::show_parameter_names_slot (bool f)
 {
   if (m_show_parameter_names == f) {
     return;
@@ -273,7 +286,7 @@ PCellParametersPageBase::show_parameter_names (bool f)
 void
 PCellParametersPageBase::setup (lay::LayoutViewBase *view, lay::Dispatcher *dispatcher, int cv_index, const db::PCellDeclaration *pcell_decl, const db::pcell_parameters_type &parameters)
 {
-  tl_assert (parent () != 0);
+  tl_assert (mp_page_widget && mp_page_widget->parent () != 0);
 
   if (mp_dispatcher != dispatcher) {
     mp_dispatcher = dispatcher;
@@ -312,16 +325,15 @@ PCellParametersPageBase::setup (lay::LayoutViewBase *view, lay::Dispatcher *disp
     delete mp_parameters_area;
   }
 
-  mp_parameters_area = new QScrollArea (this);
+  mp_parameters_area = new QScrollArea (mp_page_widget.data ());
   mp_parameters_area->setFrameShape (QFrame::NoFrame);
   mp_parameters_area->setWidgetResizable (true);
-  QGridLayout *frame_layout = dynamic_cast<QGridLayout *> (QFrame::layout ());
+  QGridLayout *frame_layout = dynamic_cast<QGridLayout *> (mp_page_widget->layout ());
   frame_layout->addWidget (mp_parameters_area, 2, 0, 1, 1);
   frame_layout->setRowStretch (2, 1);
 
   mp_main_frame = new QFrame (mp_parameters_area);
   mp_main_frame->setFrameShape (QFrame::NoFrame);
-  setFrameShape (QFrame::NoFrame);
 
   if (! mp_pcell_decl) {
 
@@ -385,8 +397,8 @@ PCellParametersPageBase::get_state ()
   s.v_scroll_position = mp_parameters_area->verticalScrollBar ()->value ();
   s.h_scroll_position = mp_parameters_area->horizontalScrollBar ()->value ();
 
-  if (focusWidget ()) {
-    s.focus_widget = focusWidget ()->objectName ();
+  if (mp_page_widget->focusWidget ()) {
+    s.focus_widget = mp_page_widget->focusWidget ()->objectName ();
   }
 
   s.user_state = get_user_state ();
@@ -403,7 +415,7 @@ PCellParametersPageBase::set_state (const State &s)
     mp_parameters_area->horizontalScrollBar ()->setValue (s.h_scroll_position);
 
     if (! s.focus_widget.isEmpty ()) {
-      QWidget *c = findChild<QWidget *> (s.focus_widget);
+      QWidget *c = mp_page_widget->findChild<QWidget *> (s.focus_widget);
       if (c) {
         c->setFocus ();
       }
@@ -475,8 +487,12 @@ PCellParametersPageBase::parameter_changed (const std::string &name)
 void
 PCellParametersPageBase::delete_later ()
 {
+  if (mp_page_widget) {
+    mp_page_widget->hide ();
+  }
+
   dm_parameter_changed.cancel ();
-  QFrame::deleteLater ();
+  dm_delete_me ();
 }
 
 void
@@ -488,16 +504,16 @@ PCellParametersPageBase::do_parameter_changed ()
   if (ok) {
     update_widgets_from_states (states, lazy_evaluation ());
     if (! lazy_evaluation ()) {
-      emit edited ();
+      edited ();
     }
   }
 }
 
 void
-PCellParametersPageBase::update_button_pressed ()
+PCellParametersPageBase::update_button_pressed_slot ()
 {
   if (update_current_parameters ()) {
-    emit edited ();
+    edited ();
   }
 }
 
