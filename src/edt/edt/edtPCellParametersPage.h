@@ -36,8 +36,6 @@ namespace edt
 class PCellParametersPage
   : public PCellParametersPageBase
 {
-Q_OBJECT
-
 public:
   /**
    *  @brief Constructor
@@ -50,14 +48,15 @@ protected:
   virtual void apply_states (const db::ParameterStates &states);
   virtual void apply_values (const db::ParameterStates &states);
 
-private slots:
-  void parameter_changed_slot ();
+private:
+  void parameter_changed_slot (QObject *sender);
 
 private:
   std::vector<QGroupBox *> mp_groups;
   std::vector<QWidget *> m_widgets;
   std::vector<QLabel *> m_icon_widgets;
   std::vector<std::vector<QWidget *> > m_all_widgets;
+  SignalToEventAddSender m_s2s_parameter_changed_slot;
 };
 
 }

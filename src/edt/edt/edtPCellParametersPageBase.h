@@ -107,6 +107,24 @@ private:
 };
 
 /**
+ *  @brief A helper object to translate between a (parameterless) Qt signal and an event with a single int argument
+ *
+ *  TODO: this is generic, move it somewhere else
+ */
+class SignalToEventAddSender
+  : public QObject
+{
+Q_OBJECT
+public:
+  SignalToEventAddSender () : QObject () { }
+
+  tl::event<QObject *> triggered;
+
+public slots:
+  void trigger () { triggered (sender ()); }
+};
+
+/**
  *  @brief A proxy for a PCell parameters editing page
  *
  *  NOTE: Internally the page is a QFrame, but for GSI binding, we have

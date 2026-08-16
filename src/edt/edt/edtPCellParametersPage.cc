@@ -212,7 +212,7 @@ static void set_value (const db::PCellParameterDeclaration &p, QWidget *widget, 
 PCellParametersPage::PCellParametersPage ()
   : PCellParametersPageBase ()
 {
-  //  .. nothing yet ..
+  m_s2s_parameter_changed_slot.triggered.add (this, &PCellParametersPage::parameter_changed_slot);
 }
 
 void
@@ -361,7 +361,7 @@ PCellParametersPage::build_widgets (QFrame *container)
           inner_grid->addWidget (f, row, 2);
           m_all_widgets.back ().push_back (f);
 
-          connect (le, SIGNAL (editingFinished ()), this, SLOT (parameter_changed_slot ()));
+          QObject::connect (le, SIGNAL (editingFinished ()), &m_s2s_parameter_changed_slot, SLOT (trigger ()));
         }
         break;
 
@@ -379,7 +379,7 @@ PCellParametersPage::build_widgets (QFrame *container)
           inner_grid->addWidget (pb, row, 2);
           m_all_widgets.back ().push_back (pb);
 
-          connect (pb, SIGNAL (clicked ()), this, SLOT (parameter_changed_slot ()));
+          QObject::connect (pb, SIGNAL (clicked ()), &m_s2s_parameter_changed_slot, SLOT (trigger ()));
         }
         break;
 
@@ -396,7 +396,7 @@ PCellParametersPage::build_widgets (QFrame *container)
           inner_grid->addWidget (le, row, 2);
           m_all_widgets.back ().push_back (le);
 
-          connect (le, SIGNAL (editingFinished ()), this, SLOT (parameter_changed_slot ()));
+          QObject::connect (le, SIGNAL (editingFinished ()), &m_s2s_parameter_changed_slot, SLOT (trigger ()));
         }
         break;
 
@@ -426,7 +426,7 @@ PCellParametersPage::build_widgets (QFrame *container)
           inner_grid->addWidget (f, row, 2);
           m_all_widgets.back ().push_back (f);
 
-          connect (ly, SIGNAL (activated (int)), this, SLOT (parameter_changed_slot ()));
+          QObject::connect (ly, SIGNAL (activated (int)), &m_s2s_parameter_changed_slot, SLOT (trigger ()));
         }
         break;
 
@@ -442,7 +442,7 @@ PCellParametersPage::build_widgets (QFrame *container)
           inner_grid->addWidget (cbx, row, 2);
           m_all_widgets.back ().push_back (cbx);
 
-          connect (cbx, SIGNAL (stateChanged (int)), this, SLOT (parameter_changed_slot ()));
+          QObject::connect (cbx, SIGNAL (stateChanged (int)), &m_s2s_parameter_changed_slot, SLOT (trigger ()));
         }
         break;
 
@@ -477,7 +477,7 @@ PCellParametersPage::build_widgets (QFrame *container)
         }
       }
 
-      connect (cb, SIGNAL (activated (int)), this, SLOT (parameter_changed_slot ()));
+      QObject::connect (cb, SIGNAL (activated (int)), &m_s2s_parameter_changed_slot, SLOT (trigger ()));
 
       m_widgets.push_back (cb);
 
@@ -500,7 +500,7 @@ PCellParametersPage::build_widgets (QFrame *container)
 }
 
 void
-PCellParametersPage::parameter_changed_slot ()
+PCellParametersPage::parameter_changed_slot (QObject *sender)
 {
   if (! pcell_decl ()) {
     return;
@@ -509,7 +509,7 @@ PCellParametersPage::parameter_changed_slot ()
   const std::vector<db::PCellParameterDeclaration> &pcp = pcell_decl ()->parameter_declarations ();
   const db::PCellParameterDeclaration *pd = 0;
   for (auto w = m_widgets.begin (); w != m_widgets.end (); ++w) {
-    if (*w == sender ()) {
+    if (*w == sender) {
       pd = &pcp [w - m_widgets.begin ()];
       break;
     }
