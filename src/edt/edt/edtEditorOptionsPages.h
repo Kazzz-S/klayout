@@ -61,7 +61,7 @@ namespace lay
 namespace edt
 {
 
-class PCellParametersPage;
+class PCellParametersPageBase;
 
 /**
  *  @brief The generic properties page
@@ -156,7 +156,7 @@ private slots:
 
 private:
   Ui::EditorOptionsInst *mp_ui;
-  edt::PCellParametersPage *mp_pcell_parameters;
+  edt::PCellParametersPageBase *mp_pcell_parameters;
   int m_cv_index;
 
   virtual void technology_changed (const std::string &);
@@ -185,7 +185,7 @@ private slots:
 
 private:
   Ui::EditorOptionsInstPCellParam *mp_ui;
-  edt::PCellParametersPage *mp_pcell_parameters;
+  edt::PCellParametersPageBase *mp_pcell_parameters;
   QLabel *mp_placeholder_label;
   int m_cv_index;
   std::string m_lib_name, m_cell_name;

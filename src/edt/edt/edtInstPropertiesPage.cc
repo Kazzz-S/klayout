@@ -1038,9 +1038,22 @@ InstPropertiesPage::update_pcell_parameters ()
         mp_pcell_parameters->delete_later ();
       }
 
-      mp_pcell_parameters = new PCellParametersPage (pcell_tab, mp_service->view ()->dispatcher ());
+      db::PCellParametersPageBase *pp = pcell_decl->create_parameter_page ();
+
+      mp_pcell_parameters = dynamic_cast<edt::PCellParametersPageBase *> (pp);
+      if (! mp_pcell_parameters) {
+        if (pp) {
+          //  not useful.
+          delete pp;
+        }
+        mp_pcell_parameters = new PCellParametersPage ();
+      }
+
+      //  NOTE: these functions must be called in that order
+      mp_pcell_parameters->set_parent (pcell_tab);
+      mp_pcell_parameters->setup (mp_service->view (), mp_service->view ()->dispatcher (), pos->cv_index (), pcell_decl, parameters);
+
       connect (mp_pcell_parameters, SIGNAL (edited ()), this, SIGNAL (edited ()));
-      mp_pcell_parameters->setup (mp_service->view (), pos->cv_index (), layout->pcell_declaration (pc.second), parameters);
       pcell_tab->layout ()->addWidget (mp_pcell_parameters);
 
     }

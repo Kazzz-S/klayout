@@ -42,7 +42,7 @@ public:
   /**
    *  @brief Constructor
    */
-  PCellParametersPage (QWidget *parent, lay::Dispatcher *dispatcher, bool dense = false);
+  PCellParametersPage ();
 
 protected:
   virtual void build_widgets (QFrame *container);

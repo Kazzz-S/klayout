@@ -51,7 +51,7 @@ namespace edt
  *  @brief A QScrollArea that displays and allows editing PCell parameters
  */
 class PCellParametersPageBase
-  : public QFrame, public tl::Object
+  : public QFrame, public tl::Object, public db::PCellParametersPageBase
 {
 Q_OBJECT
 
@@ -70,11 +70,32 @@ public:
   /**
    *  @brief Constructor
    *
-   *  @param parent The parent widgets
-   *  @param dispatcher The dispatcher object for configuration
-   *  @param dense A flag indicating that a dense layout shall be used (for embedded pages)
+   *  After the page has been constructed, the following methods need to be called in this order:
+   *  1.) "set_dense" if required
+   *  2.) "set_parent"
+   *  3.) "setup"
    */
-  PCellParametersPageBase (QWidget *parent, lay::Dispatcher *dispatcher, bool dense = false);
+  PCellParametersPageBase ();
+
+  /**
+   *  @brief Sets the parent widget
+   */
+  void set_parent (QWidget *parent);
+
+  /**
+   *  @brief Gets a value indicating that a dense layout shall be created
+   *
+   *  Dense layouts are used for embedded parameter pages.
+   */
+  bool dense () const
+  {
+    return m_dense;
+  }
+
+  /**
+   *  @brief Sets a value indicating that a dense layout shall be created
+   */
+  void set_dense (bool d);
 
   /**
    *  @brief initialization
@@ -87,7 +108,7 @@ public:
    *  @param pcell_decl The PCell declaration
    *  @param parameters The parameter values to show (if empty, the default values are used)
    */
-  void setup (lay::LayoutViewBase *view, int cv_index, const db::PCellDeclaration *pcell_decl, const db::pcell_parameters_type &parameters);
+  void setup (lay::LayoutViewBase *view, lay::Dispatcher *dispatcher, int cv_index, const db::PCellDeclaration *pcell_decl, const db::pcell_parameters_type &parameters);
 
   /**
    *  @brief Gets the pages current state
@@ -98,16 +119,6 @@ public:
    *  @brief Restores the state
    */
   void set_state (const State &s);
-
-  /**
-   *  @brief Gets a value indicating that a dense layout shall be created
-   *
-   *  Dense layouts are used for embedded parameter pages.
-   */
-  bool dense () const
-  {
-    return m_dense;
-  }
 
   /**
    *  @brief Gets a value indicating whether parameter names shall be shown
@@ -249,6 +260,7 @@ private slots:
   void lazy_eval_mode_slot ();
 
 private:
+  bool m_parameter_changed_enabled;
   bool m_dense;
   lay::Dispatcher *mp_dispatcher;
   QScrollArea *mp_parameters_area;

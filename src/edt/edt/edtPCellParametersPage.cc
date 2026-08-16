@@ -209,8 +209,8 @@ static void set_value (const db::PCellParameterDeclaration &p, QWidget *widget, 
   }
 }
 
-PCellParametersPage::PCellParametersPage (QWidget *parent, lay::Dispatcher *dispatcher, bool dense)
-  : PCellParametersPageBase (parent, dispatcher, dense)
+PCellParametersPage::PCellParametersPage ()
+  : PCellParametersPageBase ()
 {
   //  .. nothing yet ..
 }

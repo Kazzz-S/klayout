@@ -880,10 +880,26 @@ EditorOptionsInstPCellParam::update_pcell_parameters (const std::vector <tl::Var
   mp_pcell_parameters = 0;
   mp_placeholder_label = 0;
 
-  if (pc.first && layout->pcell_declaration (pc.second) && view ()->cellview (m_cv_index).is_valid ()) {
+  const db::PCellDeclaration *pcell_decl = 0;
 
-    mp_pcell_parameters = new PCellParametersPage (this, dispatcher (), true /*dense*/);
-    mp_pcell_parameters->setup (view (), m_cv_index, layout->pcell_declaration (pc.second), parameters);
+  if (pc.first && (pcell_decl = layout->pcell_declaration (pc.second)) != 0 && view ()->cellview (m_cv_index).is_valid ()) {
+
+    db::PCellParametersPageBase *pp = pcell_decl->create_parameter_page ();
+
+    mp_pcell_parameters = dynamic_cast<edt::PCellParametersPageBase *> (pp);
+    if (! mp_pcell_parameters) {
+      if (pp) {
+        //  not useful.
+        delete pp;
+      }
+      mp_pcell_parameters = new PCellParametersPage ();
+    }
+
+    //  NOTE: these functions must be called in that order
+    mp_pcell_parameters->set_dense (true);
+    mp_pcell_parameters->set_parent (this);
+    mp_pcell_parameters->setup (view (), dispatcher (), m_cv_index, pcell_decl, parameters);
+
     this->layout ()->addWidget (mp_pcell_parameters);
 
     mp_pcell_parameters->set_state (pcp_state);

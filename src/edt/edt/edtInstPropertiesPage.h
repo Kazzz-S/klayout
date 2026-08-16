@@ -34,7 +34,7 @@
 namespace edt
 {
 
-class PCellParametersPage;
+class PCellParametersPageBase;
 class ChangeApplicator;
 
 class InstPropertiesPage
@@ -64,7 +64,7 @@ protected:
   edt::Service *mp_service;
   bool m_enable_cb_callback;
   db::properties_id_type m_prop_id;
-  edt::PCellParametersPage *mp_pcell_parameters;
+  edt::PCellParametersPageBase *mp_pcell_parameters;
 
   virtual bool readonly ();
   virtual void apply (bool commit);

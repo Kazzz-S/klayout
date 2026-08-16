@@ -39,15 +39,32 @@
 namespace edt
 {
 
-PCellParametersPageBase::PCellParametersPageBase (QWidget *parent, lay::Dispatcher *dispatcher, bool dense)
-  : QFrame (parent), m_dense (dense), mp_dispatcher (dispatcher), m_show_parameter_names (false), m_lazy_evaluation (-1), dm_parameter_changed (this, &PCellParametersPageBase::do_parameter_changed)
+PCellParametersPageBase::PCellParametersPageBase ()
+  : QFrame (0),
+    m_parameter_changed_enabled (false),
+    m_dense (false),
+    mp_dispatcher (0),
+    m_show_parameter_names (false),
+    m_lazy_evaluation (-1),
+    dm_parameter_changed (this, &PCellParametersPageBase::do_parameter_changed)
 {
-  if (mp_dispatcher) {
-    mp_dispatcher->config_get (cfg_edit_pcell_show_parameter_names, m_show_parameter_names);
-    mp_dispatcher->config_get (cfg_edit_pcell_lazy_eval_mode, m_lazy_evaluation);
-  }
+  //  .. nothing yet ..
+}
 
+void
+PCellParametersPageBase::set_parent (QWidget *p)
+{
+  tl_assert (parent () == 0);
+  tl_assert (p != 0);
+  setParent (p);
   init ();
+}
+
+void
+PCellParametersPageBase::set_dense (bool d)
+{
+  tl_assert (parent () == 0);
+  m_dense = d;
 }
 
 tl::Variant
@@ -233,7 +250,7 @@ PCellParametersPageBase::lazy_eval_mode (int mode)
     mp_dispatcher->config_set (cfg_edit_pcell_lazy_eval_mode, m_lazy_evaluation);
   }
 
-  setup (mp_view, m_cv_index, mp_pcell_decl.get (), get_parameters ());
+  setup (mp_view, mp_dispatcher, m_cv_index, mp_pcell_decl.get (), get_parameters ());
 }
 
 void
@@ -250,12 +267,20 @@ PCellParametersPageBase::show_parameter_names (bool f)
     mp_dispatcher->config_set (cfg_edit_pcell_show_parameter_names, m_show_parameter_names);
   }
 
-  setup (mp_view, m_cv_index, mp_pcell_decl.get (), get_parameters ());
+  setup (mp_view, mp_dispatcher, m_cv_index, mp_pcell_decl.get (), get_parameters ());
 }
 
 void
-PCellParametersPageBase::setup (lay::LayoutViewBase *view, int cv_index, const db::PCellDeclaration *pcell_decl, const db::pcell_parameters_type &parameters)
+PCellParametersPageBase::setup (lay::LayoutViewBase *view, lay::Dispatcher *dispatcher, int cv_index, const db::PCellDeclaration *pcell_decl, const db::pcell_parameters_type &parameters)
 {
+  tl_assert (parent () != 0);
+
+  if (mp_dispatcher != dispatcher) {
+    mp_dispatcher = dispatcher;
+    mp_dispatcher->config_get (cfg_edit_pcell_show_parameter_names, m_show_parameter_names);
+    mp_dispatcher->config_get (cfg_edit_pcell_lazy_eval_mode, m_lazy_evaluation);
+  }
+
   mp_pcell_decl.reset (const_cast<db::PCellDeclaration *> (pcell_decl));  //  no const weak_ptr ...
   mp_view = view;
   m_cv_index = cv_index;
@@ -315,15 +340,20 @@ PCellParametersPageBase::setup (lay::LayoutViewBase *view, int cv_index, const d
 
   }
 
-  //  populate the main frame with widgets
-  build_widgets (mp_main_frame);
-
-  //  initial callback
+  //  block parameter change events during setup
+  m_parameter_changed_enabled = false;
 
   try {
+
+    //  populate the main frame with widgets
+    build_widgets (mp_main_frame);
+
+    //  initial callback
+
     if (mp_pcell_decl->layout ()) {
       mp_pcell_decl->callback (*mp_pcell_decl->layout (), std::string (), m_states);
     }
+
   } catch (tl::Exception &ex) {
     //  potentially caused by script errors in callback implementation
     tl::error << ex.msg ();
@@ -332,6 +362,8 @@ PCellParametersPageBase::setup (lay::LayoutViewBase *view, int cv_index, const d
   } catch (...) {
     //  ignore other errors
   }
+
+  m_parameter_changed_enabled = true;
 
   m_initial_states = m_states;
   mp_error_frame->hide ();
@@ -396,6 +428,12 @@ PCellParametersPageBase::parameter_changed (const std::string &name)
     return;
   }
 
+  if (! m_parameter_changed_enabled) {
+    return;
+  }
+  //  prevent recursive calls
+  m_parameter_changed_enabled = false;
+
   db::ParameterStates states = m_states;
 
   bool edit_error = true;
@@ -428,6 +466,8 @@ PCellParametersPageBase::parameter_changed (const std::string &name)
     }
 
   }
+
+  m_parameter_changed_enabled = true;
 
   dm_parameter_changed ();
 }
@@ -583,7 +623,20 @@ PCellParametersPageBase::update_widgets_from_states (const db::ParameterStates &
   }
 
   set_parameters_internal (states, tentatively);
-  apply_states (states);
+
+  bool en = m_parameter_changed_enabled;
+  m_parameter_changed_enabled = false;
+  try {
+    apply_states (states);
+  } catch (tl::Exception &ex) {
+    //  potentially caused by script errors in callback implementation
+    tl::error << ex.msg ();
+  } catch (std::runtime_error &ex) {
+    tl::error << ex.what ();
+  } catch (...) {
+    //  ignore other errors
+  }
+  m_parameter_changed_enabled = en;
 }
 
 void
@@ -605,7 +658,19 @@ PCellParametersPageBase::set_parameters_internal (const db::ParameterStates &sta
     return;
   }
 
-  apply_values (states);
+  bool en = m_parameter_changed_enabled;
+  m_parameter_changed_enabled = false;
+  try {
+    apply_values (states);
+  } catch (tl::Exception &ex) {
+    //  potentially caused by script errors in callback implementation
+    tl::error << ex.msg ();
+  } catch (std::runtime_error &ex) {
+    tl::error << ex.what ();
+  } catch (...) {
+    //  ignore other errors
+  }
+  m_parameter_changed_enabled = en;
 
   bool update_needed = false;
 
