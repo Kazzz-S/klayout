@@ -22,6 +22,7 @@
 
 #include "layuiForceLink.h"
 
+//  exports
 namespace layui
 {
   int _force_link_f ()
@@ -30,3 +31,14 @@ namespace layui
   }
 }
 
+//  imports (for gsiDeclLayDialogs.cc and gsiDeclLayWidgets.cc)
+
+#if defined(HAVE_QTBINDINGS)
+
+# include "gsiQtGuiExternals.h"
+# include "gsiQtWidgetsExternals.h"
+
+FORCE_LINK_GSI_QTGUI
+FORCE_LINK_GSI_QTWIDGETS // for Qt5
+
+#endif

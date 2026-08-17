@@ -37,13 +37,8 @@
 #include <limits>
 
 #if defined(HAVE_QTBINDINGS)
-
-#  include "gsiQtGuiExternals.h"
-#  include "gsiQtWidgetsExternals.h"
-
-FORCE_LINK_GSI_QTGUI
-FORCE_LINK_GSI_QTWIDGETS // for Qt5
-
+# include "gsiQtGuiExternals.h"
+# include "gsiQtWidgetsExternals.h"
 #else
 # define QT_EXTERNAL_BASE(x)
 #endif

@@ -20,225 +20,146 @@
 
 */
 
-#if defined(HAVE_QT)
+#if defined(HAVE_QTBINDINGS)
 
-#ifndef HDR_layWidgets
-#define HDR_layWidgets
+#include "gsiDecl.h"
+#include "gsiDeclBasic.h"
+#include "dbLibrary.h"
+#include "layWidgets.h"
+#include "layLayoutViewBase.h"
 
-#include "layuiCommon.h"
-#include "layMargin.h"
+#include "gsiQt.h"
+#include "gsiQtGuiExternals.h"
+#include "gsiQtWidgetsExternals.h"
 
-#include "tlObject.h"
-#include "tlDeferredExecution.h"
-
-#include <QPushButton>
-#include <QComboBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QProxyStyle>
-#include <QListWidget>
-#include <string>
-
-namespace db
+namespace gsi
 {
-  class Layout;
-  class Library;
-  struct LayerProperties;
+
+static lay::DitherPatternSelectionButton *new_dither_pattern_selection_button (QWidget *parent)
+{
+  auto *b = new lay::DitherPatternSelectionButton (parent);
+  if (parent) {
+    qt_gsi::qt_keep (b);
+  }
+  return b;
 }
 
-namespace lay
+Class<lay::DitherPatternSelectionButton> decl_DitherPatternSelectionButton (QT_EXTERNAL_BASE (QPushButton) "lay", "DitherPatternSelectionButton",
+  gsi::constructor ("new", &new_dither_pattern_selection_button, gsi::arg ("parent"),
+    "@brief Creates a new dither pattern selection button\n"
+  ) +
+  gsi::method ("view=", &lay::DitherPatternSelectionButton::set_view, gsi::arg ("view"),
+    "@brief Associates the button with a view\n"
+    "When associated with a view, the button will also display custom pattern available "
+    "for this particular view. Without a view, only the standard pattern are available.\n"
+  ) +
+  gsi::method ("dither_pattern=", &lay::DitherPatternSelectionButton::set_dither_pattern, gsi::arg ("pattern"),
+    "@brief Selects a specific pattern by index\n"
+    "A negative index corresponds to 'no pattern selected'."
+  ) +
+  gsi::method ("dither_pattern", &lay::DitherPatternSelectionButton::dither_pattern,
+    "@brief Gets the currently selected pattern\n"
+    "A negative index corresponds to 'no pattern selected'."
+  ) +
+  gsi::qt_signal<int> ("dither_pattern_changed(int)", "dither_pattern_changed", gsi::arg("pattern"),
+    "@brief This signal is emitted when a different dither pattern is selected."
+  ),
+  "@brief A widget to select a dither (stipple) pattern\n"
+  "\n"
+  "This widget can be used to select a dither pattern from the available ones.\n"
+  "Pattern are selected by index. If the widget is associated with a view (see \\view=),\n"
+  "additional custom pattern may be present are can also be selected. In that case, the\n"
+  "dither pattern index becomes view specific.\n"
+  "\n"
+  "This class has been introduced in version 0.30.11."
+);
+
+static lay::LineStyleSelectionButton *new_line_style_selection_button (QWidget *parent)
 {
+  auto *b = new lay::LineStyleSelectionButton (parent);
+  if (parent) {
+    qt_gsi::qt_keep (b);
+  }
+  return b;
+}
 
-class LayoutViewBase;
-struct LayerSelectionComboBoxPrivateData;
-struct CellViewSelectionComboBoxPrivateData;
+Class<lay::LineStyleSelectionButton> decl_LineStyleSelectionButton (QT_EXTERNAL_BASE (QPushButton) "lay", "LineStyleSelectionButton",
+  gsi::constructor ("new", &new_line_style_selection_button, gsi::arg ("parent"),
+    "@brief Creates a new line style selection button\n"
+  ) +
+  gsi::method ("view=", &lay::LineStyleSelectionButton::set_view, gsi::arg ("view"),
+    "@brief Associates the button with a view\n"
+    "When associated with a view, the button will also display custom line styles available "
+    "for this particular view. Without a view, only the standard styles are available.\n"
+  ) +
+  gsi::method ("line_style=", &lay::LineStyleSelectionButton::set_line_style, gsi::arg ("style"),
+    "@brief Selects a line style by index\n"
+    "A negative index corresponds to 'no line style selected'."
+  ) +
+  gsi::method ("line_style", &lay::LineStyleSelectionButton::line_style,
+    "@brief Gets the currently selected line style\n"
+    "A negative index corresponds to 'no line style selected'."
+  ) +
+  gsi::qt_signal<int> ("line_style_changed(int)", "line_style_changed", gsi::arg("pattern"),
+    "@brief This signal is emitted when a different dither pattern is selected."
+  ),
+  "@brief A widget to select a line style (dash pattern)\n"
+  "\n"
+  "This widget can be used to select a line style from the available ones.\n"
+  "Line styles are selected by index. If the widget is associated with a view (see \\view=),\n"
+  "additional custom line styles may be present are can also be selected. In that case, the\n"
+  "line style index becomes view specific.\n"
+  "\n"
+  "This class has been introduced in version 0.30.11."
+);
 
-/**
- *  @brief A selection button for dither pattern
- */
-class LAYUI_PUBLIC DitherPatternSelectionButton
-  : public QPushButton
+static lay::LibrarySelectionComboBox *new_library_selection_combo_box (QWidget *parent)
 {
-Q_OBJECT
+  auto *b = new lay::LibrarySelectionComboBox (parent);
+  if (parent) {
+    qt_gsi::qt_keep (b);
+  }
+  return b;
+}
 
-public:
-  /**
-   *  @brief Constructor
-   */
-  DitherPatternSelectionButton (QWidget *parent);
-
-  /**
-   *  @brief Destructor
-   */
-  ~DitherPatternSelectionButton ();
-
-  /**
-   *  @brief Associate with a view 
-   *
-   *  This method is required to select the proper dither pattern
-   */
-  void set_view (lay::LayoutViewBase *view);
-
-  /**
-   *  @brief Set the dither pattern index
-   */
-  void set_dither_pattern (int dp);
-
-  /**
-   *  @brief Get the dither pattern index
-   */
-  int dither_pattern () const;
-
-  /**
-   *  @brief Override setText 
-   */
-  void setText (const QString &) { }
-
-  /**
-   *  @brief Override setPixmap 
-   */
-  void setPixmap (const QPixmap &) { }
-
-signals:
-  void dither_pattern_changed (int);
-
-private slots:
-  void browse_selected ();
-  void menu_selected ();
-  void menu_about_to_show ();
-
-private:
-  lay::LayoutViewBase *mp_view;
-  int m_dither_pattern;
-
-  void update_pattern ();
-  void update_menu ();
-};
-
-/**
- *  @brief A selection button for dither pattern
- */
-class LAYUI_PUBLIC LineStyleSelectionButton
-  : public QPushButton
+static void lib_sel_technology_filter (lay::LibrarySelectionComboBox *ls, const std::string &tech)
 {
-Q_OBJECT
+  if (tech == "*") {
+    ls->set_technology_filter (tech, false);
+  } else {
+    ls->set_technology_filter (tech, true);
+  }
+}
 
-public:
-  /**
-   *  @brief Constructor
-   */
-  LineStyleSelectionButton (QWidget *parent);
+Class<lay::LibrarySelectionComboBox> decl_LibrarySelectionComboBox (QT_EXTERNAL_BASE (QComboBox) "lay", "LibrarySelectionComboBox",
+  gsi::constructor ("new", &new_library_selection_combo_box, gsi::arg ("parent"),
+    "@brief Creates a new library selection combo box\n"
+  ) +
+  gsi::method ("current_library=", &lay::LibrarySelectionComboBox::set_current_library, gsi::arg ("library"),
+    "@brief Selects the current library\n"
+    "A nil value corresponds to 'no library selected'."
+  ) +
+  gsi::method ("current_library", &lay::LibrarySelectionComboBox::current_library,
+    "@brief Gets the currently selected library\n"
+    "A nil value corresponds to 'no library selected'."
+  ) +
+  gsi::method_ext ("technology=", &lib_sel_technology_filter, gsi::arg ("tech"),
+    "@brief Specifies a technology filter.\n"
+    "Setting this attribute to a non-empty string filters the libraries and presents "
+    "only those registered for the given technology. Setting this attribute to an "
+    "empty string, shows all libraries not associated with a technology.\n"
+    "\n"
+    "Settings this attribute to '*', all libraries are shown."
+  ) +
+  gsi::qt_signal<db::Library *> ("library_changed(db::Library *)", "library_changed", gsi::arg("library"),
+    "@brief This signal is emitted when a different library is selected."
+  ),
+  "@brief A widget to select a library from the registered ones\n"
+  "\n"
+  "This class has been introduced in version 0.30.11."
+);
 
-  /**
-   *  @brief Destructor
-   */
-  ~LineStyleSelectionButton ();
-
-  /**
-   *  @brief Associate with a view
-   *
-   *  This method is required to select the proper dither pattern
-   */
-  void set_view (lay::LayoutViewBase *view);
-
-  /**
-   *  @brief Set the line style index
-   */
-  void set_line_style (int ls);
-
-  /**
-   *  @brief Get the line style index
-   */
-  int line_style () const;
-
-  /**
-   *  @brief Override setText
-   */
-  void setText (const QString &) { }
-
-  /**
-   *  @brief Override setPixmap
-   */
-  void setPixmap (const QPixmap &) { }
-
-signals:
-  void line_style_changed (int);
-
-private slots:
-  void browse_selected ();
-  void menu_selected ();
-  void menu_about_to_show ();
-
-private:
-  lay::LayoutViewBase *mp_view;
-  int m_line_style;
-
-  void update_pattern ();
-  void update_menu ();
-};
-
-/**
- *  @brief A library selection combo box
- *
- *  This combo box allows selecting a library
- */
-class LAYUI_PUBLIC LibrarySelectionComboBox
-  : public QComboBox
-{
-Q_OBJECT
-
-public:
-  /**
-   *  @brief Constructor
-   */
-  LibrarySelectionComboBox (QWidget *parent);
-
-  /**
-   *  @brief Destructor
-   */
-  ~LibrarySelectionComboBox ();
-
-  /**
-   *  @brief Set the current library
-   *
-   *  The current library is "none" (local definition) if the pointer is 0.
-   */
-  void set_current_library (db::Library *lib);
-
-  /**
-   *  @brief Get the current library
-   *
-   *  The pointer is 0 if "none" is selected.
-   */
-  db::Library *current_library () const;
-
-  /**
-   *  @brief Update the list of libraries
-   */
-  void update_list ();
-
-  /**
-   *  @brief Sets the technology filter
-   *
-   *  If a technology filter is set, only the libraries associated with the given
-   *  technology are shown. If enable is false, the technology name is ignored and
-   *  all libraries are shown.
-   */
-  void set_technology_filter (const std::string &tech, bool enable);
-
-signals:
-  void library_changed (db::Library *);
-
-private slots:
-  void cb_activated (int);
-
-private:
-  std::string m_tech;
-  bool m_tech_set;
-
-  void do_set_current_library (db::Library *lib);
-};
-
+#if 0
 /**
  *  @brief A layer selection combo box
  *
@@ -399,12 +320,12 @@ private:
 /**
  *  @brief Simple color chooser button
  *
- *  This class implements a special button that can replace a 
+ *  This class implements a special button that can replace a
  *  usual push button and supplies a color chooser without the
  *  capability to switch to "auto" color mode.
  */
 class LAYUI_PUBLIC SimpleColorButton
-  : public QPushButton 
+  : public QPushButton
 {
 Q_OBJECT
 
@@ -430,41 +351,14 @@ private slots:
 };
 
 /**
- *  @brief Margin edit box
- *
- *  This class implements a special widget to edit a lay::Margin object.
- *  This object allows specification of a relative or absolute margin.
- */
-class LAYUI_PUBLIC MarginWidget
-  : public QFrame
-{
-Q_OBJECT
-
-public:
-  MarginWidget (QWidget *parent, const char *name = 0);
-
-  lay::Margin get_margin () const;
-  void set_margin (const lay::Margin &margin);
-
-protected slots:
-  void mode_selection_changed ();
-
-private:
-  QLineEdit *mp_abs_edit;
-  QLineEdit *mp_rel_edit;
-  QComboBox *mp_mode_cb;
-  lay::Margin m_margin;
-};
-
-/**
  *  @brief Color chooser button
  *
- *  This class implements a special button that can replace a 
+ *  This class implements a special button that can replace a
  *  usual push button and supplies a color chooser with the
  *  capability to switch to "auto" color mode.
  */
 class LAYUI_PUBLIC ColorButton
-  : public QPushButton 
+  : public QPushButton
 {
 Q_OBJECT
 
@@ -624,65 +518,7 @@ private:
 
   void set_margins ();
 };
-
-/**
- *  @brief An interactive list widget which offers slots to delete and move items and interfaces to std::vector<std::string>
- */
-class LAYUI_PUBLIC InteractiveListWidget
-  : public QListWidget
-{
-Q_OBJECT
-
-public:
-  /**
-   *  @brief Constructor
-   */
-  InteractiveListWidget (QWidget *parent = 0);
-
-  /**
-   *  @brief Sets the items in the widget
-   */
-  void set_values (const std::vector<std::string> &values);
-
-  /**
-   *  @brief Gets the items in the widget
-   */
-  std::vector<std::string> get_values ();
-
-  /**
-   *  @brief Adds a value
-   */
-  void add_value (const std::string &value);
-
-  /**
-   *  @brief Adds values
-   */
-  void add_values (const std::vector<std::string> &values);
-
-private slots:
-  /**
-   *  @brief Deletes the selected items
-   */
-  void delete_selected_items ();
-
-  /**
-   *  @brief Moves the selected items up
-   */
-  void move_selected_items_up ();
-
-  /**
-   *  @brief Moves the selected items down
-   */
-  void move_selected_items_down ();
-
-private:
-  void refresh_flags ();
-
-  bool m_drag_and_drop_enabled;
-};
-
-} // namespace lay
+#endif  // @@@
+}
 
 #endif
-
-#endif  //  defined(HAVE_QT)
