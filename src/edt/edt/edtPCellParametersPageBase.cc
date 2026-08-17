@@ -201,7 +201,6 @@ PCellParametersPageBase::init ()
   dot_menu->addAction (mp_show_parameter_names_action);
   mp_show_parameter_names_action->setText (tr ("Show parameter names"));
   mp_show_parameter_names_action->setCheckable (true);
-  mp_show_parameter_names_action->setChecked (m_show_parameter_names);
   QObject::connect (mp_show_parameter_names_action, SIGNAL (triggered (bool)), &m_s2s_show_parameter_names_slot, SLOT (trigger (bool)));
 
   QMenu *lazy_eval_menu = new QMenu (dot_menu);
@@ -212,21 +211,18 @@ PCellParametersPageBase::init ()
   lazy_eval_menu->addAction (mp_auto_lazy_eval_action);
   mp_auto_lazy_eval_action->setText (tr ("As requested by PCell"));
   mp_auto_lazy_eval_action->setCheckable (true);
-  mp_auto_lazy_eval_action->setChecked (m_lazy_evaluation < 0);
   QObject::connect (mp_auto_lazy_eval_action, SIGNAL (triggered ()), &m_s2s_lazy_eval_mode_slotm1, SLOT (trigger ()));
 
   mp_always_lazy_eval_action = new QAction (lazy_eval_menu);
   lazy_eval_menu->addAction (mp_always_lazy_eval_action);
   mp_always_lazy_eval_action->setText (tr ("Always"));
   mp_always_lazy_eval_action->setCheckable (true);
-  mp_always_lazy_eval_action->setChecked (m_lazy_evaluation > 0);
   QObject::connect (mp_always_lazy_eval_action, SIGNAL (triggered ()), &m_s2s_lazy_eval_mode_slot1, SLOT (trigger ()));
 
   mp_never_lazy_eval_action = new QAction (lazy_eval_menu);
   lazy_eval_menu->addAction (mp_never_lazy_eval_action);
   mp_never_lazy_eval_action->setText (tr ("Never"));
   mp_never_lazy_eval_action->setCheckable (true);
-  mp_never_lazy_eval_action->setChecked (m_lazy_evaluation == 0);
   QObject::connect (mp_never_lazy_eval_action, SIGNAL (triggered ()), &m_s2s_lazy_eval_mode_slot0, SLOT (trigger ()));
 }
 
@@ -253,10 +249,6 @@ PCellParametersPageBase::lazy_eval_mode (int mode)
     return;
   }
 
-  mp_never_lazy_eval_action->setChecked (mode == 0);
-  mp_always_lazy_eval_action->setChecked (mode > 0);
-  mp_auto_lazy_eval_action->setChecked (mode < 0);
-
   m_lazy_evaluation = mode;
 
   if (mp_dispatcher) {
@@ -274,7 +266,6 @@ PCellParametersPageBase::show_parameter_names_slot (bool f)
   }
 
   m_show_parameter_names = f;
-  mp_show_parameter_names_action->setChecked (f);
 
   if (mp_dispatcher) {
     mp_dispatcher->config_set (cfg_edit_pcell_show_parameter_names, m_show_parameter_names);
@@ -289,10 +280,19 @@ PCellParametersPageBase::setup (lay::LayoutViewBase *view, lay::Dispatcher *disp
   tl_assert (mp_page_widget && mp_page_widget->parent () != 0);
 
   if (mp_dispatcher != dispatcher) {
+
     mp_dispatcher = dispatcher;
+
     mp_dispatcher->config_get (cfg_edit_pcell_show_parameter_names, m_show_parameter_names);
     mp_dispatcher->config_get (cfg_edit_pcell_lazy_eval_mode, m_lazy_evaluation);
+
   }
+
+  mp_show_parameter_names_action->setChecked (m_show_parameter_names);
+
+  mp_auto_lazy_eval_action->setChecked (m_lazy_evaluation < 0);
+  mp_always_lazy_eval_action->setChecked (m_lazy_evaluation > 0);
+  mp_never_lazy_eval_action->setChecked (m_lazy_evaluation == 0);
 
   mp_pcell_decl.reset (const_cast<db::PCellDeclaration *> (pcell_decl));  //  no const weak_ptr ...
   mp_view = view;
