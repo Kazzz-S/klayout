@@ -392,6 +392,9 @@ PCellParametersPageBase::State
 PCellParametersPageBase::get_state ()
 {
   State s;
+  if (! mp_page_widget) {
+    return s;
+  }
 
   s.valid = true;
   s.v_scroll_position = mp_parameters_area->verticalScrollBar ()->value ();
@@ -409,7 +412,7 @@ PCellParametersPageBase::get_state ()
 void
 PCellParametersPageBase::set_state (const State &s)
 {
-  if (s.valid) {
+  if (s.valid && mp_page_widget) {
 
     mp_parameters_area->verticalScrollBar ()->setValue (s.v_scroll_position);
     mp_parameters_area->horizontalScrollBar ()->setValue (s.h_scroll_position);

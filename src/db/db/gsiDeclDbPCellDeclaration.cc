@@ -168,6 +168,13 @@ Class<db::ParameterStates> decl_PCellParameterStates ("db", "PCellParameterState
     "\n"
     "This will return a \\PCellParameterState object that can be used to manipulate the "
     "parameter state."
+  ) +
+  gsi::method ("parameter", static_cast<const db::ParameterState & (db::ParameterStates::*) (const std::string &name) const> (&db::ParameterStates::parameter), gsi::arg ("name"),
+    "@brief Gets the parameter by name (const version)\n"
+    "\n"
+    "This will return a \\PCellParameterState object which cannot be manipulated, but read.\n"
+    "\n"
+    "The const flavor has been introduced in version 0.30.11."
   ),
   "@brief Provides access to the parameter states inside a 'callback' implementation of a PCell\n"
   "\n"
