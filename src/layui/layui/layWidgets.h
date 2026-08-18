@@ -392,6 +392,16 @@ public:
   void set_current_cv_index (int l);
   int current_cv_index () const;
 
+signals:
+  /**
+   *  @brief Signal indicating that the user selected a new layer
+   *  This signal is emitted if the layer is edited. It is not emitted on programmatic changes.
+   */
+  void current_cv_index_changed (int cv_index);
+
+protected slots:
+  void cb_activated (int index);
+
 private:
   CellViewSelectionComboBoxPrivateData *mp_private;
 };

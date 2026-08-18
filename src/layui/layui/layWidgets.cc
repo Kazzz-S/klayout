@@ -447,6 +447,8 @@ CellViewSelectionComboBox::CellViewSelectionComboBox (QWidget *parent)
 {
   mp_private = new CellViewSelectionComboBoxPrivateData ();
   mp_private->layout_view = 0;
+
+  connect (this, SIGNAL (currentIndexChanged (int)), this, SLOT (cb_activated (int)));
 }
 
 CellViewSelectionComboBox::~CellViewSelectionComboBox ()
@@ -466,6 +468,12 @@ CellViewSelectionComboBox::set_layout_view (const lay::LayoutViewBase *layout_vi
 {
   //  TODO: should register a listener, so it does the update automatically.
   mp_private->layout_view = layout_view;
+
+  if (! layout_view) {
+    clear ();
+    set_current_cv_index (-1);
+    return;
+  }
 
   int current = current_cv_index ();
 
@@ -496,6 +504,12 @@ int
 CellViewSelectionComboBox::current_cv_index () const
 {
   return currentIndex ();
+}
+
+void
+CellViewSelectionComboBox::cb_activated (int index)
+{
+  emit current_cv_index_changed (index);
 }
 
 // -------------------------------------------------------------
@@ -845,7 +859,7 @@ LayerSelectionComboBox::set_current_layer (int l)
 bool
 LayerSelectionComboBox::is_no_layer_selected () const
 {
-  return currentIndex () < 0;
+  return currentIndex () < 0 || (mp_private->no_layer_available && currentIndex () == 0);
 }
 
 int

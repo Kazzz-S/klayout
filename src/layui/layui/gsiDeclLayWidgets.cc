@@ -152,242 +152,211 @@ Class<lay::LibrarySelectionComboBox> decl_LibrarySelectionComboBox (QT_EXTERNAL_
     "Settings this attribute to '*', all libraries are shown."
   ) +
   gsi::qt_signal<db::Library *> ("library_changed(db::Library *)", "library_changed", gsi::arg("library"),
-    "@brief This signal is emitted when a different library is selected."
+    "@brief This signal is emitted when a different library is selected.\n"
+    "The signal is also emitted if the library is changed programmatically.\n"
   ),
   "@brief A widget to select a library from the registered ones\n"
   "\n"
   "This class has been introduced in version 0.30.11."
 );
 
+static lay::CellViewSelectionComboBox *new_cell_view_selection_combo_box (QWidget *parent)
+{
+  auto *b = new lay::CellViewSelectionComboBox (parent);
+  if (parent) {
+    qt_gsi::qt_keep (b);
+  }
+  return b;
+}
+
+Class<lay::CellViewSelectionComboBox> decl_CellViewSelectionComboBox (QT_EXTERNAL_BASE (QComboBox) "lay", "CellViewSelectionComboBox",
+  gsi::constructor ("new", &new_cell_view_selection_combo_box, gsi::arg ("parent"),
+    "@brief Creates a new cell view selection combo box\n"
+  ) +
+  gsi::method ("layout_view=", &lay::CellViewSelectionComboBox::set_layout_view, gsi::arg ("view"),
+    "@brief Associates the selection widget with a specific view.\n"
+    "The view provides the list of selectable cell views. Hence, only selection widgets that "
+    "are associated with a view are useful. Set this attribute to attach the widget to a specific view.\n"
+  ) +
+  gsi::method ("layout_view", &lay::CellViewSelectionComboBox::layout_view,
+    "@brief Gets the view object this widget is associated with.\n"
+    "See \\layout_view= for details about this attribute."
+  ) +
+  gsi::method ("current_cell_view_index=", &lay::CellViewSelectionComboBox::set_current_cv_index, gsi::arg ("cv_index"),
+    "@brief Sets the index of the current cell view\n"
+    "A negative value corresponds to 'no view selected'.\n"
+    "The cell view index addresses a CellView inside the \\LayoutView associated with this "
+    "selection widget through \\layout_view=."
+  ) +
+  gsi::method ("current_cell_view_index", &lay::CellViewSelectionComboBox::current_cv_index,
+    "@brief Gets the index of the currently selected cell view\n"
+    "See \\current_cell_view= for details of this attribute."
+  ) +
+  gsi::qt_signal<int> ("current_cv_index_changed(int)", "current_cv_index_changed", gsi::arg("cell_view_index"),
+    "@brief This signal is emitted when a different cell view is selected.\n"
+    "The signal is also emitted if the cell view is changed programmatically.\n"
+  ),
+  "@brief A widget to select a cell view from a view\n"
+  "\n"
+  "To use the widget, first associate it to a view by using \\layout_view=. The widget\n"
+  "will show the cell views available inside the layout view and allows selecting one of them.\n"
+  "\n"
+  "This class has been introduced in version 0.30.11."
+);
+
+static lay::LayerSelectionComboBox *new_layerselection_combo_box (QWidget *parent)
+{
+  auto *b = new lay::LayerSelectionComboBox (parent);
+  if (parent) {
+    qt_gsi::qt_keep (b);
+  }
+  return b;
+}
+
+Class<lay::LayerSelectionComboBox> decl_LayerSelectionComboBox (QT_EXTERNAL_BASE (QComboBox) "lay", "LayerSelectionComboBox",
+  gsi::constructor ("new", &new_layerselection_combo_box, gsi::arg ("parent"),
+    "@brief Creates a new layer selection combo box\n"
+  ) +
+  gsi::method ("set_layout", &lay::LayerSelectionComboBox::set_layout, gsi::arg ("layout"),
+    "@brief Attaches the widget to a layout.\n"
+    "The widget will display the layers present in the layout and allows selecting one of them.\n"
+    "Alternatively, the widget can be associated with a view using \\set_view."
+  ) +
+  gsi::method ("set_view", &lay::LayerSelectionComboBox::set_view, gsi::arg ("view"), gsi::arg ("cv_index"), gsi::arg ("all_layers", false),
+    "@brief Attaches the widget to a layout view.\n"
+    "After attaching the widget to a view, the layers present in the layout view for the\n"
+    "given cell view are shown in the widget. If 'all_layers' is set to true, also layers are\n"
+    "shown which are in the layer list, but not created as layers yet in the underlying \\Layout object.\n"
+    "\n"
+    "Alternatively, the widget can be attached to a \\Layout object directly using \\set_layout,\n"
+    "but in that case, layer colors or styles are not indicated."
+  ) +
+  gsi::method ("is_new_layer_enabled?", &lay::LayerSelectionComboBox::is_new_layer_enabled,
+    "@brief Gets a flag indicating whether the 'new layer' option is available.\n"
+    "See \\new_layer_enabled= for details about this attribute.\n"
+  ) +
+  gsi::method ("new_layer_enabled=", &lay::LayerSelectionComboBox::set_new_layer_enabled, gsi::arg ("enabled"),
+    "@brief Sets a flag indicating whether the 'new layer' option is available.\n"
+    "With this attribute set to true, the drop-down list provides an entry that allows creating new layers.\n"
+  ) +
+  gsi::method ("is_optional?", &lay::LayerSelectionComboBox::is_no_layer_available,
+    "@brief Sets a flag indicating whether it is possible to choose 'no layer'.\n"
+    "See \\optional= for details about this attribute.\n"
+  ) +
+  gsi::method ("optional=", &lay::LayerSelectionComboBox::set_no_layer_available, gsi::arg ("enabled"),
+    "@brief Sets a flag indicating whether it is possible to choose 'no layer'.\n"
+    "With this attribute set to true, the drop-down list provides an entry that allows selecting 'nothing'.\n"
+  ) +
+  gsi::method ("current_layer=", static_cast<void (lay::LayerSelectionComboBox::*) (const db::LayerProperties &)> (&lay::LayerSelectionComboBox::set_current_layer), gsi::arg ("layer_info"),
+    "@brief Selects the current layer by layer properties.\n"
+    "'no layer' is selected by using an empty \\LayerInfo object."
+  ) +
+  gsi::method ("current_layer=", static_cast<void (lay::LayerSelectionComboBox::*) (int)> (&lay::LayerSelectionComboBox::set_current_layer), gsi::arg ("layer_index"),
+    "@brief Selects the current layer by layer index in the current layout the widget is attached to.\n"
+    "'no layer' is selected by using a negative layer index."
+  ) +
+  gsi::method ("current_layer_index", &lay::LayerSelectionComboBox::current_layer,
+    "@brief Gets the index of the currently selected layer.\n"
+    "A negative value is returned if the currently selected layer does not exist yet "
+    "in the associated \\Layout or 'no layer' is selected. To differentiate, use the "
+    "\\is_no_layer_selected attribute - it will return true, if 'no layer' is selected "
+    "and false, if the layer is not created yet (also rendering a negative index).\n"
+    "\n"
+    "In most cases, it will be easier to use \\current_layer_index_ensure, which makes "
+    "sure the requested layer is created in the \\Layout object and only returns a "
+    "negative index, if 'no layer' is requested."
+  ) +
+  gsi::method ("current_layer_index_ensure", &lay::LayerSelectionComboBox::current_layer_ensure,
+    "@brief Gets the index of the currently selected layer and creates the layer if required.\n"
+    "See \\current_layer_index for a discussion of this method."
+  ) +
+  gsi::method ("is_no_layer_selected", &lay::LayerSelectionComboBox::is_no_layer_selected,
+    "@brief Gets a value indicating whether 'no layer' is selected.\n"
+    "See \\current_layer_index for a discussion of this method."
+  ) +
+  gsi::method ("current_layer_info", &lay::LayerSelectionComboBox::current_layer_props,
+    "@brief Gets the layer properties of the currently selected layer.\n"
+    "This method can be used alternatively to \\current_layer_index or \\current_layer_index_ensure "
+    "and will deliver the \\LayerInfo object of the currently selected layer.\n"
+    "\n"
+    "If 'no layer' is selected, an empty \\LayerInfo object is returned."
+  ) +
+  gsi::qt_signal ("current_layer_changed()", "current_layer_changed",
+    "@brief This signal is emitted when a new layer is selected.\n"
+    "The signal is not emitted if the layer is changed programmatically.\n"
+  ),
+  "@brief A widget to select a layer from a Layout or a cell view inside a LayoutView\n"
+  "\n"
+  "To use the widget, first associate it to a view by using \\set_layout_view or to a Layout using \\set_layout.\n"
+  "The widget will show the layers available and allows selecting one of them.\n"
+  "\n"
+  "This class has been introduced in version 0.30.11."
+);
+
+static lay::SimpleColorButton *new_simple_color_button (QWidget *parent)
+{
+  auto *b = new lay::SimpleColorButton (parent);
+  if (parent) {
+    qt_gsi::qt_keep (b);
+  }
+  return b;
+}
+
+Class<lay::SimpleColorButton> decl_SimpleColorButton (QT_EXTERNAL_BASE (QComboBox) "lay", "SimpleColorButton",
+  gsi::constructor ("new", &new_simple_color_button, gsi::arg ("parent"),
+    "@brief Creates a simple color selection button\n"
+  ) +
+  gsi::method ("color=", &lay::SimpleColorButton::set_color, gsi::arg ("color"),
+    "@brief Selects the current color.\n"
+  ) +
+  gsi::method ("color", &lay::SimpleColorButton::get_color,
+    "@brief Gets the current color.\n"
+  ) +
+  gsi::qt_signal<QColor> ("color_changed(QColor)", "color_changed", gsi::arg ("color"),
+    "@brief This signal is emitted when a new color is selected.\n"
+    "The signal is not emitted if the color is changed programmatically.\n"
+  ),
+  "@brief A widget to select a color\n"
+  "\n"
+  "Another widget exists (\\ColorButton) which allows selecting 'Auto' color in addition to a plain color\n"
+  "and that has a predefined palette.\n"
+  "\n"
+  "This class has been introduced in version 0.30.11."
+);
+
+static lay::ColorButton *new_color_button (QWidget *parent)
+{
+  auto *b = new lay::ColorButton (parent);
+  if (parent) {
+    qt_gsi::qt_keep (b);
+  }
+  return b;
+}
+
+Class<lay::ColorButton> decl_ColorButton (QT_EXTERNAL_BASE (QComboBox) "lay", "ColorButton",
+  gsi::constructor ("new", &new_color_button, gsi::arg ("parent"),
+    "@brief Creates a simple color selection button\n"
+  ) +
+  gsi::method ("color=", &lay::ColorButton::set_color, gsi::arg ("color"),
+    "@brief Selects the current color.\n"
+  ) +
+  gsi::method ("color", &lay::ColorButton::get_color,
+    "@brief Gets the current color.\n"
+  ) +
+  gsi::qt_signal<QColor> ("color_changed(QColor)", "color_changed", gsi::arg ("color"),
+    "@brief This signal is emitted when a new color is selected.\n"
+    "The signal is not emitted if the color is changed programmatically.\n"
+  ),
+  "@brief A widget to select a color\n"
+  "\n"
+  "This version of the color chooser button has a palette and allows\n"
+  "selecting an 'Auto' color (the system is supposed to choose one).\n"
+  "The 'Auto' color is represented by an invalid QColor object.\n"
+  "\n"
+  "This class has been introduced in version 0.30.11."
+);
+
 #if 0
-/**
- *  @brief A layer selection combo box
- *
- *  This combo box allows selecting a (physical) layer from a layout
- */
-class LAYUI_PUBLIC LayerSelectionComboBox
-  : public QComboBox, public tl::Object
-{
-Q_OBJECT
-
-public:
-  /**
-   *  @brief Constructor
-   */
-  LayerSelectionComboBox (QWidget *parent);
-
-  /**
-   *  @brief Destructor
-   */
-  ~LayerSelectionComboBox ();
-
-  /**
-   *  @brief Associate with a layout
-   *
-   *  Associates this widget with a certain layout object - this one is being
-   *  scanned for layers that are presented in this combo box.
-   */
-  void set_layout (const db::Layout *layout);
-
-  /**
-   *  @brief Associate with a view and cellview index
-   *
-   *  This method can be used instead of set_layout. If this method is used, more
-   *  functionality is available, i.e. the ability to create new layers.
-   *  If all_layers is set to true, layers are shown which are in the layer list, but
-   *  not created as layers yet.
-   */
-  void set_view (lay::LayoutViewBase *view, int cv_index, bool all_layers = false);
-
-  /**
-   *  @brief Sets a flag indicating whether the "new layer" option is available
-   */
-  void set_new_layer_enabled (bool f);
-
-  /**
-   *  @brief Gets a flag indicating whether the "new layer" option is available
-   */
-  bool is_new_layer_enabled () const;
-
-  /**
-   *  @brief Sets a flag indicating whether "no layer" is available as selection
-   */
-  void set_no_layer_available (bool f);
-
-  /**
-   *  @brief Gets a flag indicating whether "no layer" is available as selection
-   */
-  bool is_no_layer_available () const;
-
-  /**
-   *  @brief Set the current layer (index)
-   */
-  void set_current_layer (const db::LayerProperties &lp);
-
-  /**
-   *  @brief Set the current layer (index)
-   */
-  void set_current_layer (int l);
-
-  /**
-   *  @brief Gets a valid indicating whether a layer is selected
-   *
-   *  This method returns true if "no layer" is selected
-   */
-  bool is_no_layer_selected () const;
-
-  /**
-   *  @brief Gets the cellview index
-   *
-   *  NOTE: this methods returns -1 if the widget is not
-   *  associated with a cellview index.
-   */
-  int cv_index () const;
-
-  /**
-   *  @brief Get the current layer (index)
-   *
-   *  NOTE: this method returns -1 if no layer is selected or
-   *  the current layer does not exist. Use "is_no_layer_selected"
-   *  for a value telling whether no layer is selected (true)
-   *  or a not-yet-existing layer is selected (false).
-   */
-  int current_layer () const;
-
-  /**
-   *  @brief Get the current layer (index) and makes sure it exists
-   *
-   *  This method ensures that the layer is created if it does not
-   *  exist yet. It returns -1 on "no layer" (if enabled).
-   */
-  int current_layer_ensure ();
-
-  /**
-   *  @brief Get the current layer properties
-   *
-   *  If "no layer" is selected, this method returns the last properties set
-   *  with "set_current_layer". Use "is_no_layer_selected" to get
-   *  a value indicating whether the "no layer" entry is selected.
-   */
-  db::LayerProperties current_layer_props () const;
-
-signals:
-  /**
-   *  @brief Signal indicating that the user selected a new layer
-   *  This signal is emitted if the layer is edited. It is not emitted on programmatic changes.
-   */
-  void current_layer_changed ();
-
-protected slots:
-  void item_selected (int index);
-
-private:
-  LayerSelectionComboBoxPrivateData *mp_private;
-  tl::DeferredMethod<LayerSelectionComboBox> dm_update_layer_list;
-  bool m_ignore_layer_list_changed;
-
-  void on_layer_list_changed (int);
-  void update_layer_list ();
-  void do_update_layer_list ();
-  db::Layout *layout ();
-  const db::Layout *layout () const;
-};
-
-/**
- *  @brief A cell view selection combo box
- *
- *  This combo box allows selecting a cellview from a lay::LayoutView
- */
-class LAYUI_PUBLIC CellViewSelectionComboBox
-  : public QComboBox
-{
-Q_OBJECT
-
-public:
-  CellViewSelectionComboBox (QWidget *parent);
-  ~CellViewSelectionComboBox ();
-
-  void set_layout_view (const lay::LayoutViewBase *view);
-  const lay::LayoutViewBase *layout_view () const;
-
-  void set_current_cv_index (int l);
-  int current_cv_index () const;
-
-private:
-  CellViewSelectionComboBoxPrivateData *mp_private;
-};
-
-/**
- *  @brief Simple color chooser button
- *
- *  This class implements a special button that can replace a
- *  usual push button and supplies a color chooser without the
- *  capability to switch to "auto" color mode.
- */
-class LAYUI_PUBLIC SimpleColorButton
-  : public QPushButton
-{
-Q_OBJECT
-
-public:
-  SimpleColorButton (QPushButton *&to_replace, const char *name = 0);
-  SimpleColorButton (QWidget *parent, const char *name = 0);
-
-  QColor get_color () const;
-
-signals:
-  void color_changed (QColor color);
-
-public slots:
-  void set_color (QColor color);
-
-private:
-  QColor m_color;
-
-  void set_color_internal (QColor color);
-
-private slots:
-  virtual void selected ();
-};
-
-/**
- *  @brief Color chooser button
- *
- *  This class implements a special button that can replace a
- *  usual push button and supplies a color chooser with the
- *  capability to switch to "auto" color mode.
- */
-class LAYUI_PUBLIC ColorButton
-  : public QPushButton
-{
-Q_OBJECT
-
-public:
-  ColorButton (QPushButton *&to_replace, const char *name = 0);
-  ColorButton (QWidget *parent, const char *name = 0);
-
-  QColor get_color () const;
-  static void build_color_menu (QMenu *menu, QObject *receiver, const char *browse_slot, const char *selected_slot);
-
-signals:
-  void color_changed (QColor color);
-
-public slots:
-  void set_color (QColor color);
-
-private:
-  QColor m_color;
-
-  void set_color_internal (QColor color);
-  void build_menu ();
-
-protected slots:
-  virtual void browse_selected ();
-  virtual void menu_selected ();
-
-private slots:
-  void menu_about_to_show ();
-};
 
 /**
  *  @brief An edit box with a clear button and options menu
