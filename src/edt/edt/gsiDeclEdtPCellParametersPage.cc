@@ -225,6 +225,15 @@ gsi::Class<PCellParametersPageImpl> decl_PCellParametersPageImpl (decl_PCellPara
     "Typically this method is called in a slot attached to the value-representative widget, such as a\n"
     "check box or line edit. Provide the name of the changed parameter through the 'name' argument or\n"
     "use an empty string to signal an unspecific change."
+  ) +
+  gsi::method ("info_pixmap", &PCellParametersPageImpl::info_pixmap,
+    "@brief Gets the standard 'info' icon pixmap used in the standard implementation for the parameter state icon."
+  ) +
+  gsi::method ("error_pixmap", &PCellParametersPageImpl::error_pixmap,
+    "@brief Gets the standard 'error' icon pixmap used in the standard implementation for the parameter state icon."
+  ) +
+  gsi::method ("warning_pixmap", &PCellParametersPageImpl::warning_pixmap,
+    "@brief Gets the standard 'warning' icon pixmap used in the standard implementation for the parameter state icon."
   ),
   "@brief An implementation base class for custom PCell parameter pages\n"
   "\n"
