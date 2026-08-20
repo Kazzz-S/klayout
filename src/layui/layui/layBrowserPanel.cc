@@ -112,10 +112,10 @@ BrowserPanel::init ()
   mp_ui = new Ui::BrowserPanel ();
   mp_ui->setupUi (this);
 
-#if QT_VERSION >= 0x050200
-  mp_ui->on_page_search_edit->setClearButtonEnabled (true);
-  mp_ui->search_edit->setClearButtonEnabled (true);
-#endif
+  mp_ui->on_page_search_edit->set_clear_button_enabled (true);
+  mp_ui->on_page_search_edit->set_tab_signal_enabled (true);
+
+  mp_ui->search_edit->set_clear_button_enabled (true);
 
   mp_ui->browser->setReadOnly (true);
   mp_ui->browser->set_panel (this);
@@ -148,8 +148,11 @@ BrowserPanel::init ()
   connect (mp_ui->outline_tree, SIGNAL (itemActivated (QTreeWidgetItem *, int)), this, SLOT (outline_item_clicked (QTreeWidgetItem *)));
   connect (mp_ui->on_page_search_edit, SIGNAL (textChanged (const QString &)), this, SLOT (page_search_edited ()));
   connect (mp_ui->search_close_button, SIGNAL (clicked ()), this, SLOT (page_search_edited ()), Qt::QueuedConnection);
+  connect (mp_ui->on_page_search_edit, SIGNAL (tab_pressed ()), this, SLOT (page_search_next ()));
+  connect (mp_ui->on_page_search_edit, SIGNAL (backtab_pressed ()), this, SLOT (page_search_prev ()));
   connect (mp_ui->on_page_search_edit, SIGNAL (returnPressed ()), this, SLOT (page_search_next ()));
   connect (mp_ui->on_page_search_next, SIGNAL (clicked ()), this, SLOT (page_search_next ()));
+  connect (mp_ui->on_page_search_prev, SIGNAL (clicked ()), this, SLOT (page_search_prev ()));
   connect (mp_ui->action_find, SIGNAL (triggered ()), this, SLOT (find ()));
   connect (mp_ui->action_bookmark, SIGNAL (triggered ()), this, SLOT (bookmark ()));
   connect (mp_ui->action_delete_bookmark, SIGNAL (triggered ()), this, SLOT (delete_bookmark ()));
@@ -382,6 +385,8 @@ BrowserPanel::update_search_highlights ()
     }
 
   }
+
+  mp_ui->browser->setExtraSelections (m_search_selection);
 }
 
 void
@@ -391,7 +396,6 @@ BrowserPanel::page_search_edited ()
 
   if (! m_search_selection.empty ()) {
     m_search_index = 0;
-    mp_ui->browser->setExtraSelections (m_search_selection);
     mp_ui->browser->setTextCursor (m_search_selection [m_search_index].cursor);
   }
 }
@@ -399,16 +403,40 @@ BrowserPanel::page_search_edited ()
 void
 BrowserPanel::page_search_next ()
 {
-  if (m_search_index >= 0) {
-
-    ++m_search_index;
-    if (m_search_index >= m_search_selection.size ()) {
-      m_search_index = 0;
-    }
-
-    mp_ui->browser->setTextCursor (m_search_selection [m_search_index].cursor);
-
+  if (m_search_index < 0) {
+    m_search_index = 0;
   }
+
+  ++m_search_index;
+  page_search_set ();
+}
+
+void
+BrowserPanel::page_search_prev ()
+{
+  if (m_search_index > int (m_search_selection.size ())) {
+    m_search_index = int (m_search_selection.size ());
+  }
+
+  --m_search_index;
+  page_search_set ();
+}
+
+void
+BrowserPanel::page_search_set ()
+{
+  if (m_search_selection.empty ()) {
+    m_search_index = -1;
+    return;
+  }
+
+  if (m_search_index < 0) {
+    m_search_index = int (m_search_selection.size ()) - 1;
+  } else if (m_search_index >= m_search_selection.size ()) {
+    m_search_index = 0;
+  }
+
+  mp_ui->browser->setTextCursor (m_search_selection [m_search_index].cursor);
 }
 
 void
