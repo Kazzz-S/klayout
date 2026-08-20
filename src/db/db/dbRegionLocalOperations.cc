@@ -888,10 +888,10 @@ std::map<unsigned int, db::Coord>
 check_local_operation<TS, TI>::override_distance () const
 {
   //  makes sure, the "foreign"-type pseudo-intruder used for merging only
-  //  does not use the full search range, but only "touching".
+  //  does not use the full search range, but only "touching" (distance 1).
   std::map<unsigned int, db::Coord> od;
   if (check_local_operation_base<TS, TI>::m_has_other) {
-    od.insert (std::make_pair (1, 0));
+    od.insert (std::make_pair (1, 1));
   }
   return od;
 }
