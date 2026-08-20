@@ -2144,6 +2144,18 @@ TEST(151d_edges_from_region_with_properties)
   run_test (_this, "151", true);
 }
 
+// issue #2416
+TEST(152_sep_with_props)
+{
+  run_test (_this, "152", false);
+}
+
+TEST(152d_sep_with_props)
+{
+  run_test (_this, "152", true);
+}
+
+// issue #2423
 TEST(153_issue_2423)
 {
   run_test (_this, "153", false);
