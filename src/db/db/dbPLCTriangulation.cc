@@ -241,35 +241,35 @@ Triangulation::insert (Vertex *vertex, std::list<tl::weak_ptr<Polygon> > *new_tr
   }
 
   //  check, if the new vertex is on an edge (may be edge between triangles or edge on outside)
-  std::vector<Edge *> on_edges;
+  Edge *on_edge = 0;
   std::vector<Edge *> on_vertex;
   for (int i = 0; i < 3; ++i) {
+
     Edge *e = tris.front ()->edge (i);
-#if 0 // @@@
-    if (e->side_of (*vertex) == 0) {
-#else // @@@
+
     auto ee = e->edge ();
-    double snap = 1e-3;
-    if (std::abs (ee.distance (*vertex)) < snap * ee.length ()) {
-#endif // @@@
-      if (is_equal (*vertex, *e->v1 ()) || is_equal (*vertex, *e->v2 ())) {
+    double snap_range = 1e-5 * ee.length ();
+
+    // @@@ refine? generalize "snap_range"? change "is_equal" in general?
+    if (std::abs (ee.distance (*vertex)) < snap_range) {
+      if (vertex->distance (*e->v1 ()) < snap_range || vertex->distance (*e->v2 ()) < snap_range) {
         on_vertex.push_back (e);
-      } else {
-        on_edges.push_back (e);
+      } else if (! on_edge) {
+        on_edge = e;
       }
     }
+
   }
 
-  if (! on_vertex.empty ()) {
+  if (on_edge) {
+
+    split_triangles_on_edge (vertex, on_edge, new_triangles);
+    return vertex;
+
+  } else if (! on_vertex.empty ()) {
 
     tl_assert (on_vertex.size () == size_t (2));
     return on_vertex.front ()->common_vertex (on_vertex [1]);
-
-  } else if (! on_edges.empty ()) {
-
-    tl_assert (on_edges.size () == size_t (1));
-    split_triangles_on_edge (vertex, on_edges.front (), new_triangles);
-    return vertex;
 
   } else if (tris.size () == size_t (1)) {
 
