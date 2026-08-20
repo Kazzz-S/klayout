@@ -1237,7 +1237,12 @@ AsIfFlatRegion::run_check (db::edge_relation_type rel, bool different_polygons, 
     different_polygons = true;
   }
 
-  bool needs_merged_primary = (! other && different_polygons) || options.needs_merged ();
+  //  in some cases we need merged primary polygons:
+  //  1.) isolated check (same layer, but different polygons)
+  //  2.) options need merged edges (projection limits, rectangle filter, opposite filter)
+  //  3.) prop_ne constraint - in that case, merge must not be applied internally after properties have been separated
+  bool needs_merged_primary = (! other && different_polygons) || options.needs_merged () || pc_always_different (options.prop_constraint);
+
   bool primary_is_merged = is_merged ();
   db::RegionIterator polygons;
 
