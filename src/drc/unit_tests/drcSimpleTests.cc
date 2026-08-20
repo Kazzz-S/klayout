@@ -2143,3 +2143,13 @@ TEST(151d_edges_from_region_with_properties)
 {
   run_test (_this, "151", true);
 }
+
+TEST(152_issue_2423)
+{
+  run_test (_this, "152", false);
+}
+
+TEST(152d_issue_2423)
+{
+  run_test (_this, "152", true);
+}
