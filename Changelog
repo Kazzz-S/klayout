@@ -1,3 +1,23 @@
+0.30.10          (2026-08-22):
+* Enhancement: %GITHUB%/issues/2374 LEF/DEF Import - skip duplicate Macros feature
+* Enhancement: %GITHUB%/issues/2407 Visualize "Select" and "Partial" via selection box style
+* Bugfix: %GITHUB%/issues/2416 Two-layer DRC check without merged first input produces separation violations that 0.30.9 does not reportbug
+* Enhancement: %GITHUB%/issues/2417 Better error message in LVS "name" function
+* Bugfix: %GITHUB%/issues/2419 Arc disappears when zoomed in and all anchor points are outside the viewportbug
+* Bugfix: %GITHUB%/issues/2423 DRC regression (separation check)
+* Bugfix: DXF - avoiding generating duplicates of zero layer during DXF read/write spin.
+* Bugfix: PCellDeclarationHelper documentation for Python was not visible in Assistant
+* Enhancement: Text markers can now be configured to have a filled text box
+* Bugfix: Python does not generate "long long" Variant types when not required
+* Bugfix: Labels with unconfigured text height and without a default text height set are consistently non-scaling now
+* Bugfix: Avoid a segfault when using an invalid font number in labels
+* Bugfix: Edge layers are ignored in flat LVS's name() function like in deep mode
+* Bugfix: Fixing an issue with the Macro Editors search function - page does not jump to search position
+* Enhancement: Help browser on-page search function now supports search forward and backward
+* Enhancement: Experimental support for custom PCell parameter pages
+  With this feature, a PCell can supply a custom-made parameter page. For details
+  and a sample see the "PCellParametersPage" class documentation.
+
 0.30.10          (2026-07-25):
 * Bugfix: %GITHUB%/issues/2384 Deep DRC failure with scaled instances
 * Enhancement: %GITHUB%/issues/2391 Grid Features: switching between coarser and finier grids with keyboard shortcut
