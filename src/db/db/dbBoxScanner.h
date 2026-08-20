@@ -297,10 +297,10 @@ public:
    *  @brief Get the interactions between the stored objects
    *
    *  Two objects interact if the boxes of the objects enlarged by the given value overlap.
-   *  The enlargement is specified in units of width and height, i.e. half of the enlargement
-   *  is applied to one side before the overlap check.
    *
-   *  An enlargement of 1 means that boxes have to touch only in order to get an interaction.
+   *  An enlargement of 1 means that boxes have to touch in order to get an interaction.
+   *  An enlargement of 0 means that boxes have to overlap in order to get an interaction.
+   *  To capture interactions between object precisely spaced d, use d+1 for the enlargement.
    *
    *  The box scanner will report all interactions to the receiver object. See box_scanner_receiver
    *  for details about the methods that this object must provide. 

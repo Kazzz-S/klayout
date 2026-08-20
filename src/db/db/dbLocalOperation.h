@@ -114,7 +114,8 @@ public:
 
   /**
    *  @brief Gets the interaction distance
-   *  A distance of means the shapes must overlap in order to interact.
+   *  A distance of zero means the shapes must overlap in order to interact.
+   *  A distance of 1 means the shapes need to touch in order to interact.
    */
   virtual db::Coord dist () const { return 0; }
 

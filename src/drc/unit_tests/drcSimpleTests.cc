@@ -2154,3 +2154,14 @@ TEST(152d_sep_with_props)
 {
   run_test (_this, "152", true);
 }
+
+// issue #2423
+TEST(153_issue_2423)
+{
+  run_test (_this, "153", false);
+}
+
+TEST(153d_issue_2423)
+{
+  run_test (_this, "153", true);
+}
