@@ -346,7 +346,7 @@ BrowserPanel::find ()
 }
 
 void
-BrowserPanel::page_search_edited ()
+BrowserPanel::update_search_highlights ()
 {
   m_search_selection.clear ();
   m_search_index = -1;
@@ -382,6 +382,12 @@ BrowserPanel::page_search_edited ()
     }
 
   }
+}
+
+void
+BrowserPanel::page_search_edited ()
+{
+  update_search_highlights ();
 
   if (! m_search_selection.empty ()) {
     m_search_index = 0;
@@ -440,7 +446,7 @@ BrowserPanel::new_url ()
   emit title_changed (title);
 
   //  refresh on-page search
-  page_search_edited ();
+  update_search_highlights ();
 }
 
 void
