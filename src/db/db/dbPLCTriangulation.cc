@@ -245,7 +245,13 @@ Triangulation::insert (Vertex *vertex, std::list<tl::weak_ptr<Polygon> > *new_tr
   std::vector<Edge *> on_vertex;
   for (int i = 0; i < 3; ++i) {
     Edge *e = tris.front ()->edge (i);
+#if 0 // @@@
     if (e->side_of (*vertex) == 0) {
+#else // @@@
+    auto ee = e->edge ();
+    double snap = 1e-3;
+    if (std::abs (ee.distance (*vertex)) < snap * ee.length ()) {
+#endif // @@@
       if (is_equal (*vertex, *e->v1 ()) || is_equal (*vertex, *e->v2 ())) {
         on_vertex.push_back (e);
       } else {

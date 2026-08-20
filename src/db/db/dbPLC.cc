@@ -918,24 +918,24 @@ Graph::to_layout (bool decompose_by_id) const
   unsigned int l21 = layout->insert_layer (db::LayerProperties (21, 0));
   unsigned int l22 = layout->insert_layer (db::LayerProperties (22, 0));
 
-  std::vector<db::DPoint> pts;
+  std::vector<db::Point> pts;
   for (auto t = mp_polygons.begin (); t != mp_polygons.end (); ++t) {
     pts.clear ();
     for (int i = 0; i < int (t->size ()); ++i) {
-      pts.push_back (*t->vertex (i));
+      pts.push_back (dbu_trans * *t->vertex (i));
     }
-    db::DPolygon poly;
-    poly.assign_hull (pts.begin (), pts.end ());
-    top.shapes (t->is_outside () ? l2 : l1).insert (dbu_trans * poly);
+    db::Polygon poly;
+    poly.assign_hull (pts.begin (), pts.end (), false, false);
+    top.shapes (t->is_outside () ? l2 : l1).insert (poly);
     if (decompose_by_id) {
       if ((t->id () & 1) != 0) {
-        top.shapes (l20).insert (dbu_trans * poly);
+        top.shapes (l20).insert (poly);
       }
       if ((t->id () & 2) != 0) {
-        top.shapes (l21).insert (dbu_trans * poly);
+        top.shapes (l21).insert (poly);
       }
       if ((t->id () & 4) != 0) {
-        top.shapes (l22).insert (dbu_trans * poly);
+        top.shapes (l22).insert (poly);
       }
     }
   }
