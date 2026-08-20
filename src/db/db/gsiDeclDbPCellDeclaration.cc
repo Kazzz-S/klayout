@@ -35,11 +35,13 @@ namespace gsi
 //  db::PCellParameterPageBase binding
 
 //  Provide a binding for db::PCellDeclaration for native PCell implementations
-DB_PUBLIC Class<db::PCellParametersPageBase> decl_dbPCellParametersPageBase ("db", "PCellParametersPageBase",
+Class<db::PCellParametersPageBase> pcell_parameter_page_base_decl ("db", "PCellParametersPageBase",
   gsi::Methods (),
   "@hide.\n"
   "This abstract base class for PCell parameter pages has been introduced in version 0.30.11.\n"
 );
+
+DB_PUBLIC Class<db::PCellParametersPageBase> &decl_dbPCellParametersPageBase () { return pcell_parameter_page_base_decl; }
 
 // ---------------------------------------------------------------
 //  db::PCellDeclaration binding

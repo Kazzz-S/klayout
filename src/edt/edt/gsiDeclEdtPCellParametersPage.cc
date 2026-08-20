@@ -107,9 +107,9 @@ public:
 };
 
 //  borrowed from the db module
-extern gsi::Class<db::PCellParametersPageBase> decl_dbPCellParametersPageBase;
+DB_PUBLIC gsi::Class<db::PCellParametersPageBase> &decl_dbPCellParametersPageBase ();
 
-gsi::Class<edt::PCellParametersPageBase> decl_PCellParametersPage_Native (decl_dbPCellParametersPageBase, "lay", "PCellParametersPage_Native",
+gsi::Class<edt::PCellParametersPageBase> decl_PCellParametersPage_Native (decl_dbPCellParametersPageBase (), "lay", "PCellParametersPage_Native",
   gsi::method ("dense", &edt::PCellParametersPageBase::dense,
     "@brief Gets a value indicating whether a dense layout is requested.\n"
     "A dense alyout is requested when the page is needed for an embedded PCell parameter page, for\n"
