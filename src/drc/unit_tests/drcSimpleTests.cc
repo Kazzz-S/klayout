@@ -2144,12 +2144,12 @@ TEST(151d_edges_from_region_with_properties)
   run_test (_this, "151", true);
 }
 
-TEST(152_issue_2423)
+TEST(153_issue_2423)
 {
-  run_test (_this, "152", false);
+  run_test (_this, "153", false);
 }
 
-TEST(152d_issue_2423)
+TEST(153d_issue_2423)
 {
-  run_test (_this, "152", true);
+  run_test (_this, "153", true);
 }
