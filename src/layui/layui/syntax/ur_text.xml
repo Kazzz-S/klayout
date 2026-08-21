@@ -13,7 +13,8 @@
 				<DetectChar attribute="Raw String" char="'" context="Apostrophed Key String"/>
 
 				<RegExpr attribute="Float" String="##\s*\-?[0-9]([0-9]|_[0-9])*(\.[0-9]([0-9]|_[0-9])*)?([eE]\-?[1-9]([0-9]|_[0-9])*(\.[0-9]*)?)?" context="After Key"/>
-				<RegExpr attribute="Dec" String="#\s*\-?[1-9]([0-9]|_[0-9])*" context="After Key"/>
+				<RegExpr attribute="Dec" String="#\s*((l|u|lu)\s*)?\-?[1-9]([0-9]|_[0-9])*" context="After Key"/>
+				<RegExpr attribute="Special" String="(false|true|nil)" context="After Key"/>
 				<RegExpr attribute="Symbol" String="[_A-Za-z0-9]+\b" context="After Key"/>
 
 				<RegExpr attribute="Error" String="[^\s]" context="Error"/>
@@ -31,7 +32,8 @@
 				<DetectChar attribute="Raw String" char="'" context="Apostrophed Value String"/>
 
 				<RegExpr attribute="Float" String="##\s*\-?[0-9]([0-9]|_[0-9])*(\.[0-9]([0-9]|_[0-9])*)?([eE]\-?[1-9]([0-9]|_[0-9])*(\.[0-9]*)?)?" context="After Value"/>
-				<RegExpr attribute="Dec" String="#\s*\-?[1-9]([0-9]|_[0-9])*" context="After Value"/>
+				<RegExpr attribute="Dec" String="#\s*((l|u|lu)\s*)?\-?[1-9]([0-9]|_[0-9])*" context="After Value"/>
+				<RegExpr attribute="Special" String="(false|true|nil)" context="After Value"/>
 				<RegExpr attribute="Symbol" String="[_A-Za-z0-9]+\b" context="After Value"/>
 
 				<RegExpr attribute="Normal" String="\s+" context="Value"/>
@@ -77,6 +79,7 @@
 			<itemData name="Dec" defStyleNum="dsDecVal"/>
 			<itemData name="Float" defStyleNum="dsFloat"/>
 			<itemData name="Symbol" defStyleNum="dsString" color="#D40000"/>
+			<itemData name="Special" defStyleNum="dsString" color="#808080"/>
 			<itemData name="String" defStyleNum="dsString"/>
 			<itemData name="Raw String" defStyleNum="dsString" color="#DD4A4A" selColor="#DD4A4A"/>
 

@@ -3209,6 +3209,24 @@ class BasicTest(unittest.TestCase):
 
     self.assertEqual(pya.A.ba_to_ia(b'\x00\x01\x02'), [ 0, 1, 2 ])
 
+  def test_variant_formation(self):
+
+    self.assertEqual(pya.A.var2s(1.5), "##1.5")
+    self.assertEqual(pya.A.var2s(-17), "#-17")
+    self.assertEqual(pya.A.var2s("abc"), "'abc'")
+    self.assertEqual(pya.A.var2s(None), "nil")
+    self.assertEqual(pya.A.var2s(True), "true")
+    self.assertEqual(pya.A.var2s(False), "false")
+    self.assertEqual(pya.A.var2s(pya.DBox(0, 0, 10, 20)), "[dbox:(0,0;10,20)]")
+    self.assertEqual(pya.A.var2s([ 0.5, "hello" ]), "(##0.5,'hello')")
+    self.assertEqual(pya.A.var2s(( 0.5, "hello" )), "(##0.5,'hello')")
+    self.assertEqual(pya.A.var2s([ 0.5, [ 1, 2 ] ]), "(##0.5,(#1,#2))")
+    self.assertEqual(pya.A.var2s({ 1: 'one', 'two': 17 }), "{#1=>'one','two'=>#17}")
+    if pya.A.l_size() == 4:
+      self.assertEqual(pya.A.var2s(100000000000), "#l100000000000")
+    else:
+      self.assertEqual(pya.A.var2s(100000000000), "#100000000000")
+
   # Tests multi-base mixins (only constants and enums available)
   def test_multiBaseMixins(self):
     

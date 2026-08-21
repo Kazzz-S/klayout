@@ -103,7 +103,7 @@ static bool is_orthogonal (const db::DVector &rv, const db::DVector &cv)
 }
 
 InstPropertiesPage::InstPropertiesPage (edt::Service *service, db::Manager *manager, QWidget *parent)
-  : lay::PropertiesPage (parent, manager, service), mp_service (service), m_enable_cb_callback (true), mp_pcell_parameters (0)
+  : lay::PropertiesPage (parent, manager, service), mp_service (service), m_enable_cb_callback (true), mp_pcell_parameters ()
 {
   m_selection_ptrs.reserve (service->selection_size ());
   for (EditableSelectionIterator s = service->begin_selection (); ! s.at_end (); ++s) {
@@ -600,7 +600,7 @@ InstPropertiesPage::create_applicator (db::Cell & /*cell*/, const db::Instance &
 
       //  instantiates the PCell
       if (pci.first) {
-        tl_assert (mp_pcell_parameters != 0);
+        tl_assert (mp_pcell_parameters.get () != 0);
         tl_assert (layout->pcell_declaration (pci.second) == mp_pcell_parameters->pcell_decl ());
         inst_cell_index = layout->get_pcell_variant (pci.second, mp_pcell_parameters->get_parameters ());
       } else {
@@ -623,7 +623,7 @@ InstPropertiesPage::create_applicator (db::Cell & /*cell*/, const db::Instance &
 
       std::map<std::string, tl::Variant> modified_param_by_name;
 
-      tl_assert (mp_pcell_parameters);
+      tl_assert (mp_pcell_parameters.get () != 0);
 
       std::vector<tl::Variant> param = mp_pcell_parameters->get_parameters (0);
       std::vector<tl::Variant> initial_param = mp_pcell_parameters->initial_parameters ();
@@ -1033,15 +1033,27 @@ InstPropertiesPage::update_pcell_parameters ()
     } else {
 
       //  Hint: we shall not delete the page immediately. This gives a segmentation fault in some cases.
-      if (mp_pcell_parameters) {
-        mp_pcell_parameters->hide ();
-        mp_pcell_parameters->deleteLater ();
+      if (mp_pcell_parameters.get ()) {
+        mp_pcell_parameters.release ()->delete_later ();
       }
 
-      mp_pcell_parameters = new PCellParametersPage (pcell_tab, mp_service->view ()->dispatcher ());
-      connect (mp_pcell_parameters, SIGNAL (edited ()), this, SIGNAL (edited ()));
-      mp_pcell_parameters->setup (mp_service->view (), pos->cv_index (), layout->pcell_declaration (pc.second), parameters);
-      pcell_tab->layout ()->addWidget (mp_pcell_parameters);
+      db::PCellParametersPageBase *pp = pcell_decl->create_parameters_page ();
+
+      mp_pcell_parameters.reset (dynamic_cast<edt::PCellParametersPageBase *> (pp));
+      if (! mp_pcell_parameters.get ()) {
+        if (pp) {
+          //  not useful.
+          delete pp;
+        }
+        mp_pcell_parameters.reset (new PCellParametersPage ());
+      }
+
+      //  NOTE: these functions must be called in that order
+      mp_pcell_parameters->set_parent (pcell_tab);
+      mp_pcell_parameters->setup (mp_service->view (), mp_service->view ()->dispatcher (), pos->cv_index (), pcell_decl, parameters);
+      mp_pcell_parameters->edited.add (this, &InstPropertiesPage::pcell_parameters_edited);
+
+      pcell_tab->layout ()->addWidget (mp_pcell_parameters->page_widget ());
 
     }
 
@@ -1050,12 +1062,9 @@ InstPropertiesPage::update_pcell_parameters ()
   } else {
 
     //  Hint: we shall not delete the page immediately. This gives a segmentation fault in some cases.
-    if (mp_pcell_parameters) {
-      mp_pcell_parameters->hide ();
-      mp_pcell_parameters->deleteLater ();
+    if (mp_pcell_parameters.get ()) {
+      mp_pcell_parameters.release ()->delete_later ();
     }
-
-    mp_pcell_parameters = 0;
 
     if (param_tab_widget->currentIndex () == 1) {
       param_tab_widget->setCurrentIndex (0);
@@ -1064,6 +1073,12 @@ InstPropertiesPage::update_pcell_parameters ()
 
   }
 
+}
+
+void
+InstPropertiesPage::pcell_parameters_edited ()
+{
+  emit edited ();
 }
 
 }

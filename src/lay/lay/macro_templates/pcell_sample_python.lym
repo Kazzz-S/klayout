@@ -8,7 +8,7 @@
  <shortcut></shortcut>
  <category>pymacros</category>
  <interpreter>python</interpreter>
- <text>import pya
+ <text>import klayout.db as kdb
 import math
 
 """
@@ -22,7 +22,7 @@ implementation. The macro is also set to "auto run" to install the PCell
 when KLayout is run.
 """
 
-class Circle(pya.PCellDeclarationHelper):
+class Circle(kdb.PCellDeclarationHelper):
   """
   The PCell declaration for the circle
   """
@@ -34,7 +34,7 @@ class Circle(pya.PCellDeclarationHelper):
 
     # declare the parameters
     self.param("l", self.TypeLayer, "Layer")
-    self.param("s", self.TypeShape, "", default = pya.DPoint(0, 0))
+    self.param("s", self.TypeShape, "", default = kdb.DPoint(0, 0))
     self.param("r", self.TypeDouble, "Radius", default = 0.1)
     self.param("n", self.TypeInt, "Number of points", default = 64)     
     # this hidden parameter is used to determine whether the radius has changed
@@ -53,15 +53,15 @@ class Circle(pya.PCellDeclarationHelper):
     # radius ru) and set ru to the effective radius. We also update the 
     # numerical value or the shape, depending on which on has not changed.
     rs = None
-    if isinstance(self.s, pya.DPoint): 
+    if isinstance(self.s, kdb.DPoint): 
       # compute distance in micron
-      rs = self.s.distance(pya.DPoint(0, 0))
+      rs = self.s.distance(kdb.DPoint(0, 0))
     if rs != None and abs(self.r-self.ru) &lt; 1e-6:
       self.ru = rs
       self.r = rs 
     else:
       self.ru = self.r
-      self.s = pya.DPoint(-self.r, 0)
+      self.s = kdb.DPoint(-self.r, 0)
     
     self.rd = 2*self.r
     
@@ -83,7 +83,7 @@ class Circle(pya.PCellDeclarationHelper):
   def transformation_from_shape_impl(self):
     # Implement the "Create PCell from shape" protocol: we use the center of the shape's
     # bounding box to determine the transformation
-    return pya.Trans(self.shape.bbox().center())
+    return kdb.Trans(self.shape.bbox().center())
   
   def produce_impl(self):
   
@@ -91,13 +91,13 @@ class Circle(pya.PCellDeclarationHelper):
 
     # compute the circle
     da = math.pi * 2 / self.n
-    pts = [ pya.DPoint(self.ru * math.cos(i * da), self.ru * math.sin(i * da)) for i in range(0, self.n) ]
+    pts = [ kdb.DPoint(self.ru * math.cos(i * da), self.ru * math.sin(i * da)) for i in range(0, self.n) ]
     
     # create the shape
-    self.cell.shapes(self.l_layer).insert(pya.DPolygon(pts))
+    self.cell.shapes(self.l_layer).insert(kdb.DPolygon(pts))
 
 
-class MyLib(pya.Library):
+class MyLib(kdb.Library):
   """
   The library where we will put the PCell into 
   """

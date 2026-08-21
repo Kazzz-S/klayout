@@ -447,6 +447,8 @@ CellViewSelectionComboBox::CellViewSelectionComboBox (QWidget *parent)
 {
   mp_private = new CellViewSelectionComboBoxPrivateData ();
   mp_private->layout_view = 0;
+
+  connect (this, SIGNAL (currentIndexChanged (int)), this, SLOT (cb_activated (int)));
 }
 
 CellViewSelectionComboBox::~CellViewSelectionComboBox ()
@@ -466,6 +468,12 @@ CellViewSelectionComboBox::set_layout_view (const lay::LayoutViewBase *layout_vi
 {
   //  TODO: should register a listener, so it does the update automatically.
   mp_private->layout_view = layout_view;
+
+  if (! layout_view) {
+    clear ();
+    set_current_cv_index (-1);
+    return;
+  }
 
   int current = current_cv_index ();
 
@@ -496,6 +504,12 @@ int
 CellViewSelectionComboBox::current_cv_index () const
 {
   return currentIndex ();
+}
+
+void
+CellViewSelectionComboBox::cb_activated (int index)
+{
+  emit current_cv_index_changed (index);
 }
 
 // -------------------------------------------------------------
@@ -845,7 +859,7 @@ LayerSelectionComboBox::set_current_layer (int l)
 bool
 LayerSelectionComboBox::is_no_layer_selected () const
 {
-  return currentIndex () < 0;
+  return currentIndex () < 0 || (mp_private->no_layer_available && currentIndex () == 0);
 }
 
 int
@@ -916,6 +930,8 @@ LibrarySelectionComboBox::LibrarySelectionComboBox (QWidget *parent)
   : QComboBox (parent), m_tech_set (false)
 {
   update_list ();
+
+  connect (this, SIGNAL (currentIndexChanged (int)), this, SLOT (cb_activated (int)));
 }
 
 void
@@ -933,7 +949,7 @@ LibrarySelectionComboBox::update_list ()
 {
   bool wasBlocked = blockSignals (true);
 
-  db::Library *lib = current_library ();
+  db::Library *org_lib = current_library ();
 
   clear ();
 
@@ -959,9 +975,13 @@ LibrarySelectionComboBox::update_list ()
 
   }
 
-  set_current_library (lib);
+  do_set_current_library (org_lib);
 
   blockSignals (wasBlocked);
+
+  if (current_library () != org_lib) {
+    emit library_changed (current_library ());
+  }
 }
 
 LibrarySelectionComboBox::~LibrarySelectionComboBox ()
@@ -973,23 +993,27 @@ void
 LibrarySelectionComboBox::set_current_library (db::Library *lib)
 {
   if (lib != current_library ()) {
-
-    for (int i = 0; i < count (); ++i) {
-      QVariant data = itemData (i);
-      db::Library *item_lib = 0;
-      if (! data.isNull ()) {
-        item_lib = db::LibraryManager::instance ().lib (data.value<db::lib_id_type> ());
-      }
-      if (item_lib == lib) {
-        setCurrentIndex (i);
-        return;
-      }
-    }
-
-    //  fallback: not a valid library pointer
-    setCurrentIndex (-1);
-
+    do_set_current_library (lib);
   }
+}
+
+void
+LibrarySelectionComboBox::do_set_current_library (db::Library *lib)
+{
+  for (int i = 0; i < count (); ++i) {
+    QVariant data = itemData (i);
+    db::Library *item_lib = 0;
+    if (! data.isNull ()) {
+      item_lib = db::LibraryManager::instance ().lib (data.value<db::lib_id_type> ());
+    }
+    if (item_lib == lib) {
+      setCurrentIndex (i);
+      return;
+    }
+  }
+
+  //  fallback: not a valid library pointer
+  setCurrentIndex (-1);
 }
 
 db::Library *
@@ -1001,6 +1025,17 @@ LibrarySelectionComboBox::current_library () const
   } else {
     return db::LibraryManager::instance ().lib (data.value<db::lib_id_type> ());
   }
+}
+
+void
+LibrarySelectionComboBox::cb_activated (int index)
+{
+  QVariant data = itemData (index);
+  db::Library *lib = 0;
+  if (! data.isNull ()) {
+    lib = db::LibraryManager::instance ().lib (data.value<db::lib_id_type> ());
+  }
+  emit library_changed (lib);
 }
 
 // -------------------------------------------------------------

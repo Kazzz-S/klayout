@@ -20,7 +20,7 @@ public:
   /**
    *  @brief ctor
    */
-  FixedFont (unsigned int h, unsigned int lh, unsigned int w, unsigned char c0, unsigned char nc, uint32_t *d, unsigned int stride);
+  FixedFont (unsigned int h, unsigned int ch, unsigned int asc, unsigned int desc, unsigned int lh, unsigned int w, unsigned char c0, unsigned char nc, uint32_t *d, unsigned int stride);
 
   /**
    *  @brief Factory
@@ -60,6 +60,30 @@ public:
   unsigned int height () const
   {
     return m_height;
+  }
+
+  /**
+   *  @brief Capital letter height
+   */
+  unsigned int cap_height () const
+  {
+    return m_cap_height;
+  }
+
+  /**
+   *  @brief Ascent value (above baseline)
+   */
+  unsigned int ascent () const
+  {
+    return m_ascent;
+  }
+
+  /**
+   *  @brief Descent value (below baseline)
+   */
+  unsigned int descent () const
+  {
+    return m_descent;
   }
 
   /**
@@ -111,7 +135,7 @@ public:
   }
 
 private:
-  unsigned int m_height, m_line_height, m_width;
+  unsigned int m_height, m_cap_height, m_ascent, m_descent, m_line_height, m_width;
   unsigned char m_first_char;
   unsigned char m_n_chars;
   uint32_t *mp_data;

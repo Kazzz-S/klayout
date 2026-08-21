@@ -933,7 +933,7 @@ gsi::EnumIn<db::CompoundRegionOperationNode, db::RegionBBoxFilter::parameter_typ
   gsi::enum_const ("BoxAverageDim", db::RegionBBoxFilter::BoxAverageDim,
     "@brief Measures the average of width and height of the bounding box\n"
   ),
-  "@brief This class represents the parameter type enum used in \\CompoundRegionOperationNode#new_bbox_filter\n"
+  "@brief This class represents the parameter type enum used in CompoundRegionOperationNode#new_bbox_filter\n"
   "\n"
   "This enum has been introduced in version 0.27."
 );
@@ -948,7 +948,7 @@ gsi::EnumIn<db::CompoundRegionOperationNode, db::RegionRatioFilter::parameter_ty
   gsi::enum_const ("RelativeHeight", db::RegionRatioFilter::RelativeHeight,
     "@brief Measures the relative height (height / width)\n"
   ),
-  "@brief This class represents the parameter type enum used in \\CompoundRegionOperationNode#new_ratio_filter\n"
+  "@brief This class represents the parameter type enum used in CompoundRegionOperationNode#new_ratio_filter\n"
   "\n"
   "This enum has been introduced in version 0.27."
 );

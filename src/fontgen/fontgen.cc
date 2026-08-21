@@ -72,7 +72,7 @@ main (int argc, char *argv [])
     for (int s = 0; s < font_sizes; ++s) {
 
       char b[1024];
-      sprintf (b, "  FixedFont (ff%d_height, ff%d_line_height, ff%d_width, ff%d_first_char, sizeof (ff%d_data) / sizeof (uint32_t) / (ff%d_height * ff%d_stride), ff%d_data, ff%d_stride),\n", os, os, os, os, os, os, os, os, os);
+      sprintf (b, "  FixedFont (ff%d_height, ff%d_cap_height, ff%d_ascent, ff%d_descent, ff%d_line_height, ff%d_width, ff%d_first_char, sizeof (ff%d_data) / sizeof (uint32_t) / (ff%d_height * ff%d_stride), ff%d_data, ff%d_stride),\n", os, os, os, os, os, os, os, os, os, os, os, os);
       table += b;
 
       QFont f (QString::fromLatin1 (font_name), r * sz[s]);
@@ -83,8 +83,17 @@ main (int argc, char *argv [])
       int w = fm.averageCharWidth ();
 
       printf ("\n// Font: %s\n", f.toString ().toLatin1 ().constData ());
-      printf ("const unsigned int ff%d_height = %d;\nconst unsigned int ff%d_line_height = %d;\nconst unsigned int ff%d_width = %d;\nconst unsigned int ff%d_stride = %d;\n",
-        os, fm.height (), os, fm.lineSpacing (), os, w, os, (w + 31) / 32);
+      printf ("const unsigned int ff%d_height = %d;\n", os, fm.height ());
+#if QT_VERSION < 0x050800
+      printf ("const unsigned int ff%d_cap_height = %d;\n", os, fm.ascent ());
+#else
+      printf ("const unsigned int ff%d_cap_height = %d;\n", os, fm.capHeight ());
+#endif
+      printf ("const unsigned int ff%d_ascent = %d;\n", os, fm.ascent ());
+      printf ("const unsigned int ff%d_descent = %d;\n", os, fm.descent ());
+      printf ("const unsigned int ff%d_line_height = %d;\n", os, fm.lineSpacing ());
+      printf ("const unsigned int ff%d_width = %d;\n", os, w);
+      printf ("const unsigned int ff%d_stride = %d;\n", os, (w + 31) / 32);
 
       printf ("const unsigned char ff%d_first_char = ' ';\n\nuint32_t ff%d_data [] = {\n", os, os);
 

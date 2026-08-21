@@ -30,5 +30,23 @@
     <tr><td>A word (letters, digits and the underscore)</td><td>Taken as a text string</td><td><tt>NAME</tt></td></tr>
   </table>
 
+  <p>
+  There are further notations for more integer types, complex types and literals.
+  Those are not useful in every case. For example, user properties may not support these types:
+  </p>
+
+  <table>
+    <tr><th width="20%">Notation</th><th width="50%">Description</th><th>Example</th></tr>
+    <tr><td><tt>#l</tt>...</td><td>A "long" integer value (32 or 64 bit, depending on the platform)</td><td><tt>#l17</tt></td></tr>
+    <tr><td><tt>#u</tt>...</td><td>An unsigned integer value</td><td><tt>#u17</tt></td></tr>
+    <tr><td><tt>#lu</tt>...</td><td>A "long" unsigned integer value</td><td><tt>#lu17</tt></td></tr>
+    <tr><td><tt>nil</tt></td><td>"nothing" literal</td><td><tt>nil</tt></td></tr>
+    <tr><td><tt>true</tt></td><td>Boolean true literal</td><td><tt>true</tt></td></tr>
+    <tr><td><tt>false</tt></td><td>Boolean false literal</td><td><tt>false</tt></td></tr>
+    <tr><td><tt>[</tt>type<tt>:</tt>...<tt>]</tt></td><td>An object</td><td><tt>[box:(0,0,10,20)]</tt></td></tr>
+    <tr><td><tt>(</tt>...<tt>)</tt></td><td>A list</td><td><tt>(#1,'abc')</tt></td></tr>
+    <tr><td><tt>{</tt>...<tt>}</tt></td><td>A hash</td><td><tt>{#1=>'abc','one'=>#1}</tt></td></tr>
+  </table>
+
 </doc>
 

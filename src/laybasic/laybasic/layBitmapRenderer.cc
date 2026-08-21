@@ -23,6 +23,7 @@
 
 #include "layBitmapRenderer.h"
 #include "layBitmap.h"
+#include "layFixedFont.h"
 
 namespace lay
 {
@@ -396,6 +397,13 @@ BitmapRenderer::draw (const db::Shape &shape, const db::CplxTrans &trans,
         if ((m_apply_text_trans_mode & 1) != 0) {
           h = trans.mag () * (shape.text_size () > 0 ? shape.text_size () : m_default_text_size);
         }
+      }
+
+      if (h == 0.0) {
+        //  for the special case of zero effective height, borrow the height
+        //  from the default font in an unscaling fashion.
+        const lay::FixedFont &ff = lay::FixedFont::get_font (m_font_resolution);
+        h = ff.cap_height ();
       }
 
       db::HAlign halign = shape.text_halign ();
@@ -1103,6 +1111,13 @@ BitmapRenderer::draw (const db::Text &txt, const db::CplxTrans &trans,
       }
     }
 
+    if (h == 0.0) {
+      //  for the special case of zero effective height, borrow the height
+      //  from the default font in an unscaling fashion.
+      const lay::FixedFont &ff = lay::FixedFont::get_font (m_font_resolution);
+      h = ff.cap_height ();
+    }
+
     double fy = 0.0;
     if (txt.valign () == db::VAlignBottom || txt.valign () == db::NoVAlign) {
       fy = 1.0;
@@ -1176,6 +1191,13 @@ BitmapRenderer::draw (const db::DText &txt, const db::DCplxTrans &trans,
       if ((m_apply_text_trans_mode & 1) != 0) {
         h = trans.ctrans (txt.size () > 0 ? txt.size () : m_default_text_size_dbl);
       }
+    }
+
+    if (h == 0.0) {
+      //  for the special case of zero effective height, borrow the height
+      //  from the default font in an unscaling fashion.
+      const lay::FixedFont &ff = lay::FixedFont::get_font (m_font_resolution);
+      h = ff.cap_height ();
     }
 
     double fy = 0.0;

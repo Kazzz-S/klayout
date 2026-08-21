@@ -559,6 +559,16 @@ public:
   }
 
   /**
+   *  @brief Identifies the interpreter running the class
+   *
+   *  The category is a disambiguator for external class (i.e. Python and Ruby versions).
+   */
+  virtual std::string interpreter_name () const
+  {
+    return std::string ();
+  }
+
+  /**
    *  @brief Post-construction initialization
    *
    *  This method will be called by the GSI system to provide initialization after 

@@ -513,7 +513,7 @@ static db::Text dtext_to_text (const db::DText *t, double dbu)
 }
 
 Class<db::DText> decl_DText ("db", "DText",
-  constructor ("new", &dtext_from_itext, gsi::arg ("Text"),
+  constructor ("new", &dtext_from_itext, gsi::arg ("text"),
     "@brief Creates a floating-point coordinate text from an integer coordinate text\n"
     "\n"
     "This constructor has been introduced in version 0.25 and replaces the previous static method 'from_itext'."

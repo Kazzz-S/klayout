@@ -31,15 +31,18 @@
 #include "ui_InstPropertiesPage.h"
 #include "edtService.h"
 
+#include <memory>
+
 namespace edt
 {
 
-class PCellParametersPage;
+class PCellParametersPageBase;
 class ChangeApplicator;
 
 class InstPropertiesPage
   : public lay::PropertiesPage,
-    public Ui::InstPropertiesPage
+    public Ui::InstPropertiesPage,
+    public tl::Object
 {
 Q_OBJECT
 
@@ -57,6 +60,7 @@ public:
 private:
   virtual void update ();
   void recompute_selection_ptrs (const std::vector<lay::ObjectInstPath> &new_sel);
+  void pcell_parameters_edited ();
 
 protected:
   std::vector<EditableSelectionIterator::pointer> m_selection_ptrs;
@@ -64,7 +68,7 @@ protected:
   edt::Service *mp_service;
   bool m_enable_cb_callback;
   db::properties_id_type m_prop_id;
-  edt::PCellParametersPage *mp_pcell_parameters;
+  std::unique_ptr<edt::PCellParametersPageBase> mp_pcell_parameters;
 
   virtual bool readonly ();
   virtual void apply (bool commit);

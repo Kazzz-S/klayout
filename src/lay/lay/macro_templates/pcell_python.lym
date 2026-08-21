@@ -7,18 +7,15 @@
  <show-in-menu>false</show-in-menu>
  <shortcut></shortcut>
  <interpreter>python</interpreter>
- <text>import pya
+ <text>import klayout.db as kdb
 
 # PCell template
 # This macro template provides the framework for a PCell library
 
-# It is recommended to put PCell code into namespaces.
-# TODO: change the module name
-
 # The PCell declaration
 # Each PCell must provide a declaration. It is recommended to use the PCell name as the class name.
 # TODO: change the class name
-class PCell(pya.PCellDeclarationHelper):
+class PCell(kdb.PCellDeclarationHelper):
 
   def __init__(self):
 
@@ -26,8 +23,8 @@ class PCell(pya.PCellDeclarationHelper):
     super(PCell, self).__init__()
 
     # declare the parameters
-    # i.e. self.param("l", self.TypeLayer, "Layer", default = pya.LayerInfo(1, 0))
-    #      self.param("s", self.TypeShape, "", default = pya.DPoint(0, 0))
+    # i.e. self.param("l", self.TypeLayer, "Layer", default = kdb.LayerInfo(1, 0))
+    #      self.param("s", self.TypeShape, "", default = kdb.DPoint(0, 0))
 
   def display_text_impl(self):
     # Provide a descriptive text for the cell
@@ -35,10 +32,12 @@ class PCell(pya.PCellDeclarationHelper):
   
   def coerce_parameters_impl(self):
     # TODO: use x to access parameter x and set_x to modify its value
+    pass
   
   def produce_impl(self):
     # TODO: produce the cell content 
-    # i.e. self.cell.shapes(self.l_layer).insert(pya.Polygon(...))
+    # i.e. self.cell.shapes(self.l_layer).insert(kdb.Polygon(...))
+    pass
 
   # optional:
   # def can_create_from_shape_impl(self):
@@ -60,6 +59,12 @@ class PCell(pya.PCellDeclarationHelper):
   #   TODO: return "True" here if the PCell takes a long time to compute.
   #   In lazy mode, the user has to acknowledge parameter changes before 
   #   they are executed.
+  # 
+  # optional:
+  # def callback_impl(self, name):
+  #   TODO: implement functionality to change user interface element
+  #   states for PCell parameter editors based on certain events
+  #   like value changes.
   
 # TODO: add more PCell classes ..
 
@@ -68,7 +73,7 @@ class PCell(pya.PCellDeclarationHelper):
 # The main purpose of this class is to provide the PCell declarations and to register itself
 # with a proper name.
 # TODO: change the class name
-class PCellLib(pya.Library):
+class PCellLib(kdb.Library):
 
   def __init__(self):
   

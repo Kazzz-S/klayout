@@ -9,7 +9,8 @@
  <group-name/>
  <menu-path/>
  <interpreter>python</interpreter>
- <text>import pya
+ <text>
+import pya
 
 def _qt_signal(s):
   """
@@ -39,9 +40,16 @@ def _getattr_with_child_objects(s, n):
 # If Qt binding is enabled, install the new getattr function.
 # Also install the qt_signal and qt_slot functions which go into the pya module.
 if "QObject_Native" in pya.__dict__:
+
   pya.QObject_Native.__getattr__ = _getattr_with_child_objects
   pya.__dict__["qt_signal"] = _qt_signal
   pya.__dict__["qt_slot"] = _qt_slot
+
+  # Do the same for klayout.QtCore
+  import klayout.QtCore
+  klayout.QtCore.QObject_Native.__getattr__ = _getattr_with_child_objects
+  klayout.QtCore.__dict__["qt_signal"] = _qt_signal
+  klayout.QtCore.__dict__["qt_slot"] = _qt_slot
 
 </text>
 </klayout-macro>

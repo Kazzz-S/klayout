@@ -270,7 +270,12 @@ tl::Variant python2c_func<tl::Variant>::operator() (PyObject *rval)
   } else if (PyBool_Check (rval)) {
     return tl::Variant (python2c<bool> (rval));
   } else if (PyLong_Check (rval)) {
-    return tl::Variant (python2c<long long> (rval));
+    long long ll = python2c<long long> (rval);
+    if (ll >= (long long) std::numeric_limits<long>::min () && ll <= (long long) std::numeric_limits<long>::max ()) {
+      return tl::Variant ((long) ll);
+    } else {
+      return tl::Variant (ll);
+    }
 #if PY_MAJOR_VERSION < 3
   } else if (PyInt_Check (rval)) {
     return tl::Variant (python2c<int> (rval));

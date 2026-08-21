@@ -439,8 +439,9 @@ public slots:
 
 protected slots:
   void page_search_edited ();
-  void page_search_next();
-  void search_text_changed(const QString &text);
+  void page_search_next ();
+  void page_search_prev ();
+  void search_text_changed (const QString &text);
   void search_edited ();
   void source_changed ();
   void anchor_clicked (const QUrl &url);
@@ -482,6 +483,8 @@ private:
   void refresh_bookmark_list ();
   void store_bookmarks ();
   void update_navigation_panel ();
+  void update_search_highlights ();
+  void page_search_set ();
 };
 
 }

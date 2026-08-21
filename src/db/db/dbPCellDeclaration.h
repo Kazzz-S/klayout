@@ -37,7 +37,21 @@ namespace db
 {
 
 typedef std::vector<tl::Variant> pcell_parameters_type;
-    
+
+/**
+ *  @brief A base class for PCell parameters pages
+ *
+ *  Currently, the implementations of PCell parameter pages
+ *  live in the "edt" namespace. This base class is the
+ *  abstract one used inside "db".
+ */
+class DB_PUBLIC PCellParametersPageBase
+{
+public:
+  PCellParametersPageBase () { }
+  virtual ~PCellParametersPageBase () { }
+};
+
 /**
  *  @brief A declaration for one PCell parameter
  *
@@ -826,6 +840,13 @@ public:
   }
 
   /**
+   *  @brief Gets the parameter declaration object by parameter name
+   *
+   *  If the name is not valid, a null pointer is returned.
+   */
+  const PCellParameterDeclaration *parameter_by_name (const std::string &name) const;
+
+  /**
    *  @brief Map a indexed parameter set to a parameter vector
    */
   pcell_parameters_type map_parameters (const std::map<size_t, tl::Variant> &indexed_parameters) const;
@@ -839,6 +860,14 @@ public:
    *  @brief Converts a parameter vector to named parameters
    */
   std::map<std::string, tl::Variant> named_parameters (const pcell_parameters_type &pv) const;
+
+  /**
+   *  @brief Creates the PCell parameters page or returns nil if there is no specific one
+   */
+  virtual db::PCellParametersPageBase *create_parameters_page () const
+  {
+    return 0;
+  }
 
 protected:
   /**

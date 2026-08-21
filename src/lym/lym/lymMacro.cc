@@ -896,17 +896,17 @@ class ExternalClass
   : public gsi::ClassBase
 {
 public:
-  ExternalClass (const std::string &module, const std::string &name, const std::string &category, const gsi::ClassBase *base, const std::string &doc, const gsi::Methods &mm)
-    : gsi::ClassBase (doc, mm), m_category (category)
+  ExternalClass (const std::string &module, const std::string &name, const std::string &interpreter_name, const gsi::ClassBase *base, const std::string &doc, const gsi::Methods &mm)
+    : gsi::ClassBase (doc, mm), m_interpreter_name (interpreter_name)
   {
     set_module (module);
     set_name (name);
     set_base (base);
   }
 
-  const std::string &category () const
+  virtual std::string interpreter_name () const
   {
-    return m_category;
+    return m_interpreter_name;
   }
 
   virtual bool consolidate () const
@@ -927,7 +927,7 @@ public:
   }
 
 private:
-  std::string m_category;
+  std::string m_interpreter_name;
 };
 
 void Macro::install_doc () const
@@ -976,8 +976,8 @@ void Macro::install_doc () const
 
         for (gsi::ClassBase::class_iterator c = gsi::ClassBase::begin_classes (); c != gsi::ClassBase::end_classes (); ++c) {
           if (c->name () == cls_name) {
-            const ExternalClass *ec = dynamic_cast<const ExternalClass *> (&*c);
-            if (!ec || ec->category () == category ()) {
+            const ExternalClass *ec = dynamic_cast<const ExternalClass *> (c.operator-> ());
+            if (!ec || ec->interpreter_name () == interpreter_name ()) {
               cls = const_cast <gsi::ClassBase *> (&*c);
             }
           }
@@ -1000,7 +1000,7 @@ void Macro::install_doc () const
         if (! cls) {
           //  create a new class declaration
           static tl::stable_vector<ExternalClass> ext_classes;
-          ExternalClass *ext_cls = new ExternalClass (module, cls_name, category (), super_cls, doc, gsi::Methods ());
+          ExternalClass *ext_cls = new ExternalClass (module, cls_name, interpreter_name (), super_cls, doc, gsi::Methods ());
           ext_classes.push_back (ext_cls);
           cls = ext_cls;
         }
