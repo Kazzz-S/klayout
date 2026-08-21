@@ -1070,7 +1070,8 @@ static db::DeepLayer dss_create_from_flat (db::DeepShapeStore &dss, const db::Sh
   } else if (texts) {
     return dss.create_from_flat (*texts);
   } else {
-    tl_assert (false);
+    //  create an empty layer as a fallback
+    return dss.create_from_flat (db::Region (), true);
   }
 }
 

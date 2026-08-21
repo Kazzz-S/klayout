@@ -708,6 +708,20 @@ class Ant_TestClass < TestBase
 
   end
 
+  # bbox
+  def test_7
+
+    a = annot_obj2( [ RBA::DPoint::new(0, 0), RBA::DPoint::new(0, 1), RBA::DPoint::new(1, 1) ], "", "", "", RBA::Annotation::StyleLine, RBA::Annotation::OutlineDiag, false, RBA::Annotation::AngleAny)
+    assert_equal(a.box.to_s, "(0,0;1,1)")
+
+    a.outline = RBA::Annotation::OutlineRadius
+    assert_equal(a.box.to_s, "(-0.207106781187,-0.207106781187;1.20710678119,1.20710678119)")
+
+    a.outline = RBA::Annotation::OutlineAngle
+    assert_equal(a.box.to_s, "(-1,0;1,2)")
+
+  end
+
 end
 
 load("test_epilogue.rb")

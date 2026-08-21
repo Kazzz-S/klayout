@@ -688,7 +688,7 @@ EditorOptionsInst::setup (lay::Dispatcher *root)
 //  EditorOptionsInstPCellParam implementation
 
 EditorOptionsInstPCellParam::EditorOptionsInstPCellParam (lay::LayoutViewBase *view, lay::Dispatcher *dispatcher)
-  : lay::EditorOptionsPageWidget (view, dispatcher), mp_pcell_parameters (0), mp_placeholder_label (0)
+  : lay::EditorOptionsPageWidget (view, dispatcher), mp_pcell_parameters (), mp_placeholder_label (0)
 {
   mp_ui = new Ui::EditorOptionsInstPCellParam ();
   mp_ui->setupUi (this);
@@ -722,7 +722,7 @@ EditorOptionsInstPCellParam::apply (lay::Dispatcher *root)
 
   bool ok = true;
 
-  if (layout && mp_pcell_parameters) {
+  if (layout && mp_pcell_parameters.get ()) {
     std::pair<bool, db::pcell_id_type> pc = layout->pcell_by_name (tl::to_string (m_cell_name).c_str ());
     if (pc.first) {
       const db::PCellDeclaration *pc_decl = layout->pcell_declaration (pc.second);
@@ -748,7 +748,7 @@ EditorOptionsInstPCellParam::setup (lay::Dispatcher *root)
 {
   m_cv_index = view ()->active_cellview_index ();
 
-  bool needs_update = (mp_pcell_parameters == 0);
+  bool needs_update = (mp_pcell_parameters.get () == 0);
 
   //  cell name
   std::string cn;
@@ -866,10 +866,9 @@ EditorOptionsInstPCellParam::update_pcell_parameters (const std::vector <tl::Var
   PCellParametersPage::State pcp_state;
 
   //  Hint: we shall not delete the page immediately. This gives a segmentation fault in some cases.
-  if (mp_pcell_parameters) {
+  if (mp_pcell_parameters.get ()) {
     pcp_state = mp_pcell_parameters->get_state ();
-    mp_pcell_parameters->hide ();
-    mp_pcell_parameters->deleteLater ();
+    mp_pcell_parameters.release ()->delete_later ();
   }
 
   if (mp_placeholder_label) {
@@ -877,17 +876,32 @@ EditorOptionsInstPCellParam::update_pcell_parameters (const std::vector <tl::Var
     mp_placeholder_label->deleteLater ();
   }
 
-  mp_pcell_parameters = 0;
   mp_placeholder_label = 0;
 
-  if (pc.first && layout->pcell_declaration (pc.second) && view ()->cellview (m_cv_index).is_valid ()) {
+  const db::PCellDeclaration *pcell_decl = 0;
 
-    mp_pcell_parameters = new PCellParametersPage (this, dispatcher (), true /*dense*/);
-    mp_pcell_parameters->setup (view (), m_cv_index, layout->pcell_declaration (pc.second), parameters);
-    this->layout ()->addWidget (mp_pcell_parameters);
+  if (pc.first && (pcell_decl = layout->pcell_declaration (pc.second)) != 0 && view ()->cellview (m_cv_index).is_valid ()) {
+
+    db::PCellParametersPageBase *pp = pcell_decl->create_parameters_page ();
+
+    mp_pcell_parameters.reset (dynamic_cast<edt::PCellParametersPageBase *> (pp));
+    if (! mp_pcell_parameters.get ()) {
+      if (pp) {
+        //  not useful.
+        delete pp;
+      }
+      mp_pcell_parameters.reset (new PCellParametersPage ());
+    }
+
+    //  NOTE: these functions must be called in that order
+    mp_pcell_parameters->set_dense (true);
+    mp_pcell_parameters->set_parent (this);
+    mp_pcell_parameters->setup (view (), dispatcher (), m_cv_index, pcell_decl, parameters);
+
+    this->layout ()->addWidget (mp_pcell_parameters->page_widget ());
 
     mp_pcell_parameters->set_state (pcp_state);
-    connect (mp_pcell_parameters, SIGNAL (edited ()), this, SLOT (edited ()));
+    mp_pcell_parameters->edited.add (this, &EditorOptionsInstPCellParam::parameters_page_edited);
 
   } else {
 
@@ -897,6 +911,12 @@ EditorOptionsInstPCellParam::update_pcell_parameters (const std::vector <tl::Var
     this->layout ()->addWidget (mp_placeholder_label);
 
   }
+}
+
+void
+EditorOptionsInstPCellParam::parameters_page_edited ()
+{
+  edited ();
 }
 
 // ------------------------------------------------------------------

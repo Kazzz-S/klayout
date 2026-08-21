@@ -31,8 +31,9 @@ namespace lay
 
 int FixedFont::ms_default_font_size = 0;
 
-FixedFont::FixedFont (unsigned int h, unsigned int lh, unsigned int w, unsigned char c0, unsigned char nc, uint32_t *d, unsigned int stride)
-  : m_height (h), m_line_height (lh), m_width (w), m_first_char (c0), m_n_chars (nc), mp_data (d), m_stride (stride)
+FixedFont::FixedFont (unsigned int h, unsigned int ch, unsigned int asc, unsigned int desc, unsigned int lh, unsigned int w, unsigned char c0, unsigned char nc, uint32_t *d, unsigned int stride)
+  : m_height (h), m_cap_height (ch), m_ascent (asc), m_descent (desc),
+    m_line_height (lh), m_width (w), m_first_char (c0), m_n_chars (nc), mp_data (d), m_stride (stride)
 {
   // .. nothing yet ..
 }

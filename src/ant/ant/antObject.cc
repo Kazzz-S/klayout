@@ -403,6 +403,25 @@ Object::box () const
   for (auto d = m_points.begin (); d != m_points.end (); ++d) {
     bx += *d;
   }
+
+  if (m_outline == OL_angle) {
+
+    double radius, start_angle, end_angle;
+    db::DPoint center;
+    if (compute_angle_parameters (radius, center, start_angle, end_angle)) {
+      bx += db::DBox (center - db::DVector (radius, radius), center + db::DVector (radius, radius));
+    }
+
+  } else if (m_outline == OL_radius) {
+
+    double radius, start_angle, end_angle;
+    db::DPoint center;
+    if (compute_interpolating_circle (radius, center, start_angle, end_angle)) {
+      bx += db::DBox (center - db::DVector (radius, radius), center + db::DVector (radius, radius));
+    }
+
+  }
+
   return bx;
 }
 

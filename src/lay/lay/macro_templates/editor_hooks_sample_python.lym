@@ -7,7 +7,8 @@
  <show-in-menu>false</show-in-menu>
  <category>pymacros</category>
  <interpreter>python</interpreter>
- <text>import pya
+ <text>import klayout.db as kdb
+import klayout.lay as klay
 
 """
 This demo installs editor hooks to indicate the forbidding regions around a shape
@@ -24,7 +25,7 @@ are drawn.
 Space between instances: 0.4
 """
 
-class MyEditorHooks(pya.EditorHooks):
+class MyEditorHooks(klay.EditorHooks):
 
   def __init__(self):
   
@@ -36,9 +37,9 @@ class MyEditorHooks(pya.EditorHooks):
     self.space = 0.0
     
     self.spaces = {
-      pya.LayerInfo(1, 0): ( 0.2, pya.Region.Euclidian ),
-      pya.LayerInfo(2, 0): ( 0.5, pya.Region.Projection ),
-      pya.LayerInfo(3, 0): ( 1.0, pya.Region.Projection )
+      kdb.LayerInfo(1, 0): ( 0.2, kdb.Region.Euclidian ),
+      kdb.LayerInfo(2, 0): ( 0.5, kdb.Region.Projection ),
+      kdb.LayerInfo(3, 0): ( 1.0, kdb.Region.Projection )
     }
     
     self.instance_space = 0.4
@@ -61,12 +62,12 @@ class MyEditorHooks(pya.EditorHooks):
   
     p = shape.polygon
     if p is not None and p.num_points() &lt; 100:
-      r = pya.Region()
+      r = kdb.Region()
       r.merged_semantics = (p.num_points() != 2)
       r.insert(p)
       r = r.drc_hull(self.metrics, self.space)
       for pp in r.each():
-        m = pya.Marker(self.view)
+        m = klay.Marker(self.view)
         m.line_style = 2
         m.vertex_size = 0
         m.set_polygon(trans * pp)
@@ -74,7 +75,7 @@ class MyEditorHooks(pya.EditorHooks):
         
     t = shape.text
     if t is not None:
-      m = pya.Marker(self.view)
+      m = klay.Marker(self.view)
       m.set_box(trans * t.bbox().enlarged(self.space))
       self.markers.append(m)
 
@@ -117,7 +118,7 @@ class MyEditorHooks(pya.EditorHooks):
     self.markers = []
 
   def create_instance(self, instance, trans):
-    m = pya.Marker(self.view)
+    m = klay.Marker(self.view)
     m.set_box(trans * instance.bbox().enlarged(self.instance_space / self.layout.dbu))
     self.markers.append(m)
       
@@ -143,7 +144,7 @@ class MyEditorHooks(pya.EditorHooks):
   
     if path.shape is None:
     
-      m = pya.Marker(self.view)
+      m = klay.Marker(self.view)
       m.set_box(trans * (applied * path.inst().bbox()).enlarged(self.instance_space / self.layout.dbu))
       self.markers.append(m)
     

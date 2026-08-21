@@ -493,7 +493,6 @@ MacroEditorDialog::MacroEditorDialog (lay::Dispatcher *pr, lym::MacroCollection 
   connect (nextStepButton, SIGNAL (clicked ()), this, SLOT (next_step_button_clicked ()));
   connect (searchEditBox, SIGNAL (textEdited (const QString &)), this, SLOT (search_editing ()));
   connect (searchEditBox, SIGNAL (returnPressed ()), this, SLOT (search_edited ()));
-  connect (searchEditBox, SIGNAL (editingFinished ()), this, SLOT (search_edited ()));
   connect (searchEditBox, SIGNAL (esc_pressed ()), this, SLOT (search_finished ()));
   connect (searchEditBox, SIGNAL (tab_pressed ()), this, SLOT (find_next_button_clicked ()));
   connect (searchEditBox, SIGNAL (backtab_pressed ()), this, SLOT (find_prev_button_clicked ()));

@@ -7,6 +7,7 @@
   <keyword name="Programming"/>
   <keyword name="Python"/>
   <keyword name="pya"/>
+  <keyword name="Python module"/>
   <keyword name="Python scripts"/>
 
 
@@ -55,8 +56,11 @@
 
   <p>
   Apart from a few specialities and the different language of course, Python macros do not look much different from Ruby 
-  macros. Ruby's "RBA" namespace is "pya" for Python (lowercase to conform with PEP-8). The
-  class and methods names are the same with very few exceptions and the documentation can be
+  macros. Ruby's "RBA" namespace is "klayout" for Python (lowercase to conform with PEP-8). 
+  The "klayout" module has a number of submodules like "klayout.db", "klayout.lay" etc. 
+  The old combined Python module "pya" is still available, but deprecated in favor of 
+  aligning code with the standalone "klayout" Python module.
+  The class and methods names are the same with very few exceptions and the documentation can be
   used for Python too. Where necessary, a special remark is made regarding the Python implementation.
   </p>
 
@@ -68,12 +72,12 @@
   <pre>
 # Python version:
 
-import pya
+import klayout.db as kdb
 
-layout = pya.Layout()
+layout = kdb.Layout()
 top = layout.create_cell("TOP")
 l1 = layout.layer(1, 0)
-top.shapes(l1).insert(pya.Box(0, 0, 1000, 2000))
+top.shapes(l1).insert(kdb.Box(0, 0, 1000, 2000))
 
 layout.write("t.gds")
 </pre>
@@ -139,7 +143,12 @@ layout.write("t.gds")
 
   <ul>
     <li><b>KLayout module:</b>
-    KLayout's module is "pya" (lowercase conforming to PEP 8). 
+    KLayout's module is "klayout" (lowercase conforming to PEP 8). 
+    It has a number of submodules: "db", "lay", "pex", "rdb", "tl" and optionally
+    "QtCore", "QtGui" etc.
+    The built-in documentation mentiones the module containing a specific class
+    at the top of the class documentation. For example, "Box" is present in the
+    "db" submodule - i.e. it is present in "klayout.db".
     </li>
 
     <li><b>Reserved names:</b>
@@ -154,8 +163,9 @@ layout.write("t.gds")
     Assignment methods (i.e. "Box#left=" are available as attributes. If there is a
     read accessor method too, the attribute can be read and written. For example:
 
-    <pre>
-box = pya.Box()
+    <pre>import klayout.db as kdb
+
+box = kdb.Box()
 box.left = 10
 box.right = box.right + 100
 </pre>
@@ -200,8 +210,9 @@ box.right = box.right + 100
     <li><b>Iterators:</b>
     Iterator binding:
 
-    <pre>
-edges = pya.Edges()
+    <pre>import klayout.db as kdb
+
+edges = kdb.Edges()
 ...
 for edge in edges.each():
   ...
@@ -221,8 +232,10 @@ for edge in edges:
 
     <p>Most methods support keyword arguments, for example:</p>
 
-    <pre># a 45 degree rotation
-t = pya.CplxTrans(rot = 45)</pre>
+    <pre>import klayout.db as kdb
+
+# a 45 degree rotation
+t = kdb.CplxTrans(rot = 45)</pre>
 
     <p>
     Exceptions are some built-in methods like "assign". Keyword arguments can be used
@@ -257,10 +270,11 @@ t = pya.CplxTrans(rot = 45)</pre>
     </li>
 
     <li><b>Deep copies:</b>
-    Deep copies of pya objects can be made with dup()
+    Deep copies of klayout objects can be made with dup()
 
-    <pre>
-box = pya.Box(10, 20, 110, 220)
+    <pre>import klayout.db as kdb 
+    
+box = kdb.Box(10, 20, 110, 220)
 copy_box = box.dup()
 </pre>
     </li>

@@ -85,8 +85,7 @@ end
 
   The Python version is this:
 
-  <pre>
-from pya import BrowserSource, BrowserDialog
+  <pre>from klayout.lay import BrowserSource, BrowserDialog
 
 class MyBrowserSource(BrowserSource):
   def get(self, url):
@@ -157,8 +156,7 @@ end
   The Python version is:
   </p>
 
-  <pre>
-from pya import Action, MessageBox, Application
+  <pre>from klayout.lay import Action, MessageBox, Application
 
 def on_triggered():
   MessageBox.info("A message", "The action was triggered", MessageBox.Ok)
@@ -235,8 +233,8 @@ end
   The Python version is:
   </p>
 
-  <pre>
-from pya import QDialog, QVBoxLayout, QLineEdit, QLabel, Application
+  <pre>from klayout.lay import Application
+from klayout.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QLabel
 
 dialog = QDialog(Application.instance().main_window())
 layout = QVBoxLayout(dialog)
@@ -285,8 +283,8 @@ end
   with the Python version:
   </p>
 
-  <pre>
-from pya import QDialog, QVBoxLayout, QLineEdit, QLabel, Application
+  <pre>from klayout.lay import Application
+from klayout.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QLabel
 
 dialog = QDialog(Application.instance().main_window())
 layout = QVBoxLayout(dialog)

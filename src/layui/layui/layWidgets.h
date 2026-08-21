@@ -31,6 +31,8 @@
 #include "tlObject.h"
 #include "tlDeferredExecution.h"
 
+#include "gsiObject.h"
+
 #include <QPushButton>
 #include <QComboBox>
 #include <QLabel>
@@ -57,7 +59,8 @@ struct CellViewSelectionComboBoxPrivateData;
  *  @brief A selection button for dither pattern
  */
 class LAYUI_PUBLIC DitherPatternSelectionButton
-  : public QPushButton
+  : public QPushButton,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -119,7 +122,8 @@ private:
  *  @brief A selection button for dither pattern
  */
 class LAYUI_PUBLIC LineStyleSelectionButton
-  : public QPushButton
+  : public QPushButton,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -183,7 +187,8 @@ private:
  *  This combo box allows selecting a library
  */
 class LAYUI_PUBLIC LibrarySelectionComboBox
-  : public QComboBox
+  : public QComboBox,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -226,9 +231,17 @@ public:
    */
   void set_technology_filter (const std::string &tech, bool enable);
 
+signals:
+  void library_changed (db::Library *);
+
+private slots:
+  void cb_activated (int);
+
 private:
   std::string m_tech;
   bool m_tech_set;
+
+  void do_set_current_library (db::Library *lib);
 };
 
 /**
@@ -237,7 +250,9 @@ private:
  *  This combo box allows selecting a (physical) layer from a layout
  */
 class LAYUI_PUBLIC LayerSelectionComboBox
-  : public QComboBox, public tl::Object
+  : public QComboBox,
+    public tl::Object,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -370,7 +385,8 @@ private:
  *  This combo box allows selecting a cellview from a lay::LayoutView
  */
 class LAYUI_PUBLIC CellViewSelectionComboBox
-  : public QComboBox
+  : public QComboBox,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -384,6 +400,16 @@ public:
   void set_current_cv_index (int l);
   int current_cv_index () const;
 
+signals:
+  /**
+   *  @brief Signal indicating that the user selected a new layer
+   *  This signal is emitted if the layer is edited. It is not emitted on programmatic changes.
+   */
+  void current_cv_index_changed (int cv_index);
+
+protected slots:
+  void cb_activated (int index);
+
 private:
   CellViewSelectionComboBoxPrivateData *mp_private;
 };
@@ -396,7 +422,8 @@ private:
  *  capability to switch to "auto" color mode.
  */
 class LAYUI_PUBLIC SimpleColorButton
-  : public QPushButton 
+  : public QPushButton,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -428,7 +455,8 @@ private slots:
  *  This object allows specification of a relative or absolute margin.
  */
 class LAYUI_PUBLIC MarginWidget
-  : public QFrame
+  : public QFrame,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -456,7 +484,8 @@ private:
  *  capability to switch to "auto" color mode.
  */
 class LAYUI_PUBLIC ColorButton
-  : public QPushButton 
+  : public QPushButton,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -491,7 +520,8 @@ private slots:
  *  @brief An edit box with a clear button and options menu
  */
 class LAYUI_PUBLIC DecoratedLineEdit
-  : public QLineEdit
+  : public QLineEdit,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 
@@ -621,7 +651,8 @@ private:
  *  @brief An interactive list widget which offers slots to delete and move items and interfaces to std::vector<std::string>
  */
 class LAYUI_PUBLIC InteractiveListWidget
-  : public QListWidget
+  : public QListWidget,
+    public gsi::ObjectBase   //  helps in GSI binding
 {
 Q_OBJECT
 

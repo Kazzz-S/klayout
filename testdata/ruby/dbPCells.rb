@@ -1082,6 +1082,34 @@ class DBPCellParameterStates_TestClass < TestBase
 
   end
 
+  def test_2
+
+    pss = RBA::PCellParameterStates::new
+    assert_equal(pss.has_parameter?("a"), false)
+    pa = pss.parameter("a")
+    assert_equal(pss.has_parameter?("a"), true)
+
+    # manipulating the value is reflected in the states collection
+    pa.value = 17
+    assert_equal(pss.parameter("a").value, 17)
+
+    pss_const = pss._to_const_object
+    assert_equal(pss_const._is_const_object?, true)
+
+    assert_equal(pss_const.has_parameter?("a"), true)
+    pa = pss_const.parameter("a")
+    assert_equal(pa.value, 17)
+
+    begin
+      # can't manipulate the const value
+      pa.value = 18
+      assert_equal(true, false)
+    rescue => ex
+      # goes here
+    end
+
+  end
+
 end
 
 load("test_epilogue.rb")

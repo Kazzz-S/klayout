@@ -351,18 +351,18 @@ module DRC
         end
 
         l = args[0]
-        l.is_a?(DRC::DRCLayer) || raise("First argument must be a layer")
+        l.is_a?(DRC::DRCLayer) || raise("First argument must be a layer, but is a #{l.class}")
 
         name = args[1]
-        (name.is_a?(String) && name != "") || raise("Second argument must be a non-empty string")
+        (name.is_a?(String) && name != "") || raise("Second argument must be a non-empty string, but is a #{name.class}")
 
         lp = args[2]
         if lp
           if !lp.is_a?(RBA::LayerInfo)
             lnum = args[2]
             dnum = args[3] || 0
-            lnum.is_a?(1.class) || raise("Layer argument needs to be a RBA::LayerInfo object or a layer number")
-            dnum.is_a?(1.class) || raise("Datatype argument needs to be an integer")
+            lnum.is_a?(1.class) || raise("Layer argument needs to be a RBA::LayerInfo object or a layer number, but is a #{lnum.class}")
+            dnum.is_a?(1.class) || raise("Datatype argument needs to be an integer, but is a #{dnum.class}")
             lp = RBA::LayerInfo::new(lnum, dnum)
           elsif args[3]
             raise("Three arguments are enough with RBA::LayerInfo")

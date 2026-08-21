@@ -86,6 +86,7 @@ SOURCES = \
   gsiDeclLayDialogs.cc \
   gsiDeclLayNetlistBrowserDialog.cc \
   gsiDeclLayStream.cc \
+  gsiDeclLayWidgets.cc \
   layuiForceLink.cc \
   layBackgroundAwareTreeStyle.cc \
   layBookmarkManagementForm.cc \

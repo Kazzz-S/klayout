@@ -81,14 +81,21 @@ TextInfo::bbox (const db::DText &text, const db::DCplxTrans &vp_trans) const
     fx = -1.0;
   }
 
+  if (h == 0.0) {
+    //  for the special case of zero effective height, borrow the height
+    //  from the default font in an unscaling fashion.
+    const lay::FixedFont &ff = lay::FixedFont::get_font (m_resolution);
+    h = ff.cap_height () / vp_trans.mag ();
+  }
+
   db::DPoint dp1 (fx * offset, fy * offset + (fy - 1) * 0.5 * h);
   db::DPoint dp2 (fx * offset, fy * offset + (fy + 1) * 0.5 * h);
 
   if (font == db::DefaultFont) {
 
-    db::DBox b (dp1 * vp_trans.mag (), dp2 * vp_trans.mag ());
-
     const lay::FixedFont &ff = lay::FixedFont::get_font (m_resolution);
+
+    db::DBox b (dp1 * vp_trans.mag (), dp2 * vp_trans.mag ());
 
     //  count the lines
 
