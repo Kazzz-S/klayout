@@ -5,8 +5,6 @@ if $drc_test_deep
   deep
 end
 
-deep
-
 l1 = input(1, 0, enable_props)
 l1.output(1, 0)
 
