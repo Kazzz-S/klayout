@@ -377,7 +377,7 @@ Edge::point_on (const db::DEdge &edge, const db::DPoint &point)
   if (edge.side_of (point) != 0) {
     return false;
   } else {
-    return db::sprod_sign (point - edge.p1 (), edge.d ()) * db::sprod_sign(point - edge.p2 (), edge.d ()) < 0;
+    return db::sprod_sign (point - edge.p1 (), edge.d ()) * db::sprod_sign (point - edge.p2 (), edge.d ()) < 0;
   }
 }
 

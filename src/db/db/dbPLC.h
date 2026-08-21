@@ -458,6 +458,22 @@ public:
   }
 
   /**
+   *  @brief Gets the length of the edge
+   */
+  double length () const
+  {
+    return mp_v1->double_distance (*mp_v2);
+  }
+
+  /**
+   *  @brief Gets the squared length of the edge
+   */
+  double sq_length () const
+  {
+    return mp_v1->sq_double_distance (*mp_v2);
+  }
+
+  /**
    *  @brief Gets the other triangle for the given one
    */
   Polygon *other (const Polygon *) const;

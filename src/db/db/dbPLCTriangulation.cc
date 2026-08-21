@@ -42,6 +42,13 @@ static inline bool is_equal (const db::DPoint &a, const db::DPoint &b)
          std::abs (a.y () - b.y ()) < std::max (1.0, (std::abs (a.y ()) + std::abs (b.y ()))) * db::epsilon;
 }
 
+//  distance of point to vertex to be considered "on edge vertex" relative to edge length involved
+const double snap_to_edge_vertex = 1e-5;
+
+//  distance of point to edge center to be considered "on edge center" relative to edge length involved
+double snap_to_edge_center = 1e-3;
+
+
 Triangulation::Triangulation (Graph *graph)
 {
   mp_graph = graph;
@@ -247,12 +254,10 @@ Triangulation::insert (Vertex *vertex, std::list<tl::weak_ptr<Polygon> > *new_tr
 
     Edge *e = tris.front ()->edge (i);
 
-    auto ee = e->edge ();
-    double snap_range = 1e-5 * ee.length ();
+    double snap_range = snap_to_edge_vertex * e->length ();
 
-    // @@@ refine? generalize "snap_range"? change "is_equal" in general?
-    if (std::abs (ee.distance (*vertex)) < snap_range) {
-      if (vertex->distance (*e->v1 ()) < snap_range || vertex->distance (*e->v2 ()) < snap_range) {
+    if (std::abs (e->edge ().distance (*vertex)) < snap_range - db::epsilon) {
+      if (vertex->distance (*e->v1 ()) < snap_range + db::epsilon || vertex->distance (*e->v2 ()) < snap_range + db::epsilon) {
         on_vertex.push_back (e);
       } else if (! on_edge) {
         on_edge = e;
@@ -1630,8 +1635,6 @@ Triangulation::refine (const TriangulationParameters &parameters)
 
         if (s > 0) {
 
-          double snap = 1e-3;
-
           //  Snap the center to a segment center if "close" to it.
           //  This avoids generating very skinny triangles that can't be fixed as the
           //  segment cannot be flipped. This a part of the issue #1996 problem.
@@ -1639,7 +1642,7 @@ Triangulation::refine (const TriangulationParameters &parameters)
             if ((*t)->edge (i)->is_segment ()) {
               auto e = (*t)->edge (i)->edge ();
               auto c = e.p1 () + e.d () * 0.5;
-              if (c.distance (center) < e.length () * 0.5 * snap - db::epsilon) {
+              if (c.distance (center) < e.length () * 0.5 * snap_to_edge_center - db::epsilon) {
                 center = c;
                 break;
               }
