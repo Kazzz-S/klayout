@@ -81,7 +81,7 @@ void initialize_codecs ()
   //  determine encoder for system strings
 #ifdef _WIN32
   ms_system_codec = 0;
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_MAC) // By leonfox28 (September 11, 2026) Ref. https://github.com/KLayout/klayout/issues/2442
   ms_system_codec = QTextCodec::codecForName ("UTF-8");
 #else
   setlocale (LC_ALL, "");

@@ -1646,11 +1646,14 @@ GuiApplication::event (QEvent *event)
       QFileOpenEvent *openEvent = static_cast<QFileOpenEvent *>(event);
       if (mp_mw)
       {
-        const std::string tech = mp_mw->initial_technology();
-        const std::string file = tl::to_string (openEvent->file());
-        const int mode = 1; // open in new window
-        mp_mw->load_layout (file, tech, mode);
-        mp_mw->add_mru (file, tech);
+        // By leonfox28 (September 11, 2026) Ref. https://github.com/KLayout/klayout/issues/2442
+        BEGIN_PROTECTED
+          const std::string tech = mp_mw->initial_technology();
+          const std::string file = tl::to_string (openEvent->file());
+          const int mode = 1; // open in new window
+          mp_mw->load_layout (file, tech, mode);
+          mp_mw->add_mru (file, tech);
+        END_PROTECTED
       }
   }
 #endif
