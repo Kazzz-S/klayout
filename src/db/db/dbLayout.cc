@@ -3365,7 +3365,7 @@ Layout::unregister_lib_proxy (db::LibraryProxy *lib_proxy)
 {
   auto key = std::make_pair (lib_proxy->lib_id (), lib_proxy->library_cell_index ());
 
-  auto l = m_lib_proxy_map.find (key);
+  auto l = m_lib_proxy_map.lower_bound (key);
   while (l != m_lib_proxy_map.end () && l->first == key) {
     if (l->second == lib_proxy->Cell::cell_index ()) {
       m_lib_proxy_map.erase (l);

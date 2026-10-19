@@ -109,7 +109,7 @@ LibraryManager::lib_by_name (const std::string &name, const std::set<std::string
 
   if (! for_technologies.empty ()) {
 
-    l = m_lib_by_name.find (name);
+    l = m_lib_by_name.lower_bound (name);
     while (l != m_lib_by_name.end () && l->first == name) {
       const db::Library *lptr = lib_internal (l->second);
       bool found = lptr->for_technologies ();
@@ -127,7 +127,7 @@ LibraryManager::lib_by_name (const std::string &name, const std::set<std::string
   }
 
   //  fallback: technology-unspecific libs
-  l = m_lib_by_name.find (name);
+  l = m_lib_by_name.lower_bound (name);
   while (l != m_lib_by_name.end () && l->first == name) {
     if (! lib_internal (l->second)->for_technologies ()) {
       return std::make_pair (true, l->second);
