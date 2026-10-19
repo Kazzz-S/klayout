@@ -157,6 +157,16 @@ def Get_Build_Options( targetDic, platform, coordsize='C32'):
             buildOp[(qtVer, "ana3", "d")]  = buildOp[(qtVer, "ana3", "d")]
             buildOp[(qtVer, "pbrew", "d")] = buildOp[(qtVer, "pbrew", "d")]
 
+        # for Qt >= 6.12.0 (MacPorts & Homebrew) as of 2026-10-18, enable --noqtbinding to address...
+        # https://github.com/KLayout/klayout/issues/2515
+        if qtVer == 6:
+            buildOp[(qtVer, "std", "r")]   = buildOp[(qtVer, "std", "r")]   + ['--noqtbinding']
+            buildOp[(qtVer, "ports", "r")] = buildOp[(qtVer, "ports", "r")] + ['--noqtbinding']
+            buildOp[(qtVer, "brew", "r")]  = buildOp[(qtVer, "brew", "r")]  + ['--noqtbinding']
+            buildOp[(qtVer, "std", "d")]   = buildOp[(qtVer, "std", "d")]   + ['--noqtbinding']
+            buildOp[(qtVer, "ports", "d")] = buildOp[(qtVer, "ports", "d")] + ['--noqtbinding']
+            buildOp[(qtVer, "brew", "d")]  = buildOp[(qtVer, "brew", "d")]  + ['--noqtbinding']
+
     return (buildOp, logfile)
 
 #------------------------------------------------------------------------------
